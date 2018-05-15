@@ -1,0 +1,24 @@
+{
+  "name": "orchestre-js",
+  "version": "1.0.0",
+  "description": "Manage several sounds in rhythm",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webaudioapi"
+  ],
+  "author": "ClementRivaille",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "eslint": "^4.19.1",
+    "webpack": "^4.7.0",
+    "webpack-dev-server": "^3.1.4"
+  }
+}
