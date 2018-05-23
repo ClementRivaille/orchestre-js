@@ -2,9 +2,10 @@
 * Sound loop that stays in sync with the beats
 */
 class SoundLoop {
-  constructor(context, buffer, eventEmitter, nbBeats, relative, fading) {
+  constructor(context, buffer, metronome, eventEmitter, nbBeats, relative, fading) {
     this.context = context;
     this.buffer = buffer;
+    this.metronome = metronome;
     this.eventEmitter = eventEmitter;
     this.nbBeats = nbBeats;
     this.relative = relative;
@@ -34,17 +35,17 @@ class SoundLoop {
   start(startTime) {
     // Absolute loop, start with offset
     if (!this.relative) {
-      if (!this.playing) {
-        if (this.stopped) {
-          this.loop(this.context.currentTime, this.metronome.getOffset(this.nbBeats));
-          if (this.metronome.getStartMeasure(this.nbBeats) > this.context.currentTime) {
-            this.loop(this.metronome.getStartMeasure(this.nbBeats), 0);
-          }
-          this.nextMeasure = this.nbBeats - Math.floor(this.metronome.getOffest(this.nbBeats) / (this.nbBeats / metronom.bpm);
+      if (!this.playing && this.stopped) {
+        this.loop(this.context.currentTime, this.metronome.getOffset(this.nbBeats));
+        this.nextMeasure = this.nbBeats - Math.floor(this.metronome.getOffest(this.nbBeats) / (this.nbBeats / this.metronome.bpm);
+        if (this.nextMeasure <= 0) {
+          this.loop(this.metronome.getNextBeatTime(), 0);
+          this.nextMeasure = this.nbBeats;
         }
       }
     }
-    else {
+    // Relative loop, starts at startTime
+    else if (this.stopped) {
       this.startTime = startTime;
       this.loop(startTime);
       this.nextMeasure = this.nbBeats;
@@ -52,7 +53,7 @@ class SoundLoop {
 
     
     // Fading
-    this.gainNode.gain.setTargetAtTime(1, this.context.currentTime, this.fading);
+    this.gainNode.gain.setTargetAtTime(1, startTime, this.fading);
 
     // Subscribe to beat events
     if (!this.subscribed) {
@@ -60,7 +61,7 @@ class SoundLoop {
       this.subscribed = true;
     }
     this.playing = true;
-    this.stopped= false;
+    this.stopped = false;
   }
 
   beatSchedule(nextBeat) {
@@ -75,16 +76,32 @@ class SoundLoop {
 
     // Stop the sound when asked to
     if (this.stopTime && (nextBeat >= this.stopTime || Math.abs(nextBeat - this.stopTime) <= 0.0001)) {
-      this.source.stop(this.stopTime);
-      this.playing = false;
-      this.eventEmitter.unsubscribe('beat', this.subId);
-      this.stopTime = 0;
+      this.fadeOut(this.stopTime);
     }
+  }
+
+  fadeOut(stopTime) {
+    this.gainNode.gain.setTargetAtTime(0, stopTime, this.fading);
+    this.playing = false;
+    this.stopTime = 0;
+
+    setTimeout(() => {
+      if (!this.playing && this.gainNode.gain.value < 0.03)
+      this.source.stop(this.stopTime);
+      this.stopped = true;
+      this.eventEmitter.unsubscribe('beat', this.subId);
+      this.subscribed = false;
+    }, (stopTime - this.context.currentTime) * 1000 + this.fading * 3000);
   }
 
   /** Schedule a stop */
   stop(stopTime) {
-    this.stopTime = stopTime;
+    if (stopTime >= this.context.currentTime) {
+      this.fadeOut();
+    }
+    else {
+      this.stopTime = stopTime;
+    }
   }
 }
 
