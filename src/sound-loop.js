@@ -34,16 +34,16 @@ class SoundLoop {
     // Absolute loop, start with offset
     if (!this.relative) {
       if (!this.playing && this.stopped) {
-        const offset = metronome.getOffset();
+        const offset = metronome.getOffset(startTime);
         const beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
-        this.loop(this.context.currentTime, beatPos * metronome.getBeatLength + offset);
+        this.loop(this.context.currentTime, beatPos * metronome.beatLength + offset);
         this.nextMeasure = this.nbBeats - beatPos;
       }
     }
     // Relative loop, starts at startTime
     else if (this.stopped) {
       this.startTime = startTime;
-      this.loop(startTime, metronome.getOffset());
+      this.loop(startTime, metronome.getOffset(startTime));
       this.nextMeasure = this.nbBeats;
     }
 
