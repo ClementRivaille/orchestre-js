@@ -53,7 +53,7 @@ class SoundLoop {
 
     // Subscribe to beat events
     if (!this.subscribed) {
-      this.subId = this.eventEmitter.subscribe('beat', this.beatSchedule);
+      this.eventEmitter.subscribe('beat', this.beatSchedule);
       this.subscribed = true;
     }
     this.playing = true;
@@ -90,7 +90,7 @@ class SoundLoop {
       if (!this.playing && this.gainNode.gain.value < 0.03)
       this.source.stop(this.stopTime);
       this.stopped = true;
-      this.eventEmitter.unsubscribe('beat', this.subId);
+      this.eventEmitter.unsubscribe('beat', this.beatSchedule);
       this.subscribed = false;
     }, (stopTime - this.context.currentTime) * 1000 + fadeOutLength * 3000);
   }
