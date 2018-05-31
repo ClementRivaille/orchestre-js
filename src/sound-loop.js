@@ -2,12 +2,12 @@
 * Sound loop that stays in sync with the beats
 */
 class SoundLoop {
-  constructor(context, buffer, eventEmitter, nbBeats, relative) {
+  constructor(context, buffer, eventEmitter, nbBeats, absolute) {
     this.context = context;
     this.buffer = buffer;
     this.eventEmitter = eventEmitter;
     this.nbBeats = nbBeats;
-    this.relative = relative;
+    this.absolute = absolute;
     this.stopped = true;
 
     this.beatSchedule = this.beatSchedule.bind(this);
@@ -32,7 +32,7 @@ class SoundLoop {
   /** Start the loop */
   start(startTime, metronome, fadeIn) {
     // Absolute loop, start with offset
-    if (!this.relative) {
+    if (this.absolute) {
       if (!this.playing && this.stopped) {
         const offset = metronome.getOffset(startTime);
         const beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
@@ -60,7 +60,7 @@ class SoundLoop {
     this.stopped = false;
 
     // If called immediately, we must ensure the next loop
-    if (startTime <== this.context.currentTime) {
+    if (startTime <= this.context.currentTime) {
       this.beatSchedule(metronome.getNextBeatTime());
     }
   }

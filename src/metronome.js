@@ -1,4 +1,4 @@
-function areEqual(a, b) {
+function areEquals(a, b) {
   return Math.abs(a - b) < 0.00001;
 }
 
@@ -85,4 +85,4 @@ class Metronome {
   }
 }
 
-export default Metronom;
+export default Metronome;
