@@ -24,16 +24,16 @@ class Orchestre {
   /**
   * Prepare sounds
   */
-  addPlayers(sounds) {
+  addPlayers(players) {
     // Load sounds files
-    return this.loader.loadAll(sounds).then(buffers => {
+    return this.loader.loadAll(players).then(buffers => {
       // Store sounds into players
-      for (let key in buffers) {
-        if (!buffers.hasOwnProperty(key)) return;
+      for (const sound of players) {
+        if (!buffers[sound.name]) return;
 
-        const player = Object.assign({}, sounds[key]);
-        player.soundLoop = new SoundLoop(this.context, buffers[key], this.eventEmitter, player.length, player.absolute);
-        this.players[key] = player;
+        const player = Object.assign({}, sound);
+        player.soundLoop = new SoundLoop(this.context, buffers[sound.name], this.eventEmitter, player.length, player.absolute);
+        this.players[sound.name] = player;
       }
     });
   }
@@ -70,20 +70,42 @@ class Orchestre {
     return player.playing;
   }
 
-  startPlayer(name, fade, now) {
+  play(name, fade, now) {
     let player = this.players[name];
-    if (!player) throw new Error(`Player ${name} does not exist`);
+    if (!player) throw new Error(`play: player ${name} does not exist`);
     player.soundLoop.start(now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, fade || 0);
+    player.isPlaying = true;
   }
 
-  stopPlayer(name, fade, now) {
+  stop(name, fade, now) {
     let player = this.players[name];
-    if (!player) throw new Error(`Player ${name} does not exist`);
+    if (!player) throw new Error(`stop: player ${name} does not exist`);
     player.soundLoop.stop(now ? this.context.currentTime : this.metronome.getNextBeatTime(), fade || 0);
+    player.isPlaying = false;
   }
 
   isPlaying(name) {
     return this.players[name].playing;
+  }
+
+  schedule(name, beats, action, fade) {
+    const player = this.players[name];
+    if (!player) throw new Error(`schedule: player ${name} does not exist`);
+    if (beats <= 0) throw new Error(`schedule: beats must be a positive number`);
+
+    action = action || 'trigger';
+    const eventTime = this.metronome.getNextNthBeatTime(beats);
+    if (action === 'play' || (action === 'trigger' && !player.isPlaying)) {
+      player.soundLoop.start(eventTime, this.metronome, fade || 0);
+      player.isPlaying = true;
+    }
+    else if (action === 'stop' || (action === 'trigger' && player.isPlaying)) {
+      player.soundLoop.stop(eventTime, this.metronome, fade || 0);
+      player.isPlaying = false;
+    }
+    else {
+      throw new Error(`schedule: action ${action} is not recognized (must be within ['play', 'stop', 'trigger'])`)
+    }
   }
 }
 

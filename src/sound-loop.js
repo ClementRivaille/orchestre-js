@@ -31,33 +31,33 @@ class SoundLoop {
 
   /** Start the loop */
   start(startTime, metronome, fadeIn) {
-    // Absolute loop, start with offset
-    if (this.absolute) {
-      if (!this.playing && this.stopped) {
+    if (this.stopped) {
+      this.startTime = startTime;
+      this.stopped = false;
+      // Absolute loop, start at nth beat
+      if (this.absolute) {
         const offset = metronome.getOffset(startTime);
         const beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
-        this.loop(this.context.currentTime, beatPos * metronome.beatLength + offset);
+        this.loop(startTime, beatPos * metronome.beatLength + offset);
         this.nextMeasure = this.nbBeats - beatPos;
       }
-    }
-    // Relative loop, starts at startTime
-    else if (this.stopped) {
-      this.startTime = startTime;
-      this.loop(startTime, metronome.getOffset(startTime));
-      this.nextMeasure = this.nbBeats;
+      // Relative loop, starts at first beat
+      else {
+        this.loop(startTime, metronome.getOffset(startTime));
+        this.nextMeasure = this.nbBeats;
+      }
     }
 
     // Fading
     this.gainNode.gain.setTargetAtTime(1, startTime, fadeIn || 0);
-
 
     // Subscribe to beat events
     if (!this.subscribed) {
       this.eventEmitter.subscribe('beat', this.beatSchedule);
       this.subscribed = true;
     }
+
     this.playing = true;
-    this.stopped = false;
 
     // If called immediately, we must ensure the next loop
     if (startTime <= this.context.currentTime) {
@@ -70,7 +70,7 @@ class SoundLoop {
     this.nextMeasure = nextBeat > this.startTime && Math.abs(nextBeat - this.startTime) > 0.0001 ? this.nextMeasure - 1 : this.nextMeasure;
 
     // Restart the loop
-    if (this.nextMeasure <= 0 && this.playing) {
+    if (this.nextMeasure <= 0 && !this.stopped) {
       this.loop(nextBeat);
       this.nextMeasure = this.nbBeats;
     }
@@ -87,11 +87,12 @@ class SoundLoop {
     this.stopTime = 0;
 
     setTimeout(() => {
-      if (!this.playing && this.gainNode.gain.value < 0.03)
-      this.source.stop(this.stopTime);
-      this.stopped = true;
-      this.eventEmitter.unsubscribe('beat', this.beatSchedule);
-      this.subscribed = false;
+      if (!this.playing && this.gainNode.gain.value < 0.03) {
+        this.source.stop(this.stopTime);
+        this.stopped = true;
+        this.eventEmitter.unsubscribe('beat', this.beatSchedule);
+        this.subscribed = false;
+      }
     }, (stopTime - this.context.currentTime) * 1000 + fadeOutLength * 3000);
   }
 
