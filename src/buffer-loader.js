@@ -13,14 +13,11 @@ class BufferLoader {
   */
   async load(name, url) {
     // Prepare request
-    let request = new new Request(url);
-
-    // Send
-    request.send();
+    const request = new Request(url);
 
     // return promise once request is complete
     const response = await fetch(request);
-    const buffer = response.arrayBuffer();
+    const buffer = await response.arrayBuffer();
     // Decode buffer and add it to list
     const audioData = await this.context.decodeAudioData(buffer);
     this.buffers[name] = audioData;

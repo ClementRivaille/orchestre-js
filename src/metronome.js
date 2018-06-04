@@ -11,6 +11,7 @@ class Metronome {
     this.eventEmitter = eventEmitter;
 
     this.beatLength = 60 / bpm;
+    this.clock = this.clock.bind(this);
   }
 
   start(startTime) {
