@@ -2,7 +2,7 @@
 * Sound loop that stays in sync with the beats
 */
 class SoundLoop {
-  constructor(context, buffer, eventEmitter, nbBeats, absolute) {
+  constructor(context, buffer, eventEmitter, nbBeats, absolute, destination) {
     this.context = context;
     this.buffer = buffer;
     this.eventEmitter = eventEmitter;
@@ -13,7 +13,7 @@ class SoundLoop {
     this.beatSchedule = this.beatSchedule.bind(this);
 
     this.gainNode = context.createGain();
-    this.gainNode.connect(context.destination);
+    this.gainNode.connect(destination || context.destination);
     this.gainNode.gain.setValueAtTime(0, 0);
   }
 
@@ -106,6 +106,14 @@ class SoundLoop {
       this.stopTime = stopTime;
       this.fadeOutLength = fadeOutLength;
     }
+  }
+
+  connect(destination) {
+    this.gainNode.connect(destination);
+  }
+
+  disconnect(destination) {
+    this.gainNode.disconnect(destination);
   }
 }
 

@@ -32,23 +32,33 @@ class Orchestre {
         if (!buffers[sound.name]) return;
 
         const player = Object.assign({}, sound);
-        player.soundLoop = new SoundLoop(this.context, buffers[sound.name], this.eventEmitter, player.length, player.absolute);
+        player.soundLoop = new SoundLoop(this.context, buffers[sound.name], this.eventEmitter, player.length, player.absolute, player.destination);
         this.players[sound.name] = player;
       }
     });
   }
 
   /** Prepare a single sound */
-  addPlayer(name, url, length, absolute) {
+  addPlayer(name, url, length, absolute, destination) {
     return this.loader.load(name, url).then(buffer => {
       this.players[name] = {
         name,
         url,
         length,
         absolute,
-        soundLoop: new SoundLoop(this.context, buffer, this.eventEmitter, length, absolute)
+        soundLoop: new SoundLoop(this.context, buffer, this.eventEmitter, length, absolute, destination)
       };
     });
+  }
+
+  /** Connect a player to an audio node */
+  connect(name, destination) {
+    this.players[name].soundLoop.connect(destination);
+  }
+
+  /** Disconnect a player from all its destination or one audio node */
+  disconnect(name, destination) {
+    this.players[name].soundLoop.disconnect(destination);
   }
 
   /**
@@ -70,6 +80,9 @@ class Orchestre {
     return player.playing;
   }
 
+  /**
+  * Start a player
+  */
   play(name, fade, now) {
     let player = this.players[name];
     if (!player) throw new Error(`play: player ${name} does not exist`);
@@ -77,6 +90,7 @@ class Orchestre {
     player.isPlaying = true;
   }
 
+  /** Stop a player */
   stop(name, fade, now) {
     let player = this.players[name];
     if (!player) throw new Error(`stop: player ${name} does not exist`);
@@ -84,10 +98,12 @@ class Orchestre {
     player.isPlaying = false;
   }
 
+  /** Check if a player is active */
   isPlaying(name) {
     return this.players[name].playing;
   }
 
+  /** Schedule an action (play, stop, or trigger) for a player on an incoming beat */
   schedule(name, beats, action, fade) {
     const player = this.players[name];
     if (!player) throw new Error(`schedule: player ${name} does not exist`);
