@@ -19,9 +19,15 @@ const players = [{
 const orchestre = new Orchestre(115);
 orchestre.addPlayers(players).then(() => {
   orchestre.start();
+  document.getElementById('control').className = '';
 });
 
-window.startLoop = function() {
-  orchestre.play('chords');
-  orchestre.play('guitar');
+window.chords = function() {
+  orchestre.trigger('chords');
+}
+window.guitar = function() {
+  orchestre.trigger('guitar');
+}
+window.bass = function() {
+  orchestre.trigger('bass');
 }

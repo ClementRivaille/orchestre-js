@@ -65,7 +65,7 @@ class Metronome {
   getBeatPosition(time, measureSize) {
     const measureLength = this.beatLength * measureSize;
     const measurePosition = (time - this.startTime) % measureLength;
-    return Math.floor(measureLength / measurePosition);
+    return Math.floor(measurePosition / this.beatLength);
   }
 
 

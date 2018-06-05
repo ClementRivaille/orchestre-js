@@ -38,6 +38,7 @@ class SoundLoop {
       if (this.absolute) {
         const offset = metronome.getOffset(startTime);
         const beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
+
         this.loop(startTime, beatPos * metronome.beatLength + offset);
         this.nextMeasure = this.nbBeats - beatPos;
       }
@@ -87,13 +88,14 @@ class SoundLoop {
     this.stopTime = 0;
 
     setTimeout(() => {
-      if (!this.playing && this.gainNode.gain.value < 0.03) {
+      if (!this.playing) {
+        console.log('stopped');
         this.source.stop(this.stopTime);
         this.stopped = true;
         this.eventEmitter.unsubscribe('beat', this.beatSchedule);
         this.subscribed = false;
       }
-    }, (stopTime - this.context.currentTime) * 1000 + fadeOutLength * 3000);
+    }, (stopTime - this.context.currentTime) * 1000 + (fadeOutLength || 0) * 3000);
   }
 
   /** Schedule a stop */
