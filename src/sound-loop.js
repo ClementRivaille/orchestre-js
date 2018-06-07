@@ -89,7 +89,6 @@ class SoundLoop {
 
     setTimeout(() => {
       if (!this.playing) {
-        console.log('stopped');
         this.source.stop(this.stopTime);
         this.stopped = true;
         this.eventEmitter.unsubscribe('beat', this.beatSchedule);

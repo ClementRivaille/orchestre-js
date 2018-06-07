@@ -59,7 +59,8 @@ class Metronome {
   }
 
   getOffset(time) {
-    return (time - this.startTime)%this.beatLength;
+    const offset = (time - this.startTime)%this.beatLength;
+    return Math.abs(this.beatLength - offset) < 0.00001 ? 0 : offset;
   }
 
   getBeatPosition(time, measureSize) {
