@@ -1,5 +1,6 @@
+const MARGIN = 0.000001;
 function areEquals(a, b) {
-  return Math.abs(a - b) < 0.00001;
+  return Math.abs(a - b) < MARGIN;
 }
 
 /**
@@ -60,13 +61,16 @@ class Metronome {
 
   getOffset(time) {
     const offset = (time - this.startTime)%this.beatLength;
-    return Math.abs(this.beatLength - offset) < 0.00001 ? 0 : offset;
+    return areEquals(this.beatLength, offset) ? 0 : offset;
   }
 
   getBeatPosition(time, measureSize) {
     const measureLength = this.beatLength * measureSize;
     const measurePosition = (time - this.startTime) % measureLength;
-    return Math.floor(measurePosition / this.beatLength);
+    if (areEquals(measureLength - measurePosition)) return 0;
+    const position = Math.floor(measurePosition / this.beatLength);
+    return !areEquals(this.beatLength, Math.abs(measurePosition - (position * this.beatLength))) ?
+      position : (position + 1) % measureSize;
   }
 
 
@@ -80,7 +84,7 @@ class Metronome {
   */
   fixBeat() {
     let currentTime = this.context.currentTime - this.startTime;
-    if (currentTime >= this.nextBeat || Math.abs(this.nextBeat - currentTime) < 0.00001) {
+    if (currentTime >= this.nextBeat || areEquals(this.nextBeat, currentTime)) {
       this.nextBeat += this.beatLength;
       this.schedule();
     }
