@@ -23,10 +23,10 @@ orchestre.addPlayers(players).then(() => {
 });
 
 window.chords = function() {
-  orchestre.trigger('chords');
+  orchestre.trigger('chords', 1);
 }
 window.guitar = function() {
-  orchestre.trigger('guitar');
+  orchestre.trigger('guitar', 1, true);
 }
 window.bass = function() {
   orchestre.trigger('bass');

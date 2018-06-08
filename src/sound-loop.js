@@ -8,7 +8,9 @@ class SoundLoop {
     this.eventEmitter = eventEmitter;
     this.nbBeats = nbBeats;
     this.absolute = absolute;
+
     this.stopped = true;
+    this.stopQueue = 0;
 
     this.beatSchedule = this.beatSchedule.bind(this);
 
@@ -47,6 +49,11 @@ class SoundLoop {
         this.loop(startTime, metronome.getOffset(startTime));
         this.nextMeasure = this.nbBeats;
       }
+
+      // If called immediately, we must ensure the next loop
+      if (startTime <= this.context.currentTime) {
+        this.beatSchedule(metronome.getNextBeatTime());
+      }
     }
 
     // Fading
@@ -59,11 +66,6 @@ class SoundLoop {
     }
 
     this.playing = true;
-
-    // If called immediately, we must ensure the next loop
-    if (startTime <= this.context.currentTime) {
-      this.beatSchedule(metronome.getNextBeatTime());
-    }
   }
 
   beatSchedule(nextBeat) {
@@ -86,9 +88,11 @@ class SoundLoop {
     this.gainNode.gain.setTargetAtTime(0, stopTime, fadeOutLength);
     this.playing = false;
     this.stopTime = 0;
+    this.stopQueue += 1;
 
     setTimeout(() => {
-      if (!this.playing) {
+      this.stopQueue -= 1;
+      if (!this.playing && this.stopQueue <= 0) {
         this.source.stop(this.stopTime);
         this.stopped = true;
         this.eventEmitter.unsubscribe('beat', this.beatSchedule);
