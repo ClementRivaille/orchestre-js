@@ -23,11 +23,11 @@ orchestre.addPlayers(players).then(() => {
 });
 
 window.chords = function() {
-  orchestre.trigger('chords', 1);
+  orchestre.trigger('chords', {fade: 1});
 }
 window.guitar = function() {
-  orchestre.trigger('guitar', 1, true);
+  orchestre.trigger('guitar', {fade: 1, now: true});
 }
 window.bass = function() {
-  orchestre.trigger('bass');
+  orchestre.trigger('bass', {once: true});
 }

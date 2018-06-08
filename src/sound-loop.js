@@ -32,10 +32,10 @@ class SoundLoop {
   }
 
   /** Start the loop */
-  start(startTime, metronome, fadeIn) {
+  start(startTime, metronome, fadeIn, once) {
     if (this.stopped) {
       this.startTime = startTime;
-      this.stopped = false;
+      this.stopped = once || false;
       // Absolute loop, start at nth beat
       if (this.absolute) {
         const offset = metronome.getOffset(startTime);
@@ -60,12 +60,12 @@ class SoundLoop {
     this.gainNode.gain.setTargetAtTime(1, startTime, fadeIn || 0);
 
     // Subscribe to beat events
-    if (!this.subscribed) {
+    if (!this.subscribed && !once) {
       this.eventEmitter.subscribe('beat', this.beatSchedule);
       this.subscribed = true;
     }
 
-    this.playing = true;
+    this.playing = !once;
   }
 
   beatSchedule(nextBeat) {

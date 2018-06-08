@@ -63,18 +63,24 @@ class Orchestre {
 
   /**
   * Trigger a sound, according to its kind
+  * @param name {string} player identifier
+  * @param options {object} (optional)
+  *     * fade (float): time constant for fade in or fade out
+  *     * now (bool): if true, sound will start / stop immediately. Otherwise, it waits for next beat.
+  *     * once (bool): play sound only once, then stop
   */
-  trigger(name, fade, now) {
+  trigger(name, options) {
     let player = this.players[name];
     if (!player) throw new Error(`Player ${name} does not exist`);
+    options = options || {};
 
-    if (!player.playing) {
-      player.soundLoop.start(now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, fade || 0);
+
+    if (!player.soundLoop.playing) {
+      player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
     }
     else {
-      player.soundLoop.stop(now ? this.context.currentTime : this.metronome.getNextBeatTime(), fade || 0);
+      player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
     }
-    player.playing = !player.playing;
 
     // Return the state of the instrument
     return player.playing;
@@ -82,42 +88,59 @@ class Orchestre {
 
   /**
   * Start a player
+  * @param name {string} player identifier
+  * @param options {object} (optional)
+  *     * fade (float): time constant for fade in
+  *     * now (bool): if true, sound will start immediately. Otherwise, it waits for next beat.
+  *     * once (bool): play sound only once, then stop
   */
-  play(name, fade, now) {
+  play(name, options) {
     let player = this.players[name];
     if (!player) throw new Error(`play: player ${name} does not exist`);
-    player.soundLoop.start(now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, fade || 0);
-    player.isPlaying = true;
+    options = options || {};
+    player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
   }
 
-  /** Stop a player */
-  stop(name, fade, now) {
+  /**
+  * Stop a player
+  * @param name {string} player identifier
+  * @param options {object} (optional)
+  *     * fade (float): time constant for fade out
+  *     * now (bool): if true, sound will stop immediately. Otherwise, it waits for next beat.
+  */
+  stop(name, options) {
     let player = this.players[name];
     if (!player) throw new Error(`stop: player ${name} does not exist`);
-    player.soundLoop.stop(now ? this.context.currentTime : this.metronome.getNextBeatTime(), fade || 0);
-    player.isPlaying = false;
+    options = options || {};
+    player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
   }
 
   /** Check if a player is active */
   isPlaying(name) {
-    return this.players[name].playing;
+    return this.players[name].soundLoop.playing;
   }
 
-  /** Schedule an action (play, stop, or trigger) for a player on an incoming beat */
-  schedule(name, beats, action, fade) {
+  /** Schedule an action (play, stop, or trigger) for a player on an incoming beat
+  * @param name {string} player identifier
+  * @param beats {number} number of beat to wait before action
+  * @param action {string} either 'play', 'stop' or 'trigger'
+  * @param options {object} (optional)
+  *     * fade (float): time constant for fade in or fade out
+  *     * once (bool): play sound only once, then stop
+  */
+  schedule(name, beats, action, options) {
     const player = this.players[name];
     if (!player) throw new Error(`schedule: player ${name} does not exist`);
     if (beats <= 0) throw new Error(`schedule: beats must be a positive number`);
+    options = options || {};
 
     action = action || 'trigger';
     const eventTime = this.metronome.getNextNthBeatTime(beats);
-    if (action === 'play' || (action === 'trigger' && !player.isPlaying)) {
-      player.soundLoop.start(eventTime, this.metronome, fade || 0);
-      player.isPlaying = true;
+    if (action === 'play' || (action === 'trigger' && !player.soundLoop.playing)) {
+      player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
     }
-    else if (action === 'stop' || (action === 'trigger' && player.isPlaying)) {
-      player.soundLoop.stop(eventTime, this.metronome, fade || 0);
-      player.isPlaying = false;
+    else if (action === 'stop' || (action === 'trigger' && player.soundLoop.playing)) {
+      player.soundLoop.stop(eventTime, this.metronome, options.fade || 0);
     }
     else {
       throw new Error(`schedule: action ${action} is not recognized (must be within ['play', 'stop', 'trigger'])`)
