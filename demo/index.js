@@ -20,7 +20,7 @@ const orchestre = new Orchestre(115);
 orchestre.addPlayers(players).then(() => {
   orchestre.start();
   document.getElementById('control').className = '';
-  orchestre.onBeat(beat, 2, {interval: true})
+  orchestre.onBeat(beat, 2, {listener: true})
 });
 
 window.chords = function() {

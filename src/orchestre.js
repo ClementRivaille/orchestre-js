@@ -34,8 +34,8 @@ class Orchestre {
           try {sub.callback();}
           catch(err) {throw new(err);}
           finally {
-            if (sub.interval)
-              // Repeat if interval
+            if (sub.listener)
+              // Repeat if listener
               sub.wait = sub.length;
             else
               toRemove.push(this.subscribers.indexOf(sub));
@@ -205,7 +205,7 @@ class Orchestre {
   * @param nbBeats {number} (optional) number of beats to wait [default=1]
   * @param options {objects}
   *   * absolute (bool) Callback will be called on the next absolute Nth beat (like next measure)
-  *   * interval (bool) Callback will be called every n beats
+  *   * listener (bool) Callback will be called every n beats
   *   * offset (number) Used with absolute to set a position in the measure
   *
   */
@@ -213,7 +213,7 @@ class Orchestre {
     this.subscribers.push({
       callback,
       length: beats,
-      interval: options.interval,
+      listener: options.listener,
       wait: beats -
         (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) +
         (options.offset || 0)
@@ -221,10 +221,10 @@ class Orchestre {
   }
 
   /**
-  * Remove an existing interval
+  * Remove an existing listener
   * @return true if found
   */
-  removeInterval(callback) {
+  removeListener(callback) {
     const subIndex = this.subscribers.findIndex((sub) => sub.callback === callback);
     if (subIndex !== -1) {
       this.subscribers.splice(subIndex, 1);
