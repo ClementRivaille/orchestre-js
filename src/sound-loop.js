@@ -2,7 +2,7 @@
 * Sound loop that stays in sync with the beats
 */
 class SoundLoop {
-  constructor(context, buffer, eventEmitter, nbBeats, absolute, destination) {
+  constructor(context, buffer, eventEmitter, nbBeats, absolute=false, destination) {
     this.context = context;
     this.buffer = buffer;
     this.eventEmitter = eventEmitter;
@@ -20,8 +20,7 @@ class SoundLoop {
   }
 
   /** Play the sound from the beginning */
-  loop(startTime, offset) {
-    offset = offset !== undefined ? offset : 0;
+  loop(startTime, offset=0) {
     if (this.source && this.source.playing) {
       this.source.stop(startTime);
     }
@@ -32,7 +31,7 @@ class SoundLoop {
   }
 
   /** Start the loop */
-  start(startTime, metronome, fadeIn, once) {
+  start(startTime, metronome, fadeIn=0, once=false) {
     if (this.stopped) {
       this.startTime = startTime;
       this.stopped = once || false;
@@ -77,40 +76,27 @@ class SoundLoop {
       this.loop(nextBeat);
       this.nextMeasure = this.nbBeats;
     }
-
-    // Stop the sound when asked to
-    if (this.stopTime && (nextBeat >= this.stopTime || Math.abs(nextBeat - this.stopTime) <= 0.0001)) {
-      this.fadeOut(this.stopTime, this.fadeOutLength);
-    }
   }
 
-  fadeOut(stopTime, fadeOutLength) {
+  fadeOut(stopTime, fadeOutLength=0) {
     this.gainNode.gain.setTargetAtTime(0, stopTime, fadeOutLength);
     this.playing = false;
-    this.stopTime = 0;
     this.stopQueue += 1;
 
     setTimeout(() => {
       this.stopQueue -= 1;
-      if (!this.playing && this.stopQueue <= 0) {
+      if (!this.playing && this.stopQueue <= 0 && !this.stopped) {
         this.source.stop(this.stopTime);
         this.stopped = true;
         this.eventEmitter.unsubscribe('beat', this.beatSchedule);
         this.subscribed = false;
       }
-    }, (stopTime - this.context.currentTime) * 1000 + (fadeOutLength || 0) * 3000);
+    }, (stopTime - this.context.currentTime) * 1000 + fadeOutLength * 3000);
   }
 
   /** Schedule a stop */
-  stop(stopTime, fadeOutLength) {
-    fadeOutLength = fadeOutLength || 0;
-    if (stopTime >= this.context.currentTime) {
-      this.fadeOut(stopTime, fadeOutLength);
-    }
-    else {
-      this.stopTime = stopTime;
-      this.fadeOutLength = fadeOutLength;
-    }
+  stop(stopTime, fadeOutLength=0) {
+    this.fadeOut(stopTime, fadeOutLength);
   }
 
   connect(destination) {

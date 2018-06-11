@@ -2,10 +2,10 @@
   "name": "orchestre-js",
   "version": "1.0.0",
   "description": "Manage several sounds in rhythm",
-  "main": "index.js",
+  "main": "src/orchestre.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server"
+    "start": "ENV=development webpack-dev-server",
+    "build": "webpack"
   },
   "keywords": [
     "webaudioapi"
