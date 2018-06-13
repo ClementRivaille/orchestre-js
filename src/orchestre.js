@@ -50,13 +50,17 @@ class Orchestre {
   }
 
   /** Start metronome */
-  start() {
+  start(players=[]) {
     if (this.started) throw new Error('Orchestre is already started');
     this.context.resume();
     this.metronome.start(this.context.currentTime + 0.1);
 
     this.eventEmitter.subscribe('beat', this._updateEvents);
     this.started = true;
+
+    for (const player of players) {
+      this.play(player, {now: true});
+    }
   }
 
   /**

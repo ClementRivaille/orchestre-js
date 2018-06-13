@@ -12,7 +12,7 @@ class Metronome {
     this.eventEmitter = eventEmitter;
 
     this.beatLength = 60 / bpm;
-    this.clock = this.clock.bind(this);
+    this._clock = this._clock.bind(this);
   }
 
   start(startTime) {
@@ -20,43 +20,43 @@ class Metronome {
     this.nextBeat = this.beatLength;
 
     // Emit the first beat
-    this.schedule();
+    this._schedule();
     // Start the loop
-    this.loopInterval = setInterval(this.clock, 50);
+    this.loopInterval = setInterval(this._clock, 50);
   }
 
   /**
   * Loop checking time each frame
   * The metronom is always one beat ahead, and calculate the time of the upcoming beat
   */
-  clock() {
+  _clock() {
     // Get current time (relative to start time)
     let currentTime = this.context.currentTime - this.startTime;
     // When next beat is reached, update its value
     if (currentTime >= this.nextBeat || areEquals(currentTime, this.nextBeat)) {
       this.nextBeat += this.beatLength;
-      this.schedule();
+      this._schedule();
     }
   }
 
   /** Emit beat event, and give the global time of next beat */
-  schedule() {
+  _schedule() {
     this.eventEmitter.emit('beat', this.startTime + this.nextBeat);
   }
 
   /** Public method use to obtain global next beat time */
   getNextBeatTime() {
-    this.fixBeat();
+    this._fixBeat();
     return this.startTime + this.nextBeat;
   }
 
   /**
    * Public method use to obtain global nth next beat time
-   * @param nbBeats {int} nth beat, 1 being the next
+   * @param beats {number} nth beat, 1 being the next
    */
-  getNextNthBeatTime(nbBeats) {
-    this.fixBeat();
-    return this.startTime + this.nextBeat + (nbBeats - 1) * this.beatLength;
+  getNextNthBeatTime(beats) {
+    this._fixBeat();
+    return this.startTime + this.nextBeat + (beats - 1) * this.beatLength;
   }
 
   getOffset(time) {
@@ -82,11 +82,11 @@ class Metronome {
   * If the getter methods are called just on a beat, check if the next beat value is still valid
   * This is to avoid giving a next beat value that is actually in the past
   */
-  fixBeat() {
+  _fixBeat() {
     let currentTime = this.context.currentTime - this.startTime;
     if (currentTime >= this.nextBeat || areEquals(this.nextBeat, currentTime)) {
       this.nextBeat += this.beatLength;
-      this.schedule();
+      this._schedule();
     }
   }
 }
