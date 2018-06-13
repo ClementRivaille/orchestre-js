@@ -3,7 +3,7 @@
 Orchestre-JS is an audio library that plays several tracks in loop and keep them in sync. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, or call events on beats. Orchestre-JS provides a simple way to make a dynamic soundtrack for your web games.
 
 If you want to see the library in action, you can check out the two games which it comes from: [Moog Memories](https://itooh.itch.io/moog-memories) and [Blood Not Allowed](https://itooh.itch.io/blood-not-allowed).
-If you use Orchestre-JS for your game, I would be really glad to see them! Feel free to send them on my Twitter [@Itooh](https://www.twiter.com/Itooh_).
+If you use Orchestre-JS for your game, I would be really glad to see them! Feel free to send them on my Twitter [@Itooh](https://www.twitter.com/Itooh_).
 
 ## Install
 
@@ -24,7 +24,7 @@ Then, you will need to add some players. Each player corresponds to one track. F
 * The **URL** of the sound file it will play
 * The **length** in beats of the track
 
-*Be aware that you need a local web server to request local files*/
+*Be aware that you need a local web server to request local files*.
 
 For example, in a 4/4 signature, a track of one section would have a length of 4, two sections would be 8, etc… But you can also use a track of one measure and three beats (7) and make it phase as it loops!
 
@@ -67,6 +67,8 @@ orchestra.start();
 ```
 
 This won't play any sound yet. But it will initialize a metronome, that will set the beginning of the music, and count each beat based on the BPM.
+
+If you want to start with some tracks immediately, you can call `start` with an array of player names as parameter.
 
 Once the orchestra has been loaded, you can activate your players:
 ```javascript
@@ -127,6 +129,8 @@ Note that the orchestra will need to be started to be used again.
 
 ## Advanced
 
+### Using the Web Audio API
+
 Orchestre-JS uses the *Web Audio API*. You don't need to know how to use it to use Orchestre-JS, but as always, it can help.
 If you're more advanced with the Web Audio API, you might want to have some more complex usage of Orchestre-JS. Here are some options at your disposition.
 
@@ -154,3 +158,17 @@ orchestra.connect('bass', myAudioNode);
 orchestra.disconnect('bass', myAudioNode);
 orchestra.disconnect('bass'); // Will disconnect from every nodes
 ```
+
+### Metronome
+
+Orchestre-JS orchestra use a metronome to sync all tracks. In most use case, you don't need to interact with it. You still can access it from the `metronome` property of a created orchestre.
+
+The metronome gives you access to the property `beatsLength`, which is the length of a beats in seconds. *Beats* are the tiniest unit of time calculated. If you want to be more precise, the better is to adapt your BPM.
+
+Here are some metronome's methods you can use :
+* `getNextBeatTime(): float` gives you the time, in second, of the next beat
+* `getNextNthBeatTime(beats:number): float` gives you the time, in second, of the next nth beat
+* `getOffset(time:float): float` gives in seconds the offset of the given time relatively to the closest beat before it
+* `getBeatPosition(time: float, measureSize): number` for absolute measures of *measureSize* beats, gives the position of the given time. For example, for a measure of 4 beat, results may go from 0 (first beat) to 3 (last beat).
+
+For the simple tasks though (such as counting the position in a measure), I would advise not to use these functions and instead use `onBeat` method to manage your own counters.
