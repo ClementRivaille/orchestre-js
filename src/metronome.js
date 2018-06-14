@@ -4,8 +4,11 @@ function areEquals(a, b) {
 }
 
 /**
-* Count beats, and give the time of next beat occurence
-*/
+ * Count beats, and give the time of next beat occurence
+ * @param {number} bpm
+ * @param {object} context - audio context
+ * @param {EventEmitter} eventEmitter
+ */
 class Metronome {
   constructor(bpm, context, eventEmitter) {
     this.context = context;
@@ -44,7 +47,10 @@ class Metronome {
     this.eventEmitter.emit('beat', this.startTime + this.nextBeat);
   }
 
-  /** Public method use to obtain global next beat time */
+  /**
+   * Public method use to obtain global next beat time
+   * @returns {float} time in seconds of the beat
+   */
   getNextBeatTime() {
     this._fixBeat();
     return this.startTime + this.nextBeat;
@@ -52,18 +58,29 @@ class Metronome {
 
   /**
    * Public method use to obtain global nth next beat time
-   * @param beats {number} nth beat, 1 being the next
+   * @param {number} beats - nth beat, 1 being the next
+   * @return {float} time in seconds of the beat
    */
   getNextNthBeatTime(beats) {
     this._fixBeat();
     return this.startTime + this.nextBeat + (beats - 1) * this.beatLength;
   }
 
+  /**
+   * Get the offset in seconds of the given time relatively to the closest beat before it
+   * @param {float} time - time in seconds from an audio context
+   */
   getOffset(time) {
     const offset = (time - this.startTime)%this.beatLength;
     return areEquals(this.beatLength, offset) ? 0 : offset;
   }
 
+  /**
+   * Gets the position of the given time in an absolute measure of n beats
+   * @param {float} time
+   * @param {number} measureSize - Number of beats in the measure
+   * @returns {number} position (from 0 to n - 1)
+   */
   getBeatPosition(time, measureSize) {
     const measureLength = this.beatLength * measureSize;
     const measurePosition = (time - this.startTime) % measureLength;

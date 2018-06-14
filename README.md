@@ -95,7 +95,8 @@ orchestra.trigger('bass');
 
 Finally, you can schedule an action on a player several beats in advance with the following method:
 ```javascript
-orchestra.schedule('bass', 4, 'trigger'); // Will wait 4 beats before triggering the bass player
+orchestra.schedule('bass', 4, 'trigger'); // bass will be triggered after the next 4 beats
+orchestra.schedule('guitar', 8, 'play', {absolute: true}); // guitar will play on the next measure of 8 beats
 ```
 
 *Warning:* Once an action has been scheduled, it can't be cancelled. So be careful with this.
@@ -139,6 +140,8 @@ By default, every new orchestra creates its own audio context. But you can pass 
 const context = new (window.AudioContext || window.webkitAudioContext)();
 const orchestra = new Orchestre(120, context);
 ```
+
+You can also access the audio context from the `context` property of the orchestre.
 
 Players are by default connected to the context's destination. You can change that with the `destination` parameter.
 ```javascript
