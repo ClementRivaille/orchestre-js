@@ -26,7 +26,7 @@ Then, you will need to add some players. Each player corresponds to one track. F
 
 *Be aware that you need a local web server to request local files*.
 
-For example, in a 4/4 signature, a track of one section would have a length of 4, two sections would be 8, etc… But you can also use a track of one measure and three beats (7) and make it phase as it loops!
+For example, in a 4/4 signature, a track of one measure would have a length of 4, two measures would be 8, etc… But you can also use a track of one measure and three beats (7) and make it phase as it loops!
 
 Player has also the optional **absolute** property. By default, a player is relative, which means that it will play from its beginning when it starts. Absolute players, on the other hand, will calculate their offset relatively from the start of the song. Which mean that every absolute players will always play together. This is useful for players that set the chords or main melodies.
 

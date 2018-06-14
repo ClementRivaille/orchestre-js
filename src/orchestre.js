@@ -180,10 +180,12 @@ class Orchestre {
   /** Schedule an action (play, stop, or trigger) for a player on an incoming beat
   * @param name {string} player identifier
   * @param beats {number} number of beat to wait before action
-  * @param action {string} either 'play', 'stop' or 'trigger'
+  * @param action {string} (optional) either 'play', 'stop' or 'trigger'
   * @param options {object} (optional)
   *     * fade (float): time constant for fade in or fade out
   *     * once (bool): play sound only once, then stop
+  *     * absolute (bool): action will be performed on the next absolute measure of n beats
+  *     * offset (number): use with absolute to set a position in the measure
   */
   schedule(name, beats, action='trigger', options={}) {
     if (!this.started) throw new Error('Orchestre has not been started');
@@ -191,7 +193,10 @@ class Orchestre {
     if (!player) throw new Error(`schedule: player ${name} does not exist`);
     if (beats <= 0) throw new Error(`schedule: beats must be a positive number`);
 
-    const eventTime = this.metronome.getNextNthBeatTime(beats);
+    const beatsToWait = beats -
+      (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) +
+      (options.offset || 0);
+    const eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
     if (action === 'play' || (action === 'trigger' && !player.soundLoop.playing)) {
       player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
     }
