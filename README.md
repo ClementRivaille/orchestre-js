@@ -1,13 +1,33 @@
 # Orchestre-JS
 
-Orchestre-JS is an audio library that plays several tracks in loop and keep them in sync. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, or call events on beats. Orchestre-JS provides a simple way to make a dynamic soundtrack for your web games.
+Orchestre-JS is an audio library that plays several tracks in loop and keeps them in sync. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, or call events on beats. Orchestre-JS aims to provides a simple way to create a dynamic soundtrack for your web games.
 
 If you want to see the library in action, you can check out the two games which it comes from: [Moog Memories](https://itooh.itch.io/moog-memories) and [Blood Not Allowed](https://itooh.itch.io/blood-not-allowed).
 If you use Orchestre-JS for your game, I would be really glad to see them! Feel free to send them on my Twitter [@Itooh](https://www.twitter.com/Itooh_).
 
 ## Install
 
-Coming once the first version is released.
+### npm
+```
+npm install orchestre-js
+```
+
+### From file
+
+Download the [lastest release](https://github.com/ClementRivaille/orchestre-js/releases).
+
+### Load
+
+You can load Orchestre-JS in your script using ES6 *import*:
+```javascript
+import Orchestre from 'orchestre-js'
+```
+
+Or you can add to your HTML:
+```html
+<script src="./path/to/orchestre.min.js"></script>
+```
+This will create a global *Orchestre* constructor that you will be able to use in your code.
 
 ## How to use
 

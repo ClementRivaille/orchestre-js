@@ -1,7 +1,7 @@
 {
   "name": "orchestre-js",
   "version": "1.0.0",
-  "description": "Manage several sounds in rhythm",
+  "description": "Audio tool to easily manage layers in a song",
   "main": "src/orchestre.js",
   "scripts": {
     "start": "ENV=development webpack-dev-server",
@@ -12,6 +12,7 @@
     "webaudioapi"
   ],
   "author": "ClementRivaille",
+  "homepage": "https://github.com/ClementRivaille/orchestre-js",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.26.3",

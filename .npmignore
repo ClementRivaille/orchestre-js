@@ -3,3 +3,4 @@ demo
 .eslintrc
 package-lock.json
 *.sublime-*
+npm-debug.log
