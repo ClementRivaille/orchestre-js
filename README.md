@@ -28,7 +28,10 @@ Then, you will need to add some players. Each player corresponds to one track. F
 
 For example, in a 4/4 signature, a track of one measure would have a length of 4, two measures would be 8, etc… But you can also use a track of one measure and three beats (7) and make it phase as it loops!
 
-Player has also the optional **absolute** property. By default, a player is relative, which means that it will play from its beginning when it starts. Absolute players, on the other hand, will calculate their offset relatively from the start of the song. Which mean that every absolute players will always play together. This is useful for players that set the chords or main melodies.
+Player takes also an optional **absolute** parameter. By default, a player is relative, which means that it will play from its beginning when it starts. Absolute players, on the other hand, will calculate their offset relatively from the start of the song. Which mean that every absolute players will always play together. This is useful for players that set the chords or main melodies.
+
+Here is a diagram to better understand what absolute means. Each player here has a length of 4 beats. See how the relative one starts right on the first beat after `play` was called, while the absolute one starts from the second beat.
+![Absolute vs relative diagram](doc/absolute-diagram.png)
 
 Here is how to add a single player:
 ```javascript
@@ -175,3 +178,7 @@ Here are some metronome's methods you can use :
 * `getBeatPosition(time: float, measureSize): number` for absolute measures of *measureSize* beats, gives the position of the given time. For example, for a measure of 4 beat, results may go from 0 (first beat) to 3 (last beat).
 
 For the simple tasks though (such as counting the position in a measure), I would advise not to use these functions and instead use `onBeat` method to manage your own counters.
+
+## API
+
+[API Documentation](doc/api.md)

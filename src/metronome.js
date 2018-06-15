@@ -6,8 +6,10 @@ function areEquals(a, b) {
 /**
  * Count beats, and give the time of next beat occurence
  * @param {number} bpm
- * @param {object} context - audio context
+ * @param {AudioContext} context - audio context
  * @param {EventEmitter} eventEmitter
+ * @property {float} beatLength - Length of a beat in seconds
+ * @property {AudioContext} context
  */
 class Metronome {
   constructor(bpm, context, eventEmitter) {

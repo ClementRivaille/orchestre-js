@@ -5,8 +5,11 @@ import EventEmitter from './event-emitter';
 
 /**
 * Manage sounds and activate them as players
-* @param {number} bpm
-* @param {object} contecy
+* @param {number} bpm - Beats per minute
+* @param {AudioContext} context
+* @property {AudioContext} context - Audio context
+* @property {Metronome} metronome
+* @property {boolean} started
 */
 class Orchestre {
   constructor(bpm, context) {
@@ -91,7 +94,7 @@ class Orchestre {
   * @param {string} player.url - URL of the sound file
   * @param {number} player.length - Number of beats that the sound contains
   * @param {boolean} [player.absolute=false] - Indicates that the player is aligned absolutely in the song
-  * @param {object} [player.destination] - Audio node to connect the player to
+  * @param {AudioNode} [player.destination] - Audio node to connect the player to
   */
   addPlayers(players) {
     // Load sounds files
@@ -113,7 +116,7 @@ class Orchestre {
    * @param {string} url - URL of the sound file
    * @param {number} length - Number of beats that the sound contains
    * @param {boolean} [absolute=false] - Indicates that the player is aligned absolutely in the song
-   * @param {object} [destination] - Audio node to connect the player to
+   * @param {AudioNode} [destination] - Audio node to connect the player to
    */
   addPlayer(name, url, length, absolute=false, destination) {
     return this.loader.load(name, url).then(buffer => {
@@ -129,7 +132,7 @@ class Orchestre {
 
   /** Connect a player to an audio node
    * @param {string} name
-   * @param {object} destination
+   * @param {AudioNode} destination
    */
   connect(name, destination) {
     this.players[name].soundLoop.connect(destination);
@@ -137,7 +140,7 @@ class Orchestre {
 
   /** Disconnect a player from all its destination or one audio node
    * @param {string} name
-   * @param {object} destination
+   * @param {AudioNode} destination
    */
   disconnect(name, destination) {
     this.players[name].soundLoop.disconnect(destination);
