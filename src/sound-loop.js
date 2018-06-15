@@ -8,6 +8,7 @@ class SoundLoop {
     this.eventEmitter = eventEmitter;
     this.nbBeats = nbBeats;
     this.absolute = absolute;
+    this.context = context;
 
     this.stopped = true;
     this.stopQueue = 0;
@@ -21,10 +22,19 @@ class SoundLoop {
 
   /** Play the sound from the beginning */
   _loop(startTime, offset=0) {
-    if (this.source && this.source.playing) {
-      this.source.stop(startTime);
+    if (this.source && !this.stopped) {
+      // Clean current source by making a very fast fade out (avoid a pop sound)
+      this.source.stop(startTime + 0.1);
+      const fadeGain = this.context.createGain();
+      fadeGain.connect(this.gainNode);
+      this.source.disconnect(this.gainNode);
+      this.source.connect(fadeGain);
+      fadeGain.gain.setValueAtTime(1, this.context.currentTime);
+      fadeGain.gain.setTargetAtTime(0, startTime, 0.01);
     }
+    // Create a new source node
     this.source = this.context.createBufferSource();
+    this.source.loop = true;
     this.source.buffer = this.buffer;
     this.source.connect(this.gainNode);
     this.source.start(startTime, offset);
