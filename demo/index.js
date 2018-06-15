@@ -24,13 +24,13 @@ orchestre.addPlayers(players).then(() => {
 });
 
 window.chords = function() {
-  orchestre.trigger('chords', {fade: 1});
+  orchestre.switch('chords', {fade: 1});
 }
 window.guitar = function() {
-  orchestre.trigger('guitar', {fade: 1, now: true});
+  orchestre.switch('guitar', {fade: 1, now: true});
 }
 window.bass = function() {
-  orchestre.trigger('bass', {once: false});
+  orchestre.switch('bass', {once: false});
 }
 
 function beat() {
