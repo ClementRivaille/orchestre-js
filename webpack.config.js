@@ -29,6 +29,7 @@ var buildConfig = {
          filename: 'orchestre.min.js',
          library: 'Orchestre',
          libraryTarget: 'var',
+         libraryExport: 'default',
          path: path.join(__dirname, 'dist')
      },
      target: 'web',
