@@ -30,10 +30,10 @@ For example, in a 4/4 signature, a track of one measure would have a length of 4
 
 Player takes also an optional **absolute** parameter. By default, a player is relative, which means that it will play from its beginning when it starts. Absolute players, on the other hand, will calculate their offset relatively from the start of the song. Which mean that every absolute players will always play together. This is useful for players that set the chords or main melodies.
 
-Here is a diagram to better understand what absolute means. Each player here has a length of 4 beats. See how the relative one starts right on the first beat after `play` was called, while the absolute one starts from the second beat.
+Here is a diagram to better understand what absolute means. Each player here has a length of 4 beats, and are activated at the same time. See how the relative one starts right on the first beat, while the absolute one starts from the second beat.
 ![Absolute vs relative diagram](doc/absolute-diagram.png)
 
-Here is how to add a single player:
+To add a single player, use:
 ```javascript
 orchestra.addPlayer('bass', './assets/music/bass.ogg', 16, true)
   .then(() => { /* Called once the player is loaded */ });

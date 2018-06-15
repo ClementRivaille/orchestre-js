@@ -37,7 +37,7 @@ Manage sounds and activate them as players
     * [.trigger(name, [options])](#Orchestre+trigger)
     * [.play(name, [options])](#Orchestre+play)
     * [.stop(name, [options])](#Orchestre+stop)
-    * [.isPlaying(name)](#Orchestre+isPlaying)
+    * [.isPlaying(name)](#Orchestre+isPlaying) ⇒ <code>boolean</code>
     * [.schedule(name, beats, [action], [options])](#Orchestre+schedule)
     * [.onBeat(callback, [beats], [options])](#Orchestre+onBeat)
     * [.removeListener()](#Orchestre+removeListener) ⇒ <code>boolean</code>
@@ -169,7 +169,7 @@ Stop a player
 
 <a name="Orchestre+isPlaying"></a>
 
-### orchestre.isPlaying(name)
+### orchestre.isPlaying(name) ⇒ <code>boolean</code>
 Check if a player is active
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
@@ -237,7 +237,7 @@ Count beats, and give the time of next beat occurence
     * [new Metronome(bpm, context, eventEmitter)](#new_Metronome_new)
     * [.getNextBeatTime()](#Metronome+getNextBeatTime) ⇒ <code>float</code>
     * [.getNextNthBeatTime(beats)](#Metronome+getNextNthBeatTime) ⇒ <code>float</code>
-    * [.getOffset(time)](#Metronome+getOffset)
+    * [.getOffset(time)](#Metronome+getOffset) ⇒ <code>float</code>
     * [.getBeatPosition(time, measureSize)](#Metronome+getBeatPosition) ⇒ <code>number</code>
 
 <a name="new_Metronome_new"></a>
@@ -271,10 +271,11 @@ Public method use to obtain global nth next beat time
 
 <a name="Metronome+getOffset"></a>
 
-### metronome.getOffset(time)
+### metronome.getOffset(time) ⇒ <code>float</code>
 Get the offset in seconds of the given time relatively to the closest beat before it
 
 **Kind**: instance method of [<code>Metronome</code>](#Metronome)  
+**Returns**: <code>float</code> - time since last beat  
 
 | Param | Type | Description |
 | --- | --- | --- |

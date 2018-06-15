@@ -61,7 +61,7 @@ class Metronome {
   /**
    * Public method use to obtain global nth next beat time
    * @param {number} beats - nth beat, 1 being the next
-   * @return {float} time in seconds of the beat
+   * @returns {float} time in seconds of the beat
    */
   getNextNthBeatTime(beats) {
     this._fixBeat();
@@ -71,6 +71,7 @@ class Metronome {
   /**
    * Get the offset in seconds of the given time relatively to the closest beat before it
    * @param {float} time - time in seconds from an audio context
+   * @returns {float} time since last beat
    */
   getOffset(time) {
     const offset = (time - this.startTime)%this.beatLength;

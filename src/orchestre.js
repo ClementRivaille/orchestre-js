@@ -202,6 +202,7 @@ class Orchestre {
 
   /** Check if a player is active
    * @param {string} name
+   * @returns {boolean}
    */
   isPlaying(name) {
     return this.players[name].soundLoop.playing;
