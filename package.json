@@ -1,6 +1,6 @@
 {
   "name": "orchestre-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audio tool to easily manage layers in a song",
   "main": "src/orchestre.js",
   "scripts": {
