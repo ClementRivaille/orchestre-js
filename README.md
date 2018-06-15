@@ -31,8 +31,6 @@ This will create a global *Orchestre* constructor that you will be able to use i
 
 ## How to use
 
-Using Orchestre-JS is done in 4 simple steps: creating an orchestra, adding players, starting the orchestra, and activating the players. Let's see step by step how it's done.
-
 ### Create an orchestra
 
 The first thing you need to do is to create an *“orchestre”* (French for orchestra, if you hadn't figured it out yet). The only thing it needs is the song's BPM (beats per minute).
