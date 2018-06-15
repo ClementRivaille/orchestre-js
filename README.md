@@ -31,6 +31,10 @@ This will create a global *Orchestre* constructor that you will be able to use i
 
 ## How to use
 
+Using Orchestre-JS is done in 4 simple steps: creating an orchestra, adding players, starting the orchestra, and activating the players. Let's see step by step how it's done.
+
+### Create an orchestra
+
 The first thing you need to do is to create an *“orchestre”* (French for orchestra, if you hadn't figured it out yet). The only thing it needs is the song's BPM (beats per minute).
 
 *Note: All the examples below are written in ES6, but Orchestre-JS can still be used in Vanilla Javascript.*
@@ -38,6 +42,8 @@ The first thing you need to do is to create an *“orchestre”* (French for orc
 ```javascript
 const orchestra = new Orchestre(120);
 ```
+
+### Add players
 
 Then, you will need to add some players. Each player corresponds to one track. For one player, you need:
 * A unique **name** that will identify it
@@ -84,6 +90,8 @@ orchestra.addPlayers(players)
 
 You can add players at anytime, even once the orchestra has been started.
 
+### Start the orchestra
+
 Speaking of which, here is how it's done:
 ```javascript
 orchestra.start();
@@ -92,6 +100,8 @@ orchestra.start();
 This won't play any sound yet. But it will initialize a metronome, that will set the beginning of the music, and count each beat based on the BPM.
 
 If you want to start with some tracks immediately, you can call `start` with an array of player names as parameter.
+
+### Activate players
 
 Once the orchestra has been loaded, you can activate your players:
 ```javascript
@@ -124,6 +134,8 @@ orchestra.schedule('guitar', 8, 'play', {absolute: true}); // guitar will play o
 
 *Warning:* Once an action has been scheduled, it can't be cancelled. So be careful with this.
 
+### Trigger events
+
 If you want to call an event function on a beat, you can use `onBeat`:
 
 ```javascript
@@ -142,7 +154,7 @@ If you want to remove a listener you added with `onBeat`, use `removeListener` w
 orchestra.removeListener(callback);
 ```
 
-That's it! You know all the useful basics of Orchestre-JS.
+### Stop
 
 Once you are done with your song, you can call `fullStop` on the orchestra to immediately stop all the instruments, and stop the metronome.
 ```javascript
@@ -150,6 +162,8 @@ orchestra.fullStop()
 ```
 
 Note that the orchestra will need to be started to be used again.
+
+That's it! You know all the basics of Orchestre-JS.
 
 ## Advanced
 
