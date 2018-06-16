@@ -14,7 +14,7 @@ npm install orchestre-js
 
 ### From file
 
-Download the [lastest release](https://github.com/ClementRivaille/orchestre-js/releases).
+Download the [latest release](https://github.com/ClementRivaille/orchestre-js/releases).
 
 ### Load
 
@@ -33,9 +33,9 @@ This will create a global *Orchestre* constructor that you will be able to use i
 
 ### Create an orchestra
 
-The first thing you need to do is to create an *“orchestre”* (French for orchestra, if you hadn't figured it out yet). The only thing it needs is the song's BPM (beats per minute).
+The first thing you need is to create an *“orchestre”* (French for orchestra, if you hadn't figured it out yet). The only thing it needs is the song's BPM (beats per minute).
 
-*Note: All the examples below are written in ES6, but Orchestre-JS can still be used in Vanilla Javascript.*
+*Note: All the examples below are written in ES6, but Orchestre-JS can still be used in standard Javascript.*
 
 ```javascript
 const orchestra = new Orchestre(120);
@@ -48,7 +48,7 @@ Then, you will need to add some players. Each player corresponds to one track. F
 * The **URL** of the sound file it will play
 * The **length** in beats of the track
 
-*Be aware that you need a local web server to request local files*.
+*Be aware that you need a local server to request files*.
 
 For example, in a 4/4 signature, a track of one measure would have a length of 4, two measures would be 8, etc… But you can also use a track of one measure and three beats (7) and make it phase as it loops!
 
@@ -95,7 +95,7 @@ Speaking of which, here is how it's done:
 orchestra.start();
 ```
 
-This won't play any sound yet. But it will initialize a metronome, that will set the beginning of the music, and count each beat based on the BPM.
+This won't play any sound yet. But it will initiate a metronome, that will set the beginning of the music, and count each beat based on the BPM.
 
 If you want to start with some tracks immediately, you can call `start` with an array of player names as parameter.
 
@@ -121,7 +121,7 @@ orchestra.switch('bass');
 
 `play`, `stop` and `switch` can take a second parameter *options*, which is an object that allows you to define some of those properties:
 * **fade** *(float)*: time constant in seconds for a fade in or fade out. The length of fading is approximately equal to 1.6 times your constant. See [setTargetAtTime](https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime) for more details.
-* **now** *(bool)*: if true, sound will start / stop immediately instead of waiting for next beat. This should be used with fading.
+* **now** *(bool)*: if true, sound will start / stop immediately instead of waiting for next beat. This is better used with fading.
 * **once** *(bool)*: for *play* only. Play sound only once, then stop.
 
 Finally, you can schedule an action on a player several beats in advance with the following method:
@@ -143,8 +143,8 @@ orchestra.onBeat(() => {
 ```
 
 `onBeat` takes also a third *options* parameter:
-* **absolute** *(bool)*: call the function on the absolute measure of n beats
 * **listener** *(bool)*: keep calling the function every n beats
+* **absolute** *(bool)*: call the function on the absolute measure of n beats
 * **offset** *(number)*: use with absolute to set a position in the measure
 
 If you want to remove a listener you added with `onBeat`, use `removeListener` with the instance of your function:

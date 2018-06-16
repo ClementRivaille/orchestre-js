@@ -95,6 +95,7 @@ class Orchestre {
   * @param {number} player.length - Number of beats that the sound contains
   * @param {boolean} [player.absolute=false] - Indicates that the player is aligned absolutely in the song
   * @param {AudioNode} [player.destination] - Audio node to connect the player to
+  * @returns {Promise} Promise that resolves once all player has been loaded
   */
   addPlayers(players) {
     // Load sounds files
@@ -117,6 +118,7 @@ class Orchestre {
    * @param {number} length - Number of beats that the sound contains
    * @param {boolean} [absolute=false] - Indicates that the player is aligned absolutely in the song
    * @param {AudioNode} [destination] - Audio node to connect the player to
+   * @returns {Promise} Promise that resolves once the player is loaded
    */
   addPlayer(name, url, length, absolute=false, destination) {
     return this.loader.load(name, url).then(buffer => {

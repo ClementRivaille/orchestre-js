@@ -30,8 +30,8 @@ Manage sounds and activate them as players
     * [new Orchestre(bpm, context)](#new_Orchestre_new)
     * [.start(players)](#Orchestre+start)
     * [.fullStop()](#Orchestre+fullStop)
-    * [.addPlayers(players)](#Orchestre+addPlayers)
-    * [.addPlayer(name, url, length, [absolute], [destination])](#Orchestre+addPlayer)
+    * [.addPlayers(players)](#Orchestre+addPlayers) ⇒ <code>Promise</code>
+    * [.addPlayer(name, url, length, [absolute], [destination])](#Orchestre+addPlayer) ⇒ <code>Promise</code>
     * [.connect(name, destination)](#Orchestre+connect)
     * [.disconnect(name, destination)](#Orchestre+disconnect)
     * [.switch(name, [options])](#Orchestre+switch)
@@ -70,10 +70,11 @@ Immediately stop all the instruments, then stop the metronome
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 <a name="Orchestre+addPlayers"></a>
 
-### orchestre.addPlayers(players)
+### orchestre.addPlayers(players) ⇒ <code>Promise</code>
 Prepare sounds
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
+**Returns**: <code>Promise</code> - Promise that resolves once all player has been loaded  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -86,10 +87,11 @@ Prepare sounds
 
 <a name="Orchestre+addPlayer"></a>
 
-### orchestre.addPlayer(name, url, length, [absolute], [destination])
+### orchestre.addPlayer(name, url, length, [absolute], [destination]) ⇒ <code>Promise</code>
 Prepare a single sound
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
+**Returns**: <code>Promise</code> - Promise that resolves once the player is loaded  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
