@@ -7,7 +7,7 @@ function areEquals(a, b) {
  * Count beats, and give the time of next beat occurence
  * @param {number} bpm
  * @param {AudioContext} context - audio context
- * @param {EventEmitter} eventEmitter
+ * @param {EventEmitter} eventEmitter - Internal class used to propagate events
  * @property {float} beatLength - Length of a beat in seconds
  * @property {AudioContext} context
  */
@@ -30,7 +30,7 @@ class Metronome {
     this.loopInterval = setInterval(this._clock, 50);
   }
 
-  /**
+  /*
   * Loop checking time each frame
   * The metronom is always one beat ahead, and calculate the time of the upcoming beat
   */
@@ -44,7 +44,7 @@ class Metronome {
     }
   }
 
-  /** Emit beat event, and give the global time of next beat */
+  /* Emit beat event, and give the global time of next beat */
   _schedule() {
     this.eventEmitter.emit('beat', this.startTime + this.nextBeat);
   }
@@ -60,7 +60,7 @@ class Metronome {
 
   /**
    * Public method use to obtain global nth next beat time
-   * @param {number} beats - nth beat, 1 being the next
+   * @param {number} beats - Number of beats
    * @returns {float} time in seconds of the beat
    */
   getNextNthBeatTime(beats) {
@@ -81,7 +81,7 @@ class Metronome {
   /**
    * Gets the position of the given time in an absolute measure of n beats
    * @param {float} time
-   * @param {number} measureSize - Number of beats in the measure
+   * @param {number} measureSize - Number of beats in a measure
    * @returns {number} position (from 0 to n - 1)
    */
   getBeatPosition(time, measureSize) {
@@ -98,7 +98,7 @@ class Metronome {
     clearInterval(this.loopInterval);
   }
 
-  /**
+  /*
   * If the getter methods are called just on a beat, check if the next beat value is still valid
   * This is to avoid giving a next beat value that is actually in the past
   */

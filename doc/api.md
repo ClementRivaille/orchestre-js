@@ -28,7 +28,7 @@ Manage sounds and activate them as players
 
 * [Orchestre](#Orchestre)
     * [new Orchestre(bpm, context)](#new_Orchestre_new)
-    * [.start(players)](#Orchestre+start)
+    * [.start([players])](#Orchestre+start)
     * [.fullStop()](#Orchestre+fullStop)
     * [.addPlayers(players)](#Orchestre+addPlayers) ⇒ <code>Promise</code>
     * [.addPlayer(name, url, length, [absolute], [destination])](#Orchestre+addPlayer) ⇒ <code>Promise</code>
@@ -40,7 +40,7 @@ Manage sounds and activate them as players
     * [.isPlaying(name)](#Orchestre+isPlaying) ⇒ <code>boolean</code>
     * [.schedule(name, beats, [action], [options])](#Orchestre+schedule)
     * [.onBeat(callback, [beats], [options])](#Orchestre+onBeat)
-    * [.removeListener()](#Orchestre+removeListener) ⇒ <code>boolean</code>
+    * [.removeListener(callback)](#Orchestre+removeListener) ⇒ <code>boolean</code>
 
 <a name="new_Orchestre_new"></a>
 
@@ -53,14 +53,14 @@ Manage sounds and activate them as players
 
 <a name="Orchestre+start"></a>
 
-### orchestre.start(players)
+### orchestre.start([players])
 Start metronome
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| players | <code>Array.&lt;string&gt;</code> | names of players to start immediately |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [players] | <code>Array.&lt;string&gt;</code> | <code>[]</code> | names of players to start immediately |
 
 <a name="Orchestre+fullStop"></a>
 
@@ -79,11 +79,11 @@ Prepare sounds
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | players | <code>Array.&lt;object&gt;</code> |  | Players configuration |
-| player.name | <code>string</code> |  | Player's identifier |
-| player.url | <code>string</code> |  | URL of the sound file |
-| player.length | <code>number</code> |  | Number of beats that the sound contains |
-| [player.absolute] | <code>boolean</code> | <code>false</code> | Indicates that the player is aligned absolutely in the song |
-| [player.destination] | <code>AudioNode</code> |  | Audio node to connect the player to |
+| players[].name | <code>string</code> |  | Player's identifier |
+| players[].url | <code>string</code> |  | URL of the sound file |
+| players[].length | <code>number</code> |  | Number of beats that the sound contains |
+| [players[].absolute] | <code>boolean</code> | <code>false</code> | Indicates that the player is aligned absolutely in the song |
+| [players[].destination] | <code>AudioNode</code> |  | Audio node to connect the player to |
 
 <a name="Orchestre+addPlayer"></a>
 
@@ -216,11 +216,16 @@ Wait a number of beats before calling a function
 
 <a name="Orchestre+removeListener"></a>
 
-### orchestre.removeListener() ⇒ <code>boolean</code>
+### orchestre.removeListener(callback) ⇒ <code>boolean</code>
 Remove an existing listener
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 **Returns**: <code>boolean</code> - true if found  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callback | <code>function</code> | Callback previously added as listener |
+
 <a name="Metronome"></a>
 
 ## Metronome
@@ -250,7 +255,7 @@ Count beats, and give the time of next beat occurence
 | --- | --- | --- |
 | bpm | <code>number</code> |  |
 | context | <code>AudioContext</code> | audio context |
-| eventEmitter | <code>EventEmitter</code> |  |
+| eventEmitter | <code>EventEmitter</code> | Internal class used to propagate events |
 
 <a name="Metronome+getNextBeatTime"></a>
 
@@ -269,7 +274,7 @@ Public method use to obtain global nth next beat time
 
 | Param | Type | Description |
 | --- | --- | --- |
-| beats | <code>number</code> | nth beat, 1 being the next |
+| beats | <code>number</code> | Number of beats |
 
 <a name="Metronome+getOffset"></a>
 
@@ -294,4 +299,5 @@ Gets the position of the given time in an absolute measure of n beats
 | Param | Type | Description |
 | --- | --- | --- |
 | time | <code>float</code> |  |
-| measureSize | <code>number</code> | Number of beats in the measure |
+| measureSize | <code>number</code> | Number of beats in a measure |
+

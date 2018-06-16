@@ -25,7 +25,7 @@ class Orchestre {
     this.started = false;
   }
 
-  /**
+  /*
    * At each beat, call eventual subscribers
    * @param {float} time - Time in seconds of the beat
    */
@@ -57,7 +57,7 @@ class Orchestre {
 
   /**
    * Start metronome
-   * @param {string[]} players - names of players to start immediately
+   * @param {string[]} [players=[]] - names of players to start immediately
    */
   start(players=[]) {
     if (this.started) throw new Error('Orchestre is already started');
@@ -90,11 +90,11 @@ class Orchestre {
   /**
   * Prepare sounds
   * @param {object[]} players - Players configuration
-  * @param {string} player.name - Player's identifier
-  * @param {string} player.url - URL of the sound file
-  * @param {number} player.length - Number of beats that the sound contains
-  * @param {boolean} [player.absolute=false] - Indicates that the player is aligned absolutely in the song
-  * @param {AudioNode} [player.destination] - Audio node to connect the player to
+  * @param {string} players[].name - Player's identifier
+  * @param {string} players[].url - URL of the sound file
+  * @param {number} players[].length - Number of beats that the sound contains
+  * @param {boolean} [players[].absolute=false] - Indicates that the player is aligned absolutely in the song
+  * @param {AudioNode} [players[].destination] - Audio node to connect the player to
   * @returns {Promise} Promise that resolves once all player has been loaded
   */
   addPlayers(players) {
@@ -265,6 +265,7 @@ class Orchestre {
 
   /**
    * Remove an existing listener
+   * @param {function} callback - Callback previously added as listener
    * @returns {boolean} true if found
    */
   removeListener(callback) {
