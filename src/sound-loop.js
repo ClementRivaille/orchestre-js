@@ -21,7 +21,7 @@ class SoundLoop {
   }
 
   /** Play the sound from the beginning */
-  _loop(startTime, offset=0) {
+  _loop(startTime, offset=0, once=false) {
     if (this.source && !this.stopped) {
       // Clean current source by making a very fast fade out (avoid a pop sound)
       this.source.stop(startTime + 0.1);
@@ -34,7 +34,7 @@ class SoundLoop {
     }
     // Create a new source node
     this.source = this.context.createBufferSource();
-    this.source.loop = true;
+    this.source.loop = !once;
     this.source.buffer = this.buffer;
     this.source.connect(this.gainNode);
     this.source.start(startTime, offset);
@@ -50,17 +50,17 @@ class SoundLoop {
         const offset = metronome.getOffset(startTime);
         const beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
 
-        this._loop(startTime, beatPos * metronome.beatLength + offset);
+        this._loop(startTime, beatPos * metronome.beatLength + offset, once);
         this.nextMeasure = this.nbBeats - beatPos;
       }
       // Relative loop, starts at first beat
       else {
-        this._loop(startTime, metronome.getOffset(startTime));
+        this._loop(startTime, metronome.getOffset(startTime), once);
         this.nextMeasure = this.nbBeats;
       }
 
       // If called immediately, we must ensure the next loop
-      if (startTime <= this.context.currentTime) {
+      if (startTime <= this.context.currentTime && !once) {
         this._beatSchedule(metronome.getNextBeatTime());
       }
     }
