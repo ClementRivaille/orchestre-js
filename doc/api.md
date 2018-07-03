@@ -24,6 +24,7 @@ Manage sounds and activate them as players
 | context | <code>AudioContext</code> | Audio context |
 | metronome | [<code>Metronome</code>](#Metronome) |  |
 | started | <code>boolean</code> |  |
+| paused | <code>boolean</code> | True when orchestre has been suspended |
 
 
 * [Orchestre](#Orchestre)
@@ -42,6 +43,8 @@ Manage sounds and activate them as players
         * [.schedule(name, beats, [action], [options])](#Orchestre+schedule)
         * [.onBeat(callback, [beats], [options])](#Orchestre+onBeat) ⇒ <code>number</code>
         * [.removeListener(id)](#Orchestre+removeListener) ⇒ <code>boolean</code>
+        * [.suspend()](#Orchestre+suspend) ⇒ <code>Promise</code>
+        * [.resume()](#Orchestre+resume) ⇒ <code>Promise</code>
     * _inner_
         * [~beatCallback](#Orchestre..beatCallback) : <code>function</code>
 
@@ -230,6 +233,20 @@ Remove an existing listener
 | --- | --- | --- |
 | id | <code>number</code> | Listener's id |
 
+<a name="Orchestre+suspend"></a>
+
+### orchestre.suspend() ⇒ <code>Promise</code>
+Suspend metronome and players
+
+**Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
+**Returns**: <code>Promise</code> - resolves with void  
+<a name="Orchestre+resume"></a>
+
+### orchestre.resume() ⇒ <code>Promise</code>
+Resume metronome and players if they have been suspended
+
+**Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
+**Returns**: <code>Promise</code> - resolves with void  
 <a name="Orchestre..beatCallback"></a>
 
 ### Orchestre~beatCallback : <code>function</code>
@@ -239,7 +256,7 @@ Callback function called on beat event
 
 | Param | Type | Description |
 | --- | --- | --- |
-| time | <code>float</code> | Absolute time of the next coming beat in seconds |
+| nextBeat | <code>float</code> | Time of the next coming beat in seconds |
 
 <a name="Metronome"></a>
 

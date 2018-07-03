@@ -10,6 +10,7 @@ import EventEmitter from './event-emitter';
 * @property {AudioContext} context - Audio context
 * @property {Metronome} metronome
 * @property {boolean} started
+* @property {boolean} paused - True when orchestre has been suspended
 */
 class Orchestre {
   constructor(bpm, context) {
@@ -24,6 +25,7 @@ class Orchestre {
     this._updateEvents = this._updateEvents.bind(this);
 
     this.started = false;
+    this.paused = false;
   }
 
   /*
@@ -67,6 +69,7 @@ class Orchestre {
 
     this.eventEmitter.subscribe('beat', this._updateEvents);
     this.started = true;
+    this.paused = false;
 
     for (const player of players) {
       this.play(player, {now: true});
@@ -85,6 +88,7 @@ class Orchestre {
     this.eventEmitter.unsubscribe('beat', this._updateEvents);
     this.metronome.stop();
     this.started = false;
+    this.paused = false;
   }
 
 
@@ -281,12 +285,29 @@ class Orchestre {
     }
     return subIndex !== -1;
   }
+
+  /**
+   * Suspend metronome and players
+   * @return {Promise} resolves with void
+   */
+  suspend() {
+    this.paused = true;
+    return this.context.suspend();
+  }
+  /**
+   * Resume metronome and players if they have been suspended
+   * @return {Promise} resolves with void
+   */
+  resume() {
+    this.paused = false;
+    return this.context.resume();
+  }
 }
 
 /**
 * Callback function called on beat event
 * @callback Orchestre~beatCallback
-* @param {float} time - Absolute time of the next coming beat in seconds
+* @param {float} nextBeat - Time of the next coming beat in seconds
 */
 
 export default Orchestre;

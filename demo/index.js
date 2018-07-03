@@ -46,3 +46,12 @@ window.stopEvent = function() {
 window.stop = function() {
   orchestre.fullStop();
 }
+
+window.pause = function() {
+  if (orchestre.paused) {
+    orchestre.resume();
+  }
+  else {
+    orchestre.suspend();
+  }
+}
