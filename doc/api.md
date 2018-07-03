@@ -43,7 +43,7 @@ Manage sounds and activate them as players
         * [.onBeat(callback, [beats], [options])](#Orchestre+onBeat) ⇒ <code>number</code>
         * [.removeListener(id)](#Orchestre+removeListener) ⇒ <code>boolean</code>
     * _inner_
-        * [~beatListener](#Orchestre..beatListener) : <code>function</code>
+        * [~beatCallback](#Orchestre..beatCallback) : <code>function</code>
 
 <a name="new_Orchestre_new"></a>
 
@@ -211,7 +211,7 @@ Wait a number of beats before calling a function
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| callback | [<code>beatListener</code>](#Orchestre..beatListener) |  |  |
+| callback | [<code>beatCallback</code>](#Orchestre..beatCallback) |  | Function to call |
 | [beats] | <code>number</code> | <code>1</code> | number of beats to wait |
 | [options] | <code>objects</code> | <code>{}</code> |  |
 | [options.repeat] | <code>boolean</code> |  | Callback will be called every n beats |
@@ -230,10 +230,10 @@ Remove an existing listener
 | --- | --- | --- |
 | id | <code>number</code> | Listener's id |
 
-<a name="Orchestre..beatListener"></a>
+<a name="Orchestre..beatCallback"></a>
 
-### Orchestre~beatListener : <code>function</code>
-Function called on beat event
+### Orchestre~beatCallback : <code>function</code>
+Callback function called on beat event
 
 **Kind**: inner typedef of [<code>Orchestre</code>](#Orchestre)  
 

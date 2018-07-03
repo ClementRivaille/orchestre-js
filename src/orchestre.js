@@ -245,7 +245,7 @@ class Orchestre {
 
   /**
    * Wait a number of beats before calling a function
-   * @param {Orchestre~beatListener} callback
+   * @param {Orchestre~beatCallback} callback - Function to call
    * @param {number} [beats=1] - number of beats to wait
    * @param {objects} [options={}]
    * @param {boolean} [options.repeat] - Callback will be called every n beats
@@ -284,8 +284,8 @@ class Orchestre {
 }
 
 /**
-* Function called on beat event
-* @callback Orchestre~beatListener
+* Callback function called on beat event
+* @callback Orchestre~beatCallback
 * @param {float} time - Absolute time of the next coming beat in seconds
 */
 
