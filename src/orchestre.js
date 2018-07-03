@@ -20,6 +20,7 @@ class Orchestre {
     this.loader = new BufferLoader(this.context);
 
     this.subscribers = [];
+    this.subId = -1;
     this._updateEvents = this._updateEvents.bind(this);
 
     this.started = false;
@@ -40,8 +41,8 @@ class Orchestre {
           try {sub.callback(time);}
           catch(err) {throw new(err);}
           finally {
-            if (sub.listener)
-              // Repeat if listener
+            if (sub.repeat)
+              // Repeat
               sub.wait = sub.length;
             else
               toRemove.push(this.subscribers.indexOf(sub));
@@ -244,37 +245,48 @@ class Orchestre {
 
   /**
    * Wait a number of beats before calling a function
-   * @param {function} callback
+   * @param {Orchestre~beatListener} callback
    * @param {number} [beats=1] - number of beats to wait
    * @param {objects} [options={}]
-   * @param {boolean} [options.listener] - Callback will be called every n beats
+   * @param {boolean} [options.repeat] - Callback will be called every n beats
    * @param {boolean} [options.absolute] - Callback will be called on the next absolute nth beat (next measure of n beats)
    * @param {number} [options.offset] - Use with absolute to set a position in the measure
-   *
+   * @returns {number} Listener's id
    */
   onBeat(callback, beats=1, options={}) {
+    this.subId++;
     this.subscribers.push({
+      id: this.subId,
       callback,
       length: beats,
-      listener: options.listener,
+      repeat: options.repeat,
       wait: beats -
         (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) +
         (options.offset || 0)
     });
+
+    // Return id
+    return this.subId;
   }
 
   /**
    * Remove an existing listener
-   * @param {function} callback - Callback previously added as listener
+   * @param {number} id - Listener's id
    * @returns {boolean} true if found
    */
-  removeListener(callback) {
-    const subIndex = this.subscribers.findIndex((sub) => sub.callback === callback);
+  removeListener(id) {
+    const subIndex = this.subscribers.findIndex((sub) => sub.id === id);
     if (subIndex !== -1) {
       this.subscribers.splice(subIndex, 1);
     }
     return subIndex !== -1;
   }
 }
+
+/**
+* Function called on beat event
+* @callback Orchestre~beatListener
+* @param {float} time - Absolute time of the next coming beat in seconds
+*/
 
 export default Orchestre;

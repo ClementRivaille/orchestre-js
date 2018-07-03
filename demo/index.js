@@ -17,10 +17,11 @@ const players = [{
 }];
 
 const orchestre = new Orchestre(115);
+let eventId;
 orchestre.addPlayers(players).then(() => {
   orchestre.start();
   document.getElementById('control').className = '';
-  orchestre.onBeat(beat, 2, {listener: true})
+  eventId = orchestre.onBeat(beat, 2, {repeat: true})
 });
 
 window.chords = function() {
@@ -38,6 +39,9 @@ function beat() {
   beatElem.className = beatElem.className === 'hidden' ? '' : 'hidden';
 }
 
+window.stopEvent = function() {
+  orchestre.removeListener(eventId);
+}
 
 window.stop = function() {
   orchestre.fullStop();

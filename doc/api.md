@@ -28,19 +28,22 @@ Manage sounds and activate them as players
 
 * [Orchestre](#Orchestre)
     * [new Orchestre(bpm, context)](#new_Orchestre_new)
-    * [.start([players])](#Orchestre+start)
-    * [.fullStop()](#Orchestre+fullStop)
-    * [.addPlayers(players)](#Orchestre+addPlayers) ⇒ <code>Promise</code>
-    * [.addPlayer(name, url, length, [absolute], [destination])](#Orchestre+addPlayer) ⇒ <code>Promise</code>
-    * [.connect(name, destination)](#Orchestre+connect)
-    * [.disconnect(name, destination)](#Orchestre+disconnect)
-    * [.switch(name, [options])](#Orchestre+switch)
-    * [.play(name, [options])](#Orchestre+play)
-    * [.stop(name, [options])](#Orchestre+stop)
-    * [.isPlaying(name)](#Orchestre+isPlaying) ⇒ <code>boolean</code>
-    * [.schedule(name, beats, [action], [options])](#Orchestre+schedule)
-    * [.onBeat(callback, [beats], [options])](#Orchestre+onBeat)
-    * [.removeListener(callback)](#Orchestre+removeListener) ⇒ <code>boolean</code>
+    * _instance_
+        * [.start([players])](#Orchestre+start)
+        * [.fullStop()](#Orchestre+fullStop)
+        * [.addPlayers(players)](#Orchestre+addPlayers) ⇒ <code>Promise</code>
+        * [.addPlayer(name, url, length, [absolute], [destination])](#Orchestre+addPlayer) ⇒ <code>Promise</code>
+        * [.connect(name, destination)](#Orchestre+connect)
+        * [.disconnect(name, destination)](#Orchestre+disconnect)
+        * [.switch(name, [options])](#Orchestre+switch)
+        * [.play(name, [options])](#Orchestre+play)
+        * [.stop(name, [options])](#Orchestre+stop)
+        * [.isPlaying(name)](#Orchestre+isPlaying) ⇒ <code>boolean</code>
+        * [.schedule(name, beats, [action], [options])](#Orchestre+schedule)
+        * [.onBeat(callback, [beats], [options])](#Orchestre+onBeat) ⇒ <code>number</code>
+        * [.removeListener(id)](#Orchestre+removeListener) ⇒ <code>boolean</code>
+    * _inner_
+        * [~beatListener](#Orchestre..beatListener) : <code>function</code>
 
 <a name="new_Orchestre_new"></a>
 
@@ -200,23 +203,24 @@ Schedule an action (play, stop, or switch) for a player on an incoming beat
 
 <a name="Orchestre+onBeat"></a>
 
-### orchestre.onBeat(callback, [beats], [options])
+### orchestre.onBeat(callback, [beats], [options]) ⇒ <code>number</code>
 Wait a number of beats before calling a function
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
+**Returns**: <code>number</code> - Listener's id  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| callback | <code>function</code> |  |  |
+| callback | [<code>beatListener</code>](#Orchestre..beatListener) |  |  |
 | [beats] | <code>number</code> | <code>1</code> | number of beats to wait |
 | [options] | <code>objects</code> | <code>{}</code> |  |
-| [options.listener] | <code>boolean</code> |  | Callback will be called every n beats |
+| [options.repeat] | <code>boolean</code> |  | Callback will be called every n beats |
 | [options.absolute] | <code>boolean</code> |  | Callback will be called on the next absolute nth beat (next measure of n beats) |
 | [options.offset] | <code>number</code> |  | Use with absolute to set a position in the measure |
 
 <a name="Orchestre+removeListener"></a>
 
-### orchestre.removeListener(callback) ⇒ <code>boolean</code>
+### orchestre.removeListener(id) ⇒ <code>boolean</code>
 Remove an existing listener
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
@@ -224,7 +228,18 @@ Remove an existing listener
 
 | Param | Type | Description |
 | --- | --- | --- |
-| callback | <code>function</code> | Callback previously added as listener |
+| id | <code>number</code> | Listener's id |
+
+<a name="Orchestre..beatListener"></a>
+
+### Orchestre~beatListener : <code>function</code>
+Function called on beat event
+
+**Kind**: inner typedef of [<code>Orchestre</code>](#Orchestre)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| time | <code>float</code> | Absolute time of the next coming beat in seconds |
 
 <a name="Metronome"></a>
 

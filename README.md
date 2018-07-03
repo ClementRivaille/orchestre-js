@@ -137,19 +137,19 @@ orchestra.schedule('guitar', 8, 'play', {absolute: true}); // guitar will play o
 If you want to call an event function on a beat, you can use `onBeat`:
 
 ```javascript
-orchestra.onBeat(() => {
+const listenerId = orchestra.onBeat(() => {
   // Do something
 }, 4); // Function will be called in 4 beats
 ```
 
 `onBeat` takes also a third *options* parameter:
-* **listener** *(bool)*: keep calling the function every n beats
+* **repeat** *(bool)*: keep calling the function every n beats
 * **absolute** *(bool)*: call the function on the absolute measure of n beats
 * **offset** *(number)*: use with absolute to set a position in the measure
 
-If you want to remove a listener you added with `onBeat`, use `removeListener` with the instance of your function:
+If you want to remove a listener you added with `onBeat`, use `removeListener` with its id:
 ```javascript
-orchestra.removeListener(callback);
+orchestra.removeListener(listenerId);
 ```
 
 ### Stop
