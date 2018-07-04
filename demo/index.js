@@ -44,6 +44,7 @@ const players = [{
 
 const orchestre = new Orchestre(120);
 let eventId;
+let volume = 1;
 orchestre.addPlayers(players).then(() => {
   orchestre.start(['drum']);
   document.getElementById('control').className = '';
@@ -107,4 +108,9 @@ window.pause = function() {
   else {
     orchestre.suspend();
   }
+}
+
+window.changeVolume = function(positive) {
+  volume = volume + (positive ? 0.1 : -0.1);
+  orchestre.setVolume(volume);
 }

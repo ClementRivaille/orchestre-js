@@ -8,6 +8,7 @@ import EventEmitter from './event-emitter';
 * @param {number} bpm - Beats per minute
 * @param {AudioContext} context
 * @property {AudioContext} context - Audio context
+* @property {GainNode} master - Gain connected to context's destination
 * @property {Metronome} metronome
 * @property {boolean} started
 * @property {boolean} paused - True when orchestre has been suspended
@@ -20,6 +21,12 @@ class Orchestre {
     this.metronome = new Metronome(bpm, this.context, this.eventEmitter);
     this.loader = new BufferLoader(this.context);
 
+    // Master volume
+    this.master = this.context.createGain();
+    this.master.connect(this.context.destination);
+    this.master.gain.setValueAtTime(1, 0);
+
+    // Events
     this.subscribers = [];
     this.subId = -1;
     this._updateEvents = this._updateEvents.bind(this);
@@ -110,7 +117,7 @@ class Orchestre {
         if (!buffers[sound.name]) return;
 
         const player = Object.assign({}, sound);
-        player.soundLoop = new SoundLoop(this.context, buffers[sound.name], this.eventEmitter, player.length, player.absolute, player.destination);
+        player.soundLoop = new SoundLoop(this.context, buffers[sound.name], this.eventEmitter, player.length, player.absolute, player.destination || this.master);
         this.players[sound.name] = player;
       }
     });
@@ -132,7 +139,7 @@ class Orchestre {
         url,
         length,
         absolute,
-        soundLoop: new SoundLoop(this.context, buffer, this.eventEmitter, length, absolute, destination)
+        soundLoop: new SoundLoop(this.context, buffer, this.eventEmitter, length, absolute, destination || this.master)
       };
     });
   }
@@ -301,6 +308,14 @@ class Orchestre {
   resume() {
     this.paused = false;
     return this.context.resume();
+  }
+
+  /**
+   * Change volume of the orchestra
+   * @param {float} value - 0 is mute, 1 is default. Set in between to lower, higher to increase.
+   */
+  setVolume(value) {
+    this.master.gain.setValueAtTime(value, this.context.currentTime);
   }
 }
 

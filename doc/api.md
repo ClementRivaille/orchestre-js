@@ -22,6 +22,7 @@ Manage sounds and activate them as players
 | Name | Type | Description |
 | --- | --- | --- |
 | context | <code>AudioContext</code> | Audio context |
+| master | <code>GainNode</code> | Gain connected to context's destination |
 | metronome | [<code>Metronome</code>](#Metronome) |  |
 | started | <code>boolean</code> |  |
 | paused | <code>boolean</code> | True when orchestre has been suspended |
@@ -45,6 +46,7 @@ Manage sounds and activate them as players
         * [.removeListener(id)](#Orchestre+removeListener) ⇒ <code>boolean</code>
         * [.suspend()](#Orchestre+suspend) ⇒ <code>Promise</code>
         * [.resume()](#Orchestre+resume) ⇒ <code>Promise</code>
+        * [.setVolume(value)](#Orchestre+setVolume)
     * _inner_
         * [~beatCallback](#Orchestre..beatCallback) : <code>function</code>
 
@@ -247,6 +249,17 @@ Resume metronome and players if they have been suspended
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 **Returns**: <code>Promise</code> - resolves with void  
+<a name="Orchestre+setVolume"></a>
+
+### orchestre.setVolume(value)
+Change volume of the orchestra
+
+**Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>float</code> | 0 is mute, 1 is default. Set in between to lower, higher to increase. |
+
 <a name="Orchestre..beatCallback"></a>
 
 ### Orchestre~beatCallback : <code>function</code>
