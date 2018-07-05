@@ -43,13 +43,17 @@ const players = [{
 }];
 
 const orchestre = new Orchestre(120);
-let eventId;
 let volume = 1;
-orchestre.addPlayers(players).then(() => {
-  orchestre.start(['drum']);
-  document.getElementById('control').className = '';
-  eventId = orchestre.onBeat(beat, 2, {repeat: true})
-});
+
+window.start = function() {
+  document.getElementById('startButton').className = 'hidden';
+  orchestre.addPlayers(players).then(() => {
+    orchestre.start(['drum']);
+    document.getElementsByTagName('main')[0].className = '';
+    document.getElementById('control').className = '';
+    orchestre.onBeat(beat, 2, {repeat: true})
+  });
+}
 
 window.bass = function() {
   orchestre.switch('bass', {
@@ -91,14 +95,6 @@ window.count = function() {
 function beat() {
   const beatElem = document.getElementById('beat');
   beatElem.className = beatElem.className === 'hidden' ? '' : 'hidden';
-}
-
-window.stopEvent = function() {
-  orchestre.removeListener(eventId);
-}
-
-window.stop = function() {
-  orchestre.fullStop();
 }
 
 window.pause = function() {
