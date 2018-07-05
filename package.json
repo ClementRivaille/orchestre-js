@@ -4,9 +4,8 @@
   "description": "Audio tool to easily manage instrumental layers in a song",
   "main": "src/orchestre.js",
   "scripts": {
-    "start": "ENV=development webpack-dev-server",
-    "build": "webpack",
-    "doc": "jsdoc2md src/orchestre.js src/metronome.js > doc/api.md"
+    "start": "webpack-dev-server",
+    "build": "webpack"
   },
   "keywords": [
     "webaudioapi"

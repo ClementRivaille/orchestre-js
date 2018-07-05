@@ -1,4 +1,4 @@
-import Orchestre from '../src/orchestre';
+import Orchestre from './src/orchestre';
 
 const players = [{
   name: 'drum',
