@@ -1,6 +1,98 @@
+html, body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #eaeaea;
+}
+
+header {
+  background: #e05656;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.2rem;
+
+  border-bottom-right-radius: 50%;
+  border-bottom-left-radius: 50%;
+
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-top: 0;
+}
+
+header button {
+  background-color: #efc54e;
+  color: black;
+}
+
+header button:hover, header button:focus {
+  background-color: #e1b948;
+}
+
+#control {
+  position: fixed;
+  background-color: black;
+  opacity: 0.5;
+}
+
+#control button {
+  border: none;
+  background: none;
+}
+
 .hidden {
   display: none;
 }
+
+.sr-only {
+  position: absolute;
+  opacity: 0;
+}
+
+button {
+  color: white;
+  background-color: #e05656;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: inherit;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+button:focus, button:hover {
+  background-color: #b14141;
+}
+
+.demo {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-around;
+}
+
+.demo.reverse {
+  flex-direction: row-reverse;
+}
+
+.demo div {
+  flex-grow: 1;
+  padding: 2rem;
+}
+
+.demo .text {
+  background-color: #efc54e;
+  color: black;
+}
+
+pre {
+  background-color: #e3dbdb;
+  padding: 0.4rem;
+  color: #4b4b4b;
+}
+
 
 #beat {
   background-color: red;
@@ -9,3 +101,4 @@
   height: 20px;
   margin: 2em;
 }
+
