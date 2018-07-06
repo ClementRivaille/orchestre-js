@@ -15,6 +15,7 @@ header {
   border-bottom-left-radius: 50%;
 
   margin-bottom: 2rem;
+  min-height: 10.5rem;
 }
 
 h1 {
@@ -25,16 +26,21 @@ h1 {
 header button {
   background-color: #efc54e;
   color: black;
+  border: none;
 }
 
 header button:hover, header button:focus {
   background-color: #e1b948;
+  border: none;
 }
 
 #control {
   position: fixed;
   background-color: black;
   opacity: 0.5;
+  right: 0;
+  top: 0;
+  border-bottom-left-radius: 1.6rem;
 }
 
 #control button {
@@ -48,38 +54,52 @@ header button:hover, header button:focus {
 
 .sr-only {
   position: absolute;
+  top: -9999px;
+  left: -9999px;
   opacity: 0;
 }
 
 button {
   color: white;
   background-color: #e05656;
-  border: none;
+  border: solid #e05656 0.3rem;
   border-radius: 0.5rem;
   font-size: inherit;
   padding: 0.4rem 1.1rem;
   cursor: pointer;
-  transition: background-color 0.1s ease;
+  transition: all 0.2s ease;
+
+  margin-bottom: 0.4rem;
 }
 
 button:focus, button:hover {
   background-color: #b14141;
+  border: solid #b14141 0.3rem;
+}
+
+button.active {
+  background-color: #3c3c3c;
+  font-weight: bold;
+  border: solid #e1e1e1 0.3rem;
+}
+button.active:hover, button.active:focus {
+  background-color: #666262;
+}
+
+button.disabled {
+  opacity: 0;
+  cursor: auto;
 }
 
 .demo {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: dense;
 }
 
-.demo.reverse {
-  flex-direction: row-reverse;
-}
-
-.demo div {
-  flex-grow: 1;
-  padding: 2rem;
+.demo > div {
+  padding: 1rem;
+  overflow: auto;
 }
 
 .demo .text {
@@ -87,18 +107,101 @@ button:focus, button:hover {
   color: black;
 }
 
+h2 {
+  margin-top: 0;
+}
+
+#init {
+  grid-area: 1 / 2
+}
+
+#options {
+  grid-area: 3 / 2
+}
+
 pre {
   background-color: #e3dbdb;
-  padding: 0.4rem;
+  padding: 0.5rem;
   color: #4b4b4b;
+  border-radius: 0.4rem;
+  border-bottom: 1rem;
+  font-size: 1rem;
 }
 
+.players {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.players > div {
+  text-align: center;
+  margin: 0 2rem; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 #beat {
-  background-color: red;
-  border-radius: 10px;
-  width: 20px;
-  height: 20px;
-  margin: 2em;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 1rem;
+  border-radius: 2rem;
+  color: white;
+  height: 6rem;
+  min-width: 12rem;
+  margin-top: 0.1rem;
+}
+#beat > div {
+  height: 80%;
+  width: 20%;
+  background-color: white;
+  transition: transform 0.1s ease;
+}
+#beat.red {
+  background-color: #71145c;
+}
+#beat.red > div {
+  transform: translateX(2.8rem);
+}
+#beat.blue {
+  background-color: #6d6dc2;
+}
+#beat.blue > div {
+  transform: translateX(-2.8rem);
 }
 
+button#animation-stop {
+  background-color: white;
+  color: #e05656;
+}
+button#animation-stop:hover, button#animation-stop:focus {
+  background-color: #eaeaea;
+  color: #e05656;
+}
+
+@keyframes eight {
+  from {opacity: 1;}
+  to {opacity: 0;}
+}
+
+#eight {
+  margin-top: 0.5rem;
+  align-items: center;
+  padding: 1rem 1rem;
+  border-radius: 2rem;
+  color: white;
+  background-color: #e7697b;
+  font-weight: bold;
+  font-size: 1.3rem;
+  font-style: italic;
+  opacity: 0;
+}
+#eight.trigger {
+  animation-name: eight;
+  animation-duration: 1.5s;
+  -webkit-animation-name: eight;
+  -webkit-animation-duration: 1.5s;
+}

@@ -6,54 +6,133 @@
     <title>Orchestre JS</title>
   </head>
   <body>
+    <header>
+      <h1>Orchestre-JS</h1>
+      <p>A web tool to create dynamic music</p>
+      <button onclick="start()" id="startButton">Start the audio demo</button>
+    </header>
+
     <div id="control" class="hidden">
+      <h2 class="sr-only">Controls</h2>
       <button onclick="pause()">Pause</button>
       <button onclick="changeVolume(true)">+</button>
       <button onclick="changeVolume(false)">-</button>
     </div>
 
-    <header>
-      <h1>Orchestre-JS</h1>
-      <p>A fantastic tool.</p>
-      <button onclick="start()" id="startButton">Start</button>
-    </header>
-
     <main role="main" class="hidden">
-      <div class="demo reverse" id="init">
-        <div class="text">Lorem ipsum dolor sit amet!</div>
-        <div class="code">
-          <pre>doNothing();</pre>
-        </div>
-      </div>
+      <div class="demo">
 
-      <div class="demo" id="players">
-        <div class="text">
-          <button onclick="bass()">Bass</button>
-          <button onclick="piano()">Piano</button>
-          <br/>
-          <button onclick="melody()">Melody</button>
-          <button onclick="organ()">Organ</button>
+        <div class="text" id="init">
+          <h2>Initialization</h2>
+          Initialize an orchestra by providing your song's BPM, then start adding players. Each player represents a musical layer. It needs a name, an audio file, and a length in beat.
         </div>
         <div class="code">
-          <pre>CODE CODE CODE
+<pre>
+const orchestre = new Orchestre(120);
+orchestre.addPlayers([
+  {name: 'bass', url: './assets/bass.ogg', length: 16, absolute: true},
+  {name: 'melody', url: './assets/melody.ogg', length: 8, absolute: false},
+  // etc...
+]).then(function() {
+  orchestre.start();
+});
+</pre>
         </div>
-      </div>
 
-      <div class="demo reverse" id="options">
-        <div class="text">
-          <button onclick="synth()">Synth</button>
-          <button onclick="jingle()">Jingle</button>
+        <div class="text" id="players">
+          <h2>Play</h2>
+          <p>
+            Activate and deactivate your players to make them play in sync.<br/>
+            There are two kinds of players: absolute and relative. Play around with them to hear the difference!
+          </p>
+          <div class="players">
+            <div>
+              <h3>Absolute</h3>
+              <button onclick="bass()" id="bass-btn">Bass (16 beats)</button>
+              <button onclick="piano()" id="piano-btn">Piano (16 beats)</button>
+              <p>Will always stay on the same beats</p>
+            </div>
+            <div>
+              <h3>Relative</h3>
+              <button onclick="melody()" id="melody-btn">Melody (8 beats)</button>
+              <button onclick="organ()" id="organ-btn">Organ (7 beats)</button>
+              <p>Will play on the first beat when activated</p>
+            </div>
+          </div>
         </div>
-        <div class="code"></div>
-      </div>
+        <div class="code">
+<pre>
+orchestre.play('bass');
+</pre>
+<pre>
+orchestre.stop('bass');
+</pre>
+<pre>
+// toggle between play and stop
+orchestre.switch('bass');
+</pre>
+        </div>
 
-      <div class="demo" id="events">
-        <div class="text">
-          <span id="beat"></span>
-          <button onclick="count()">Count to 8</button>
+        <div class="text" id="options">
+          <h2>Options</h2>
+          <p>Orchestre-JS comes with several options to use players in different ways.</p>
+
+          <div class="players">
+            <div>
+              <p>Play or stop immediately with a fade in and fade out</p>
+              <button onclick="synth()" id="synth-btn">Synth</button>
+            </div>
+            <div>
+              <p>Play only once</p>
+              <button onclick="jingle()" id="jingle-btn">Jingle</button>
+            </div>
+          </div>
         </div>
-        <div class="code"></div>
-      </div>
+        <div class="code">
+<pre>
+orchestre.switch('synth', {
+  now: true,
+  fade: 1.2
+});
+</pre>
+<pre>
+orchestre.play('jingle', {
+  once: true
+});
+</pre>
+        </div>
+
+        <div class="text" id="events">
+          <h2>Events</h2>
+          <p>Subscribe to events to trigger actions on beat.</p>
+          <div class="players">
+            <div>
+              <button onclick="count()" id="count-btn">Count to 8</button>
+              <div id="eight">
+                EIGHT!
+              </div>
+            </div>
+            <div>
+              <p>Called every two beats</p>
+              <div id="beat" class="blue">
+                <div></div>
+              </div>
+              <button id="animation-stop" onclick="animationStop()">Stop the animation</button>
+            </div>
+          </div>
+        </div>
+        <div class="code">
+<pre>
+orchestre.onBeat(function() {
+  document.getElementById('eight').className === 'trigger;
+}, 8);
+</pre>
+<pre>
+orchestre.onBeat(function() {
+  document.getElementById('beat').className === 'on' ? 'off' : 'on';
+}, 2, {repeat: true});
+</pre>
+        </div>
 
     </div>
   </body>
