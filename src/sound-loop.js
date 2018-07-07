@@ -101,7 +101,7 @@ class SoundLoop {
         this.eventEmitter.unsubscribe('beat', this._beatSchedule);
         this.subscribed = false;
       }
-    }, (stopTime - this.context.currentTime) * 1000 + length * 3000);
+    }, (stopTime - this.context.currentTime) * 1000 + length * 5000);
   }
 
   /** Schedule a stop */
