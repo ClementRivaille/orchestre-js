@@ -91,10 +91,12 @@ button.disabled {
   cursor: auto;
 }
 
-.demo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-flow: dense;
+@media screen and (min-width: 800px) {
+  .demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-flow: dense;
+  }
 }
 
 .demo > div {
@@ -126,6 +128,10 @@ pre {
   border-radius: 0.4rem;
   border-bottom: 1rem;
   font-size: 1rem;
+
+  min-width: min-content;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
 }
 
 .players {
