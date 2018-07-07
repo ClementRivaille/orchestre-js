@@ -113,20 +113,20 @@ orchestra.stop('bass');
 
 Players will start and stop on the next beat, and automatically stay in rhythm, acording to their type (relative or absolute). It's as simple as that!
 
-You can even call the function `switch`, that just changes the player position between play and stop.
+You can even call the function `toggle`, that just changes the player position between play and stop.
 
 ```javascript
-orchestra.switch('bass');
+orchestra.toggle('bass');
 ```
 
-`play`, `stop` and `switch` can take a second parameter *options*, which is an object that allows you to define some of those properties:
+`play`, `stop` and `toggle` can take a second parameter *options*, which is an object that allows you to define some of those properties:
 * **fade** *(float)*: time constant in seconds for a fade in or fade out. The length of fading is approximately equal to 1.6 times your constant. See [setTargetAtTime](https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime) for more details.
 * **now** *(bool)*: if true, sound will start / stop immediately instead of waiting for next beat. This is better used with fading.
 * **once** *(bool)*: for *play* only. Play sound only once, then stop.
 
 Finally, you can schedule an action on a player several beats in advance with the following method:
 ```javascript
-orchestra.schedule('bass', 4, 'switch'); // bass will be switched after the next 4 beats
+orchestra.schedule('bass', 4, 'toggle'); // bass will be toggled after the next 4 beats
 orchestra.schedule('guitar', 8, 'play', {absolute: true}); // guitar will play on the next measure of 8 beats
 ```
 

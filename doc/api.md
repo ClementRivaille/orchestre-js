@@ -37,7 +37,7 @@ Manage sounds and activate them as players
         * [.addPlayer(name, url, length, [absolute], [destination])](#Orchestre+addPlayer) ⇒ <code>Promise</code>
         * [.connect(name, destination)](#Orchestre+connect)
         * [.disconnect(name, destination)](#Orchestre+disconnect)
-        * [.switch(name, [options])](#Orchestre+switch)
+        * [.toggle(name, [options])](#Orchestre+toggle)
         * [.play(name, [options])](#Orchestre+play)
         * [.stop(name, [options])](#Orchestre+stop)
         * [.isPlaying(name)](#Orchestre+isPlaying) ⇒ <code>boolean</code>
@@ -133,10 +133,10 @@ Disconnect a player from all its destination or one audio node
 | name | <code>string</code> | 
 | destination | <code>AudioNode</code> | 
 
-<a name="Orchestre+switch"></a>
+<a name="Orchestre+toggle"></a>
 
-### orchestre.switch(name, [options])
-Switch a sound state between play and stop
+### orchestre.toggle(name, [options])
+Toggle a sound state between play and stop
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 
@@ -191,7 +191,7 @@ Check if a player is active
 <a name="Orchestre+schedule"></a>
 
 ### orchestre.schedule(name, beats, [action], [options])
-Schedule an action (play, stop, or switch) for a player on an incoming beat
+Schedule an action (play, stop, or toggle) for a player on an incoming beat
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 
@@ -199,7 +199,7 @@ Schedule an action (play, stop, or switch) for a player on an incoming beat
 | --- | --- | --- | --- |
 | name | <code>string</code> |  | Player identifier |
 | beats | <code>number</code> |  | Number of beat to wait before action |
-| [action] | <code>string</code> | <code>&quot;&#x27;switch&#x27;&quot;</code> | Either 'play', 'stop' or 'switch' |
+| [action] | <code>string</code> | <code>&quot;&#x27;toggle&#x27;&quot;</code> | Either 'play', 'stop' or 'toggle' |
 | [options] | <code>object</code> | <code>{}</code> |  |
 | [options.fade] | <code>float</code> |  | Time constant for fade in or fade out |
 | [options.once] | <code>boolean</code> |  | Play sound only once, then stop |

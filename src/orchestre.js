@@ -161,14 +161,14 @@ class Orchestre {
   }
 
   /**
-   * Switch a sound state between play and stop
+   * Toggle a sound state between play and stop
    * @param {string} name - Player identifier
    * @param {object} [options={}]
    * @param {float} [options.fade] - Time constant for fade in or fade out
    * @param {boolean} [options.now] - If true, sound will start / stop immediately. Otherwise, it waits for next beat.
    * @param {boolean} [options.once] - Play sound only once, then stop
    */
-  switch(name, options={}) {
+  toggle(name, options={}) {
     if (!this.started) throw new Error('Orchestre has not been started');
     let player = this.players[name];
     if (!player) throw new Error(`Player ${name} does not exist`);
@@ -223,17 +223,17 @@ class Orchestre {
   }
 
   /**
-   * Schedule an action (play, stop, or switch) for a player on an incoming beat
+   * Schedule an action (play, stop, or toggle) for a player on an incoming beat
    * @param {string} name - Player identifier
    * @param {number} beats - Number of beat to wait before action
-   * @param {string} [action='switch'] - Either 'play', 'stop' or 'switch'
+   * @param {string} [action='toggle'] - Either 'play', 'stop' or 'toggle'
    * @param {object} [options={}]
    * @param {float} [options.fade] - Time constant for fade in or fade out
    * @param {boolean} [options.once] - Play sound only once, then stop
    * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next measure of n beat)
    * @param {number} [options.offset] - Use with absolute to set a position in the measure
    */
-  schedule(name, beats, action='switch', options={}) {
+  schedule(name, beats, action='toggle', options={}) {
     if (!this.started) throw new Error('Orchestre has not been started');
     const player = this.players[name];
     if (!player) throw new Error(`schedule: player ${name} does not exist`);
@@ -243,14 +243,14 @@ class Orchestre {
       (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) +
       (options.offset || 0);
     const eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
-    if (action === 'play' || (action === 'switch' && !player.soundLoop.playing)) {
+    if (action === 'play' || (action === 'toggle' && !player.soundLoop.playing)) {
       player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
     }
-    else if (action === 'stop' || (action === 'switch' && player.soundLoop.playing)) {
+    else if (action === 'stop' || (action === 'toggle' && player.soundLoop.playing)) {
       player.soundLoop.stop(eventTime, this.metronome, options.fade || 0);
     }
     else {
-      throw new Error(`schedule: action ${action} is not recognized (must be within ['play', 'stop', 'switch'])`)
+      throw new Error(`schedule: action ${action} is not recognized (must be within ['play', 'stop', 'toggle'])`)
     }
   }
 

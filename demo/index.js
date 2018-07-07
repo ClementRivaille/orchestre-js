@@ -52,38 +52,38 @@ orchestre.addPlayers(players).then(() => {
 });
 
 window.bass = function() {
-  orchestre.switch('bass', {
+  orchestre.toggle('bass', {
     fade: 0.01
   });
 };
 window.piano = function() {
-  orchestre.switch('piano', {
+  orchestre.toggle('piano', {
     fade: 0.01
   });
 };
 window.melody = function() {
-  orchestre.switch('melody', {
+  orchestre.toggle('melody', {
     fade: 0.02
   });
 };
 window.organ = function() {
-  orchestre.switch('organ', {
+  orchestre.toggle('organ', {
     fade: 0.02
   });
 };
 window.synth = function() {
-  orchestre.switch('synth', {
+  orchestre.toggle('synth', {
     fade: 1.2,
     now: true
   });
 };
 window.jingle = function() {
-  orchestre.switch('jingle', {
+  orchestre.toggle('jingle', {
     once: true
   });
 };
 window.count = function() {
-  orchestre.switch('doremi', {
+  orchestre.toggle('doremi', {
     once: true
   });
 };
