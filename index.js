@@ -61,35 +61,35 @@ window.start = function() {
 }
 
 window.bass = function() {
-  orchestre.switch('bass', {
+  orchestre.toggle('bass', {
     fade: 0.01
   });
   document.getElementById('bass-btn').className = orchestre.isPlaying('bass') ? 'active' : '';
   document.getElementById('bass-btn').setAttribute('aria-pressed', orchestre.isPlaying('bass'));
 };
 window.piano = function() {
-  orchestre.switch('piano', {
+  orchestre.toggle('piano', {
     fade: 0.01
   });
   document.getElementById('piano-btn').className = orchestre.isPlaying('piano') ? 'active' : '';
   document.getElementById('piano-btn').setAttribute('aria-pressed', orchestre.isPlaying('piano'));
 };
 window.melody = function() {
-  orchestre.switch('melody', {
+  orchestre.toggle('melody', {
     fade: 0.02
   });
   document.getElementById('melody-btn').className = orchestre.isPlaying('melody') ? 'active' : '';
   document.getElementById('melody-btn').setAttribute('aria-pressed', orchestre.isPlaying('melody'));
 };
 window.organ = function() {
-  orchestre.switch('organ', {
+  orchestre.toggle('organ', {
     fade: 0.02
   });
   document.getElementById('organ-btn').className = orchestre.isPlaying('organ') ? 'active' : '';
   document.getElementById('organ-btn').setAttribute('aria-pressed', orchestre.isPlaying('organ'));
 };
 window.synth = function() {
-  orchestre.switch('synth', {
+  orchestre.toggle('synth', {
     fade: 1.2,
     now: true
   });
@@ -97,7 +97,7 @@ window.synth = function() {
   document.getElementById('synth-btn').setAttribute('aria-pressed', orchestre.isPlaying('synth'));
 };
 window.jingle = function() {
-  orchestre.switch('jingle', {
+  orchestre.toggle('jingle', {
     once: true
   });
 
@@ -110,7 +110,7 @@ window.jingle = function() {
   }, 4);
 };
 window.count = function() {
-  orchestre.switch('doremi', {
+  orchestre.toggle('doremi', {
     once: true
   });
   var countBtn = document.getElementById('count-btn');

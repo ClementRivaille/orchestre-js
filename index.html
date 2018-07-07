@@ -73,8 +73,8 @@ orchestre.play('bass');
 orchestre.stop('bass');
 </pre>
 <pre>
-// toggle between play and stop
-orchestre.switch('bass');
+// alternate between play and stop
+orchestre.toggle('bass');
 </pre>
         </div>
 
@@ -95,7 +95,7 @@ orchestre.switch('bass');
         </div>
         <div class="code">
 <pre>
-orchestre.switch('synth', {
+orchestre.toggle('synth', {
   now: true,
   fade: 1.2
 });
