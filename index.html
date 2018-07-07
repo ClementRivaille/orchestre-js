@@ -10,6 +10,7 @@
       <h1>Orchestre-JS</h1>
       <p>A web tool to create dynamic music</p>
       <button onclick="start()" id="startButton">Start the audio demo</button>
+      <p id="loading" class="hidden">Loading…</p>
     </header>
 
     <div id="control" class="hidden">
@@ -128,9 +129,12 @@ orchestre.onBeat(function() {
 }, 8);
 </pre>
 <pre>
-orchestre.onBeat(function() {
+let listenerId = orchestre.onBeat(function() {
   document.getElementById('beat').className === 'on' ? 'off' : 'on';
 }, 2, {repeat: true});
+</pre>
+<pre>
+orchestre.removeListener(listenerId);
 </pre>
         </div>
 

@@ -52,6 +52,19 @@ header button:hover, header button:focus {
   display: none;
 }
 
+@keyframes start {
+  from {transform: translateY(25%); opacity: 0;}
+  to {transform: translateY(0); opacity: 1;}
+}
+
+main:not(.hidden) {
+  animation-name: start;
+  animation-duration: 0.7s;
+  -webkit-animation-name: start;
+  -webkit-animation-duration: 0.7s;
+  animation-timing-function: ease-out;
+}
+
 .sr-only {
   position: absolute;
   top: -9999px;

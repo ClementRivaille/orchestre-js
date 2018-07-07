@@ -48,8 +48,10 @@ let listenerId = -1;
 
 window.start = function() {
   document.getElementById('startButton').className = 'hidden';
+  document.getElementById('loading').className = '';
   orchestre.addPlayers(players).then(() => {
     orchestre.start(['drum']);
+    document.getElementById('loading').className = 'hidden';
     document.getElementsByTagName('main')[0].className = '';
     document.getElementById('control').className = '';
     listenerId = orchestre.onBeat(beat, 2, {repeat: true})
