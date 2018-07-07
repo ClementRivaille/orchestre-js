@@ -57,7 +57,7 @@ header button:hover, header button:focus {
   to {transform: translateY(0); opacity: 1;}
 }
 
-main:not(.hidden) {
+.demo:not(.hidden) {
   animation-name: start;
   animation-duration: 0.7s;
   -webkit-animation-name: start;
@@ -179,16 +179,16 @@ pre {
   background-color: white;
   transition: transform 0.1s ease;
 }
-#beat.red {
+#beat.off {
   background-color: #71145c;
 }
-#beat.red > div {
+#beat.off > div {
   transform: translateX(2.8rem);
 }
-#beat.blue {
+#beat.on {
   background-color: #6d6dc2;
 }
-#beat.blue > div {
+#beat.on > div {
   transform: translateX(-2.8rem);
 }
 

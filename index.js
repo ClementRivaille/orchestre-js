@@ -63,24 +63,28 @@ window.bass = function() {
     fade: 0.01
   });
   document.getElementById('bass-btn').className = orchestre.isPlaying('bass') ? 'active' : '';
+  document.getElementById('bass-btn').setAttribute('aria-pressed', orchestre.isPlaying('bass'));
 };
 window.piano = function() {
   orchestre.switch('piano', {
     fade: 0.01
   });
   document.getElementById('piano-btn').className = orchestre.isPlaying('piano') ? 'active' : '';
+  document.getElementById('piano-btn').setAttribute('aria-pressed', orchestre.isPlaying('piano'));
 };
 window.melody = function() {
   orchestre.switch('melody', {
     fade: 0.02
   });
   document.getElementById('melody-btn').className = orchestre.isPlaying('melody') ? 'active' : '';
+  document.getElementById('melody-btn').setAttribute('aria-pressed', orchestre.isPlaying('melody'));
 };
 window.organ = function() {
   orchestre.switch('organ', {
     fade: 0.02
   });
   document.getElementById('organ-btn').className = orchestre.isPlaying('organ') ? 'active' : '';
+  document.getElementById('organ-btn').setAttribute('aria-pressed', orchestre.isPlaying('organ'));
 };
 window.synth = function() {
   orchestre.switch('synth', {
@@ -88,6 +92,7 @@ window.synth = function() {
     now: true
   });
   document.getElementById('synth-btn').className = orchestre.isPlaying('synth') ? 'active' : '';
+  document.getElementById('synth-btn').setAttribute('aria-pressed', orchestre.isPlaying('synth'));
 };
 window.jingle = function() {
   orchestre.switch('jingle', {
@@ -124,7 +129,9 @@ window.count = function() {
 
 function beat() {
   const beatElem = document.getElementById('beat');
-  beatElem.className = beatElem.className === 'red' ? 'blue' : 'red';
+  beatElem.className = beatElem.className === 'on' ? 'off' : 'on';
+  var beatText = document.getElementById('beat-text');
+  beatText.textContent = beatText.textContent === 'on' ? 'off' : 'on';
 }
 
 window.animationStop = function() {
@@ -136,7 +143,7 @@ window.animationStop = function() {
   }
   else {
     listenerId = orchestre.onBeat(beat, 2, {repeat: true})
-    animBtn.textContent = 'Pause the animation';
+    animBtn.textContent = 'Stop the animation';
   }
 }
 

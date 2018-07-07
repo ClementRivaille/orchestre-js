@@ -10,19 +10,20 @@
       <h1>Orchestre-JS</h1>
       <p>A web tool to create dynamic music</p>
       <button onclick="start()" id="startButton">Start the audio demo</button>
-      <p id="loading" class="hidden">Loading…</p>
+      <p id="loading" class="hidden" aria-live="assertive" aria-relevant="text">Loading…</p>
     </header>
 
-    <div id="control" class="hidden">
-      <h2 class="sr-only">Controls</h2>
-      <button onclick="pause()">Pause</button>
-      <button onclick="changeVolume(true)">+</button>
-      <button onclick="changeVolume(false)">-</button>
-    </div>
 
-    <main role="main" class="hidden">
-      <div class="demo">
+    <main role="main" class="hidden" aria-live="polite" aria-relevant="additions">
 
+      <div id="control" class="hidden">
+        <h2 class="sr-only">Controls</h2>
+        <button onclick="pause()" aria-label="Pause">Pause</button>
+        <button onclick="changeVolume(true)" aria-label="Volume up">+</button>
+        <button onclick="changeVolume(false)" aria-label="Volume down">-</button>
+      </div>
+
+      <div class="demo" class="hidden">
         <div class="text" id="init">
           <h2>Initialization</h2>
           Initialize an orchestra by providing your song's BPM, then start adding players. Each player represents a musical layer. It needs a name, an audio file, and a length in beat.
@@ -49,14 +50,14 @@ orchestre.addPlayers([
           <div class="players">
             <div>
               <h3>Absolute</h3>
-              <button onclick="bass()" id="bass-btn">Bass (16 beats)</button>
-              <button onclick="piano()" id="piano-btn">Piano (16 beats)</button>
+              <button onclick="bass()" id="bass-btn" aria-pressed="false">Bass (16 beats)</button>
+              <button onclick="piano()" id="piano-btn" aria-pressed="false">Piano (16 beats)</button>
               <p>Will always stay on the same beats</p>
             </div>
             <div>
               <h3>Relative</h3>
-              <button onclick="melody()" id="melody-btn">Melody (8 beats)</button>
-              <button onclick="organ()" id="organ-btn">Organ (7 beats)</button>
+              <button onclick="melody()" id="melody-btn" aria-pressed="false">Melody (8 beats)</button>
+              <button onclick="organ()" id="organ-btn" aria-pressed="false">Organ (7 beats)</button>
               <p>Will play on the first beat when activated</p>
             </div>
           </div>
@@ -81,7 +82,7 @@ orchestre.switch('bass');
           <div class="players">
             <div>
               <p>Play or stop immediately with a fade in and fade out</p>
-              <button onclick="synth()" id="synth-btn">Synth</button>
+              <button onclick="synth()" id="synth-btn" aria-pressed="false">Synth</button>
             </div>
             <div>
               <p>Play only once</p>
@@ -109,14 +110,15 @@ orchestre.play('jingle', {
           <div class="players">
             <div>
               <button onclick="count()" id="count-btn">Count to 8</button>
-              <div id="eight">
+              <div id="eight" aria-live="assertive" aria-relevant="text">
                 EIGHT!
               </div>
             </div>
             <div>
               <p>Called every two beats</p>
-              <div id="beat" class="blue">
+              <div id="beat" class="off">
                 <div></div>
+                <span class="sr-only" id="beat-text">off</span>
               </div>
               <button id="animation-stop" onclick="animationStop()">Stop the animation</button>
             </div>
