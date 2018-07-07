@@ -49,11 +49,13 @@ let listenerId = -1;
 window.start = function() {
   document.getElementById('startButton').className = 'hidden';
   document.getElementById('loading').className = '';
+    document.getElementsByTagName('footer')[0].className = 'down';
   orchestre.addPlayers(players).then(() => {
     orchestre.start(['drum']);
     document.getElementById('loading').className = 'hidden';
-    document.getElementsByTagName('main')[0].className = '';
+    document.getElementById('demo').className = '';
     document.getElementById('control').className = '';
+    document.getElementsByTagName('footer')[0].className = '';
     listenerId = orchestre.onBeat(beat, 2, {repeat: true})
   });
 }
@@ -148,15 +150,38 @@ window.animationStop = function() {
 }
 
 window.pause = function() {
+  const icon = document.getElementById('pause-icon');
   if (orchestre.paused) {
     orchestre.resume();
+    icon.setAttribute('src','./assets/pause.svg');
+    icon.setAttribute('alt','Pause');
   }
   else {
     orchestre.suspend();
+    icon.setAttribute('src','./assets/play.svg');
+    icon.setAttribute('alt','Play');
   }
 }
 
 window.changeVolume = function(positive) {
   volume = volume + (positive ? 0.1 : -0.1);
+  if (volume <= 0) {
+    volume = 0;
+    document.getElementById('vol-down-btn').setAttribute('disabled', true);
+    document.getElementById('vol-down-btn').className = 'disabled';
+  }
+  else if (volume >= 1) {
+    volume = 1;
+    document.getElementById('vol-up-btn').setAttribute('disabled', true);
+    document.getElementById('vol-up-btn').className = 'disabled';
+  }
+  else {
+    for (let btnId of ['vol-down-btn', 'vol-up-btn']) {
+      document.getElementById(btnId).removeAttribute('disabled');
+      document.getElementById(btnId).className = '';
+    }
+  }
+  
   orchestre.setVolume(volume);
+
 }

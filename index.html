@@ -14,16 +14,19 @@
     </header>
 
 
-    <main role="main" class="hidden" aria-live="polite" aria-relevant="additions">
+    <main role="main" aria-live="polite" aria-relevant="additions">
 
       <div id="control" class="hidden">
         <h2 class="sr-only">Controls</h2>
-        <button onclick="pause()" aria-label="Pause">Pause</button>
-        <button onclick="changeVolume(true)" aria-label="Volume up">+</button>
-        <button onclick="changeVolume(false)" aria-label="Volume down">-</button>
+        <button onclick="pause()" id="pause-btn">
+          <img id="pause-icon" src="./assets/pause.svg" alt="Pause" height="15rem"/>
+        </button>
+        <img id="pause-icon" src="./assets/volume.svg" aria-hidden="true" height="15rem"/>
+        <button onclick="changeVolume(false)" aria-label="Volume down" id="vol-down-btn">-</button>
+        <button onclick="changeVolume(true)" aria-label="Volume up" disabled class="disabled" id="vol-up-btn">+</button>
       </div>
 
-      <div class="demo" class="hidden">
+      <div id="demo" class="hidden">
         <div class="text" id="init">
           <h2>Initialization</h2>
           Initialize an orchestra by providing your song's BPM, then start adding players. Each player represents a musical layer. It needs a name, an audio file, and a length in beat.
@@ -140,6 +143,11 @@ orchestre.removeListener(listenerId);
 </pre>
         </div>
 
-    </div>
+      </div>
+    </main>
+
+    <footer>
+      <a href="https://github.com/ClementRivaille/orchestre-js">View it on Github</a>
+    </footer>
   </body>
 </html>
