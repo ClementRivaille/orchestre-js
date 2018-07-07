@@ -145,74 +145,143 @@ var players = [{
 }];
 
 var orchestre = new _orchestre2.default(120);
-var eventId = void 0;
 var volume = 1;
-orchestre.addPlayers(players).then(function () {
-  orchestre.start(['drum']);
-  document.getElementById('control').className = '';
-  eventId = orchestre.onBeat(beat, 2, { repeat: true });
-});
+var listenerId = -1;
+
+window.start = function () {
+  document.getElementById('startButton').className = 'hidden';
+  document.getElementById('loading').className = '';
+  document.getElementsByTagName('footer')[0].className = 'down';
+  orchestre.addPlayers(players).then(function () {
+    orchestre.start(['drum']);
+    document.getElementById('loading').className = 'hidden';
+    document.getElementById('demo').className = '';
+    document.getElementById('control').className = '';
+    document.getElementsByTagName('footer')[0].className = '';
+    listenerId = orchestre.onBeat(beat, 2, { repeat: true });
+  });
+};
 
 window.bass = function () {
-  orchestre.switch('bass', {
+  orchestre.toggle('bass', {
     fade: 0.01
   });
+  document.getElementById('bass-btn').className = orchestre.isPlaying('bass') ? 'active' : '';
+  document.getElementById('bass-btn').setAttribute('aria-pressed', orchestre.isPlaying('bass'));
 };
 window.piano = function () {
-  orchestre.switch('piano', {
+  orchestre.toggle('piano', {
     fade: 0.01
   });
+  document.getElementById('piano-btn').className = orchestre.isPlaying('piano') ? 'active' : '';
+  document.getElementById('piano-btn').setAttribute('aria-pressed', orchestre.isPlaying('piano'));
 };
 window.melody = function () {
-  orchestre.switch('melody', {
+  orchestre.toggle('melody', {
     fade: 0.02
   });
+  document.getElementById('melody-btn').className = orchestre.isPlaying('melody') ? 'active' : '';
+  document.getElementById('melody-btn').setAttribute('aria-pressed', orchestre.isPlaying('melody'));
 };
 window.organ = function () {
-  orchestre.switch('organ', {
+  orchestre.toggle('organ', {
     fade: 0.02
   });
+  document.getElementById('organ-btn').className = orchestre.isPlaying('organ') ? 'active' : '';
+  document.getElementById('organ-btn').setAttribute('aria-pressed', orchestre.isPlaying('organ'));
 };
 window.synth = function () {
-  orchestre.switch('synth', {
+  orchestre.toggle('synth', {
     fade: 1.2,
     now: true
   });
+  document.getElementById('synth-btn').className = orchestre.isPlaying('synth') ? 'active' : '';
+  document.getElementById('synth-btn').setAttribute('aria-pressed', orchestre.isPlaying('synth'));
 };
 window.jingle = function () {
-  orchestre.switch('jingle', {
+  orchestre.toggle('jingle', {
     once: true
   });
+
+  var jingleBtn = document.getElementById('jingle-btn');
+  jingleBtn.className = 'disabled';
+  jingleBtn.setAttribute('disabled', true);
+  orchestre.onBeat(function () {
+    jingleBtn.className = '';
+    jingleBtn.removeAttribute('disabled');
+  }, 4);
 };
 window.count = function () {
-  orchestre.switch('doremi', {
+  orchestre.toggle('doremi', {
     once: true
   });
+  var countBtn = document.getElementById('count-btn');
+  countBtn.className = 'disabled';
+  countBtn.setAttribute('disabled', true);
+  orchestre.onBeat(function () {
+    countBtn.className = '';
+    countBtn.removeAttribute('disabled');
+
+    var eightElem = document.getElementById('eight');
+    eightElem.className = 'trigger';
+    setTimeout(function () {
+      eightElem.className = '';
+    }, 1500);
+  }, 8);
 };
 
 function beat() {
   var beatElem = document.getElementById('beat');
-  beatElem.className = beatElem.className === 'hidden' ? '' : 'hidden';
+  beatElem.className = beatElem.className === 'on' ? 'off' : 'on';
+  var beatText = document.getElementById('beat-text');
+  beatText.textContent = beatText.textContent === 'on' ? 'off' : 'on';
 }
 
-window.stopEvent = function () {
-  orchestre.removeListener(eventId);
-};
-
-window.stop = function () {
-  orchestre.fullStop();
+window.animationStop = function () {
+  var animBtn = document.getElementById('animation-stop');
+  if (listenerId !== -1) {
+    orchestre.removeListener(listenerId);
+    listenerId = -1;
+    animBtn.textContent = 'Start the animation';
+  } else {
+    listenerId = orchestre.onBeat(beat, 2, { repeat: true });
+    animBtn.textContent = 'Stop the animation';
+  }
 };
 
 window.pause = function () {
+  var icon = document.getElementById('pause-icon');
   if (orchestre.paused) {
     orchestre.resume();
+    icon.setAttribute('src', './assets/pause.svg');
+    icon.setAttribute('alt', 'Pause');
   } else {
     orchestre.suspend();
+    icon.setAttribute('src', './assets/play.svg');
+    icon.setAttribute('alt', 'Play');
   }
 };
 
 window.changeVolume = function (positive) {
   volume = volume + (positive ? 0.1 : -0.1);
+  if (volume <= 0) {
+    volume = 0;
+    document.getElementById('vol-down-btn').setAttribute('disabled', true);
+    document.getElementById('vol-down-btn').className = 'disabled';
+  } else if (volume >= 1) {
+    volume = 1;
+    document.getElementById('vol-up-btn').setAttribute('disabled', true);
+    document.getElementById('vol-up-btn').className = 'disabled';
+  } else {
+    var _arr = ['vol-down-btn', 'vol-up-btn'];
+
+    for (var _i = 0; _i < _arr.length; _i++) {
+      var btnId = _arr[_i];
+      document.getElementById(btnId).removeAttribute('disabled');
+      document.getElementById(btnId).className = '';
+    }
+  }
+
   orchestre.setVolume(volume);
 };
 
@@ -12129,7 +12198,7 @@ var Orchestre = function () {
     }
 
     /**
-     * Switch a sound state between play and stop
+     * Toggle a sound state between play and stop
      * @param {string} name - Player identifier
      * @param {object} [options={}]
      * @param {float} [options.fade] - Time constant for fade in or fade out
@@ -12138,8 +12207,8 @@ var Orchestre = function () {
      */
 
   }, {
-    key: 'switch',
-    value: function _switch(name) {
+    key: 'toggle',
+    value: function toggle(name) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       if (!this.started) throw new Error('Orchestre has not been started');
@@ -12207,10 +12276,10 @@ var Orchestre = function () {
     }
 
     /**
-     * Schedule an action (play, stop, or switch) for a player on an incoming beat
+     * Schedule an action (play, stop, or toggle) for a player on an incoming beat
      * @param {string} name - Player identifier
      * @param {number} beats - Number of beat to wait before action
-     * @param {string} [action='switch'] - Either 'play', 'stop' or 'switch'
+     * @param {string} [action='toggle'] - Either 'play', 'stop' or 'toggle'
      * @param {object} [options={}]
      * @param {float} [options.fade] - Time constant for fade in or fade out
      * @param {boolean} [options.once] - Play sound only once, then stop
@@ -12221,7 +12290,7 @@ var Orchestre = function () {
   }, {
     key: 'schedule',
     value: function schedule(name, beats) {
-      var action = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'switch';
+      var action = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'toggle';
       var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
       if (!this.started) throw new Error('Orchestre has not been started');
@@ -12231,12 +12300,12 @@ var Orchestre = function () {
 
       var beatsToWait = beats - (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) + (options.offset || 0);
       var eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
-      if (action === 'play' || action === 'switch' && !player.soundLoop.playing) {
+      if (action === 'play' || action === 'toggle' && !player.soundLoop.playing) {
         player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
-      } else if (action === 'stop' || action === 'switch' && player.soundLoop.playing) {
+      } else if (action === 'stop' || action === 'toggle' && player.soundLoop.playing) {
         player.soundLoop.stop(eventTime, this.metronome, options.fade || 0);
       } else {
-        throw new Error('schedule: action ' + action + ' is not recognized (must be within [\'play\', \'stop\', \'switch\'])');
+        throw new Error('schedule: action ' + action + ' is not recognized (must be within [\'play\', \'stop\', \'toggle\'])');
       }
     }
 
@@ -12481,7 +12550,7 @@ var SoundLoop = function () {
           _this.eventEmitter.unsubscribe('beat', _this._beatSchedule);
           _this.subscribed = false;
         }
-      }, (stopTime - this.context.currentTime) * 1000 + length * 3000);
+      }, (stopTime - this.context.currentTime) * 1000 + length * 5000);
     }
 
     /** Schedule a stop */
