@@ -1,5 +1,6 @@
 node_modules
 dist
+*.map
 package-lock.json
 *.sublime-*
 npm-debug.log
