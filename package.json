@@ -1,7 +1,7 @@
 {
   "name": "orchestre-js",
   "version": "1.0.1",
-  "description": "Audio tool to easily manage instrumental layers in a song",
+  "description": "Audio tool to easily create dynamic music",
   "main": "src/orchestre.js",
   "scripts": {
     "start": "ENV=development webpack-dev-server",
@@ -9,7 +9,7 @@
     "doc": "jsdoc2md src/orchestre.js src/metronome.js > doc/api.md"
   },
   "keywords": [
-    "webaudioapi"
+    "web audio api", "web audio", "audio", "audiojs", "music", "interactive music", "html5", "web", "sound", "browser", "game", "event", "rhythm"
   ],
   "author": "ClementRivaille",
   "homepage": "https://github.com/ClementRivaille/orchestre-js",
