@@ -287,4 +287,7 @@ footer.down {
   animation-duration: 0.3s;
   -webkit-animation-name: down;
   -webkit-animation-duration: 0.3s;
+
+  transform: translateY(500%);
+  opacity: 0;
 }

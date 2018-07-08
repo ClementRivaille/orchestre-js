@@ -42,9 +42,21 @@ const players = [{
   absolute: false
 }];
 
-const orchestre = new Orchestre(120);
+let orchestre;
 let volume = 1;
 let listenerId = -1;
+
+try {
+   orchestre = new Orchestre(120);
+}
+catch(err) {
+  window.addEventListener('load', () => {
+    document.getElementById('error').className = '';
+    document.getElementById('startButton').className = 'hidden';
+    document.getElementById('demo').className = '';
+    throw new Error(err);
+  }, false);
+}
 
 window.start = function() {
   document.getElementById('startButton').className = 'hidden';
@@ -57,6 +69,12 @@ window.start = function() {
     document.getElementById('control').className = '';
     document.getElementsByTagName('footer')[0].className = '';
     listenerId = orchestre.onBeat(beat, 2, {repeat: true})
+  }).catch((err) => {
+    document.getElementById('loading').className = 'hidden';
+    document.getElementById('error').className = '';
+    document.getElementById('demo').className = '';
+    document.getElementsByTagName('footer')[0].className = '';
+    throw new Error(err);
   });
 }
 
