@@ -1,9 +1,11 @@
 class BufferLoader {
+  buffers: any;
+  context: any;
   /**
   * context {object} Audio context
   * soundsUrls {array} List of objects contening name and urls of sounds
   */
-  constructor(context) {
+  constructor(context: any) {
     this.context = context;
     this.buffers = {};
   }
@@ -11,7 +13,7 @@ class BufferLoader {
   /**
   * Load a sound from url
   */
-  async load(name, url) {
+  async load(name: any, url: any) {
     // Prepare request
     const request = new Request(url);
 
@@ -28,7 +30,7 @@ class BufferLoader {
   /**
   * Load a list of sounds
   */
-  async loadAll(sounds) {
+  async loadAll(sounds: any) {
     const promises = [];
     for (let soundUrl of sounds) {
       promises.push(this.load(soundUrl.name, soundUrl.url));

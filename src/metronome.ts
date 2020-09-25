@@ -1,5 +1,5 @@
 const MARGIN = 0.000001;
-function areEquals(a, b) {
+function areEquals(a: any, b: any) {
   return Math.abs(a - b) < MARGIN;
 }
 
@@ -12,7 +12,13 @@ function areEquals(a, b) {
  * @property {AudioContext} context
  */
 class Metronome {
-  constructor(bpm, context, eventEmitter) {
+  beatLength: any;
+  context: any;
+  eventEmitter: any;
+  loopInterval: any;
+  nextBeat: any;
+  startTime: any;
+  constructor(bpm: any, context: any, eventEmitter: any) {
     this.context = context;
     this.eventEmitter = eventEmitter;
 
@@ -20,7 +26,7 @@ class Metronome {
     this._clock = this._clock.bind(this);
   }
 
-  start(startTime) {
+  start(startTime: any) {
     this.startTime = startTime;
     this.nextBeat = this.beatLength;
 
@@ -63,7 +69,7 @@ class Metronome {
    * @param {number} beats - Number of beats
    * @returns {float} time in seconds of the beat
    */
-  getNextNthBeatTime(beats) {
+  getNextNthBeatTime(beats: any) {
     this._fixBeat();
     return this.startTime + this.nextBeat + (beats - 1) * this.beatLength;
   }
@@ -73,7 +79,7 @@ class Metronome {
    * @param {float} time - time in seconds from an audio context
    * @returns {float} time since last beat
    */
-  getOffset(time) {
+  getOffset(time: any) {
     const offset = (time - this.startTime)%this.beatLength;
     return areEquals(this.beatLength, offset) ? 0 : offset;
   }
@@ -84,9 +90,10 @@ class Metronome {
    * @param {number} measureSize - Number of beats in a measure
    * @returns {number} position (from 0 to n - 1)
    */
-  getBeatPosition(time, measureSize) {
+  getBeatPosition(time: any, measureSize: any) {
     const measureLength = this.beatLength * measureSize;
     const measurePosition = (time - this.startTime) % measureLength;
+    // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
     if (areEquals(measureLength - measurePosition)) return 0;
     const position = Math.floor(measurePosition / this.beatLength);
     return !areEquals(this.beatLength, Math.abs(measurePosition - (position * this.beatLength))) ?

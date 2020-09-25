@@ -2,7 +2,21 @@
 * Sound loop that stays in sync with the beats
 */
 class SoundLoop {
-  constructor(context, buffer, eventEmitter, nbBeats, absolute=false, destination) {
+  absolute: any;
+  buffer: any;
+  context: any;
+  eventEmitter: any;
+  gainNode: any;
+  nbBeats: any;
+  nextMeasure: any;
+  playing: any;
+  source: any;
+  startTime: any;
+  stopQueue: any;
+  stopTime: any;
+  stopped: any;
+  subscribed: any;
+  constructor(context: any, buffer: any, eventEmitter: any, nbBeats: any, absolute=false, destination: any) {
     this.context = context;
     this.buffer = buffer;
     this.eventEmitter = eventEmitter;
@@ -21,7 +35,7 @@ class SoundLoop {
   }
 
   /** Play the sound from the beginning */
-  _loop(startTime, offset=0, once=false) {
+  _loop(startTime: any, offset=0, once=false) {
     if (this.source && !this.stopped) {
       // Clean current source by making a very fast fade out (avoid a pop sound)
       this.source.stop(startTime + 0.1);
@@ -41,7 +55,7 @@ class SoundLoop {
   }
 
   /** Start the loop */
-  start(startTime, metronome, fadeIn=0, once=false) {
+  start(startTime: any, metronome: any, fadeIn=0, once=false) {
     if (this.stopped) {
       this.startTime = startTime;
       this.stopped = once || false;
@@ -77,7 +91,7 @@ class SoundLoop {
     this.playing = !once;
   }
 
-  _beatSchedule(nextBeat) {
+  _beatSchedule(nextBeat: any) {
     // Decrease beats remaining, unless we're at the very first beat
     this.nextMeasure = nextBeat > this.startTime && Math.abs(nextBeat - this.startTime) > 0.0001 ? this.nextMeasure - 1 : this.nextMeasure;
 
@@ -88,7 +102,7 @@ class SoundLoop {
     }
   }
 
-  _fadeOut(stopTime, length=0) {
+  _fadeOut(stopTime: any, length=0) {
     this.gainNode.gain.setTargetAtTime(0, stopTime, length);
     this.playing = false;
     this.stopQueue += 1;
@@ -105,15 +119,15 @@ class SoundLoop {
   }
 
   /** Schedule a stop */
-  stop(stopTime, fadeOut=0) {
+  stop(stopTime: any, fadeOut=0) {
     this._fadeOut(stopTime, fadeOut);
   }
 
-  connect(destination) {
+  connect(destination: any) {
     this.gainNode.connect(destination);
   }
 
-  disconnect(destination) {
+  disconnect(destination: any) {
     this.gainNode.disconnect(destination);
   }
 }
