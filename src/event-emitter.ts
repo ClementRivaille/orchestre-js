@@ -1,22 +1,24 @@
-/**
-* Utilitary to emit event and subscribe to them
-*/
-class EventEmitter {
-  listeners: any;
-  constructor() {
-    this.listeners = {};
-  }
+interface Callback {
+  callback: Function;
+}
 
-  subscribe(event: any, callback: any) {
+/**
+ * Utilitary to emit event and subscribe to them
+ */
+class EventEmitter {
+  listeners: { [key: string]: Array<Callback> } = {};
+  constructor() {}
+
+  subscribe(event: string, callback: Function) {
     this.listeners[event] = this.listeners[event] || [];
     this.listeners[event].push({
       callback: callback
     });
   }
 
-  unsubscribe(event: any, callback: any) {
+  unsubscribe(event: string, callback: Function) {
     if (this.listeners[event]) {
-      let index = this.listeners[event].findIndex((listener: any) => {
+      let index = this.listeners[event].findIndex((listener) => {
         return callback === listener.callback;
       });
       if (index > -1) {
@@ -25,14 +27,12 @@ class EventEmitter {
     }
   }
 
-  // @ts-expect-error ts-migrate(7019) FIXME: Rest parameter 'args' implicitly has an 'any[]' ty... Remove this comment to see the full error message
-  emit(event: any, ...args) {
+  emit(event: string, ...args: any[]) {
     if (this.listeners[event]) {
       for (let listener of this.listeners[event]) {
         try {
           listener.callback(...args);
-        }
-        catch (e) {
+        } catch (e) {
           console.error(e);
         }
       }

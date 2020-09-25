@@ -1,35 +1,65 @@
-import BufferLoader from './buffer-loader';
-import SoundLoop from './sound-loop';
-import Metronome from './metronome';
-import EventEmitter from './event-emitter';
+import BufferLoader from "./buffer-loader";
+import EventEmitter from "./event-emitter";
+import Metronome from "./metronome";
+import Player, { PlayerConfiguration } from "./player";
+import SoundLoop from "./sound-loop";
+
+interface Subscription {
+  id: number;
+  callback: (nextBeat: number) => void;
+  length: number;
+  repeat: boolean;
+  wait: number;
+}
+
+interface PlayerOptions {
+  fade?: number;
+  now?: boolean;
+  once?: boolean;
+}
+
+interface EventOptions {
+  absolute?: boolean;
+  offset?: number;
+}
+
+interface PlayerEventOptions extends EventOptions {
+  fade?: number;
+  once?: boolean;
+}
+
+interface BeatEventOption extends EventOptions {
+  repeat?: boolean;
+}
 
 /**
-* Manage sounds and activate them as players
-* @param {number} bpm - Beats per minute
-* @param {AudioContext} context
-* @property {AudioContext} context - Audio context
-* @property {GainNode} master - Gain connected to context's destination
-* @property {Metronome} metronome
-* @property {boolean} started
-* @property {boolean} paused - True when orchestre has been suspended
-*/
+ * Manage sounds and activate them as players
+ * @param {number} bpm - Beats per minute
+ * @param {AudioContext} context
+ * @property {AudioContext} context - Audio context
+ * @property {GainNode} master - Gain connected to context's destination
+ * @property {Metronome} metronome
+ * @property {boolean} started
+ * @property {boolean} paused - True when orchestre has been suspended
+ */
 class Orchestre {
-  context: any;
-  eventEmitter: any;
-  loader: any;
-  master: any;
-  metronome: any;
-  paused: any;
-  players: any;
-  started: any;
-  subId: any;
-  subscribers: any;
-  constructor(bpm: any, context: any) {
+  private context: AudioContext;
+  private eventEmitter: EventEmitter;
+  private loader: BufferLoader;
+  public master: GainNode;
+  public metronome: Metronome;
+  public paused: boolean;
+  private players: { [key: string]: Player };
+  public started: boolean;
+  private subId: number;
+  private subscribers: Subscription[];
+  constructor(private bpm: number, context?: AudioContext) {
     this.players = {};
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'webkitAudioContext' does not exist on ty... Remove this comment to see the full error message
-    this.context = context || new (window.AudioContext || window.webkitAudioContext)();
+    this.context =
+      context ||
+      new (window.AudioContext || (window as any).webkitAudioContext)();
     this.eventEmitter = new EventEmitter();
-    this.metronome = new Metronome(bpm, this.context, this.eventEmitter);
+    this.metronome = new Metronome(this.bpm, this.context, this.eventEmitter);
     this.loader = new BufferLoader(this.context);
 
     // Master volume
@@ -50,7 +80,7 @@ class Orchestre {
    * At each beat, call eventual subscribers
    * @param {float} time - Time in seconds of the beat
    */
-  _updateEvents(time: any) {
+  private _updateEvents(time: number) {
     if (this.subscribers.length > 0) {
       const toRemove = [];
       for (const sub of this.subscribers) {
@@ -58,14 +88,15 @@ class Orchestre {
         sub.wait -= 1;
         if (sub.wait <= 0) {
           // Call subscriber function
-          try {sub.callback(time);}
-          catch(err) {throw new(err);}
-          finally {
+          try {
+            sub.callback(time);
+          } catch (err) {
+            throw new err();
+          } finally {
             if (sub.repeat)
               // Repeat
               sub.wait = sub.length;
-            else
-              toRemove.push(this.subscribers.indexOf(sub));
+            else toRemove.push(this.subscribers.indexOf(sub));
           }
         }
       }
@@ -80,58 +111,66 @@ class Orchestre {
    * Start metronome
    * @param {string[]} [players=[]] - names of players to start immediately
    */
-  start(players=[]) {
-    if (this.started) throw new Error('Orchestre is already started');
+  start(players: string[] = []) {
+    if (this.started) throw new Error("Orchestre is already started");
     this.context.resume();
     this.metronome.start(this.context.currentTime);
 
-    this.eventEmitter.subscribe('beat', this._updateEvents);
+    this.eventEmitter.subscribe("beat", this._updateEvents);
     this.started = true;
     this.paused = false;
 
     for (const player of players) {
-      this.play(player, {now: true});
+      this.play(player, { now: true });
     }
   }
 
   /**
-  * Immediately stop all the instruments, then stop the metronome
-  */
+   * Immediately stop all the instruments, then stop the metronome
+   */
   fullStop() {
-    if (!this.started) throw new Error('Orchestre has not been started');
+    if (!this.started) throw new Error("Orchestre has not been started");
     for (const player in this.players) {
       if (this.players.hasOwnProperty(player))
         this.players[player].soundLoop.stop(this.context.currentTime);
     }
-    this.eventEmitter.unsubscribe('beat', this._updateEvents);
+    this.eventEmitter.unsubscribe("beat", this._updateEvents);
     this.metronome.stop();
     this.started = false;
     this.paused = false;
   }
 
-
   /**
-  * Prepare sounds
-  * @param {object[]} players - Players configuration
-  * @param {string} players[].name - Player's identifier
-  * @param {string} players[].url - URL of the sound file
-  * @param {number} players[].length - Number of beats that the sound contains
-  * @param {boolean} [players[].absolute=false] - Indicates that the player is aligned absolutely in the song
-  * @param {AudioNode} [players[].destination] - Audio node to connect the player to
-  * @returns {Promise} Promise that resolves once all player has been loaded
-  */
-  addPlayers(players: any) {
+   * Prepare sounds
+   * @param {object[]} players - Players configuration
+   * @param {string} players[].name - Player's identifier
+   * @param {string} players[].url - URL of the sound file
+   * @param {number} players[].length - Number of beats that the sound contains
+   * @param {boolean} [players[].absolute=false] - Indicates that the player is aligned absolutely in the song
+   * @param {AudioNode} [players[].destination] - Audio node to connect the player to
+   * @returns {Promise} Promise that resolves once all player has been loaded
+   */
+  async addPlayers(players: PlayerConfiguration[]): Promise<void> {
     // Load sounds files
-    return this.loader.loadAll(players).then((buffers: any) => {
-      // Store sounds into players
-      for (const sound of players) {
-        if (!buffers[sound.name]) return;
+    const buffers = await this.loader.loadAll(players);
+    // Store sounds into players
+    for (const sound of players) {
+      if (!buffers[sound.name]) return;
 
-        const player = Object.assign({}, sound);
-        player.soundLoop = new SoundLoop(this.context, buffers[sound.name], this.eventEmitter, player.length, player.absolute, player.destination || this.master);
-        this.players[sound.name] = player;
-      }
-    });
+      const player: Player = {
+        ...sound,
+        soundLoop: new SoundLoop(
+          this.context,
+          buffers[sound.name],
+          this.eventEmitter,
+          sound.length,
+          !!sound.absolute,
+          sound.destination || this.master
+        ),
+        playing: false
+      };
+      this.players[sound.name] = player;
+    }
   }
 
   /**
@@ -143,14 +182,28 @@ class Orchestre {
    * @param {AudioNode} [destination] - Audio node to connect the player to
    * @returns {Promise} Promise that resolves once the player is loaded
    */
-  addPlayer(name: any, url: any, length: any, absolute=false, destination: any) {
-    return this.loader.load(name, url).then((buffer: any) => {
+  addPlayer(
+    name: string,
+    url: string,
+    length: number,
+    absolute = false,
+    destination?: AudioNode
+  ): Promise<void> {
+    return this.loader.load(name, url).then((buffer) => {
       this.players[name] = {
         name,
         url,
         length,
         absolute,
-        soundLoop: new SoundLoop(this.context, buffer, this.eventEmitter, length, absolute, destination || this.master)
+        soundLoop: new SoundLoop(
+          this.context,
+          buffer,
+          this.eventEmitter,
+          length,
+          absolute,
+          destination || this.master
+        ),
+        playing: false
       };
     });
   }
@@ -159,7 +212,7 @@ class Orchestre {
    * @param {string} name
    * @param {AudioNode} destination
    */
-  connect(name: any, destination: any) {
+  connect(name: string, destination: AudioNode) {
     this.players[name].soundLoop.connect(destination);
   }
 
@@ -167,7 +220,7 @@ class Orchestre {
    * @param {string} name
    * @param {AudioNode} destination
    */
-  disconnect(name: any, destination: any) {
+  disconnect(name: string, destination: AudioNode) {
     this.players[name].soundLoop.disconnect(destination);
   }
 
@@ -179,19 +232,27 @@ class Orchestre {
    * @param {boolean} [options.now] - If true, sound will start / stop immediately. Otherwise, it waits for next beat.
    * @param {boolean} [options.once] - Play sound only once, then stop
    */
-  toggle(name: any, options={}) {
-    if (!this.started) throw new Error('Orchestre has not been started');
+  toggle(name: string, options: PlayerOptions = {}): boolean {
+    if (!this.started) throw new Error("Orchestre has not been started");
     let player = this.players[name];
     if (!player) throw new Error(`Player ${name} does not exist`);
 
-
     if (!player.soundLoop.playing) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'now' does not exist on type '{}'.
-      player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
-    }
-    else {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'now' does not exist on type '{}'.
-      player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
+      player.soundLoop.start(
+        options.now
+          ? this.context.currentTime
+          : this.metronome.getNextBeatTime(),
+        this.metronome,
+        options.fade || 0,
+        options.once
+      );
+    } else {
+      player.soundLoop.stop(
+        options.now
+          ? this.context.currentTime
+          : this.metronome.getNextBeatTime(),
+        options.fade || 0
+      );
     }
 
     // Return the state of the instrument
@@ -199,41 +260,47 @@ class Orchestre {
   }
 
   /**
-  * Start a player
-  * @param {string} name - Player identifier
-  * @param {object} [options={}]
-  * @param {float} [options.fade] - Time constant for fade in
-  * @param {boolean} [options.now] - If true, sound will start immediately. Otherwise, it waits for next beat.
-  * @param {boolean} [options.once] - Play sound only once, then stop
-  */
-  play(name: any, options={}) {
-    if (!this.started) throw new Error('Orchestre has not been started');
+   * Start a player
+   * @param {string} name - Player identifier
+   * @param {object} [options={}]
+   * @param {float} [options.fade] - Time constant for fade in
+   * @param {boolean} [options.now] - If true, sound will start immediately. Otherwise, it waits for next beat.
+   * @param {boolean} [options.once] - Play sound only once, then stop
+   */
+  play(name: string, options: PlayerOptions = {}) {
+    if (!this.started) throw new Error("Orchestre has not been started");
     let player = this.players[name];
     if (!player) throw new Error(`play: player ${name} does not exist`);
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'now' does not exist on type '{}'.
-    player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
+    player.soundLoop.start(
+      options.now ? this.context.currentTime : this.metronome.getNextBeatTime(),
+      this.metronome,
+      options.fade || 0,
+      options.once
+    );
   }
 
   /**
-  * Stop a player
-  * @param {string} name - LAYER identifier
-  * @param {object} [options={}]
-  * @param {float} [options.fade] - Time constant for fade out
-  * @param {boolean} [options.now] - If true, sound will stop immediately. Otherwise, it waits for next beat.
-  */
-  stop(name: any, options={}) {
-    if (!this.started) throw new Error('Orchestre has not been started');
+   * Stop a player
+   * @param {string} name - LAYER identifier
+   * @param {object} [options={}]
+   * @param {float} [options.fade] - Time constant for fade out
+   * @param {boolean} [options.now] - If true, sound will stop immediately. Otherwise, it waits for next beat.
+   */
+  stop(name: string, options: PlayerOptions = {}) {
+    if (!this.started) throw new Error("Orchestre has not been started");
     let player = this.players[name];
     if (!player) throw new Error(`stop: player ${name} does not exist`);
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'now' does not exist on type '{}'.
-    player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
+    player.soundLoop.stop(
+      options.now ? this.context.currentTime : this.metronome.getNextBeatTime(),
+      options.fade || 0
+    );
   }
 
   /** Check if a player is active
    * @param {string} name
    * @returns {boolean}
    */
-  isPlaying(name: any) {
+  isPlaying(name: string): boolean {
     return this.players[name].soundLoop.playing;
   }
 
@@ -248,28 +315,44 @@ class Orchestre {
    * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next measure of n beat)
    * @param {number} [options.offset] - Use with absolute to set a position in the measure
    */
-  schedule(name: any, beats: any, action='toggle', options={}) {
-    if (!this.started) throw new Error('Orchestre has not been started');
+  schedule(
+    name: string,
+    beats: number,
+    action: "play" | "stop" | "toggle" = "toggle",
+    options: PlayerEventOptions = {}
+  ) {
+    if (!this.started) throw new Error("Orchestre has not been started");
     const player = this.players[name];
     if (!player) throw new Error(`schedule: player ${name} does not exist`);
-    if (beats <= 0) throw new Error(`schedule: beats must be a positive number`);
+    if (beats <= 0)
+      throw new Error(`schedule: beats must be a positive number`);
 
-    const beatsToWait = beats -
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'absolute' does not exist on type '{}'.
-      (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) +
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'offset' does not exist on type '{}'.
+    const beatsToWait =
+      beats -
+      (options.absolute
+        ? this.metronome.getBeatPosition(this.context.currentTime, beats)
+        : 0) +
       (options.offset || 0);
     const eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
-    if (action === 'play' || (action === 'toggle' && !player.soundLoop.playing)) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'fade' does not exist on type '{}'.
-      player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
-    }
-    else if (action === 'stop' || (action === 'toggle' && player.soundLoop.playing)) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'fade' does not exist on type '{}'.
-      player.soundLoop.stop(eventTime, this.metronome, options.fade || 0);
-    }
-    else {
-      throw new Error(`schedule: action ${action} is not recognized (must be within ['play', 'stop', 'toggle'])`)
+    if (
+      action === "play" ||
+      (action === "toggle" && !player.soundLoop.playing)
+    ) {
+      player.soundLoop.start(
+        eventTime,
+        this.metronome,
+        options.fade || 0,
+        options.once
+      );
+    } else if (
+      action === "stop" ||
+      (action === "toggle" && player.soundLoop.playing)
+    ) {
+      player.soundLoop.stop(eventTime, options.fade || 0);
+    } else {
+      throw new Error(
+        `schedule: action ${action} is not recognized (must be within ['play', 'stop', 'toggle'])`
+      );
     }
   }
 
@@ -283,18 +366,22 @@ class Orchestre {
    * @param {number} [options.offset] - Use with absolute to set a position in the measure
    * @returns {number} Listener's id
    */
-  onBeat(callback: any, beats=1, options={}) {
+  onBeat(
+    callback: (nextBeat: number) => void,
+    beats = 1,
+    options: BeatEventOption = {}
+  ): number {
     this.subId++;
     this.subscribers.push({
       id: this.subId,
       callback,
       length: beats,
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'repeat' does not exist on type '{}'.
-      repeat: options.repeat,
-      wait: beats -
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'absolute' does not exist on type '{}'.
-        (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) +
-        // @ts-expect-error ts-migrate(2339) FIXME: Property 'offset' does not exist on type '{}'.
+      repeat: !!options.repeat,
+      wait:
+        beats -
+        (options.absolute
+          ? this.metronome.getBeatPosition(this.context.currentTime, beats)
+          : 0) +
         (options.offset || 0)
     });
 
@@ -307,8 +394,8 @@ class Orchestre {
    * @param {number} id - Listener's id
    * @returns {boolean} true if found
    */
-  removeListener(id: any) {
-    const subIndex = this.subscribers.findIndex((sub: any) => sub.id === id);
+  removeListener(id: number): boolean {
+    const subIndex = this.subscribers.findIndex((sub) => sub.id === id);
     if (subIndex !== -1) {
       this.subscribers.splice(subIndex, 1);
     }
@@ -319,7 +406,7 @@ class Orchestre {
    * Suspend metronome and players
    * @return {Promise} resolves with void
    */
-  suspend() {
+  suspend(): Promise<void> {
     this.paused = true;
     return this.context.suspend();
   }
@@ -327,7 +414,7 @@ class Orchestre {
    * Resume metronome and players if they have been suspended
    * @return {Promise} resolves with void
    */
-  resume() {
+  resume(): Promise<void> {
     this.paused = false;
     return this.context.resume();
   }
@@ -336,15 +423,15 @@ class Orchestre {
    * Change volume of the orchestra
    * @param {float} value - 0 is mute, 1 is default. Set in between to lower, higher to increase.
    */
-  setVolume(value: any) {
+  setVolume(value: number) {
     this.master.gain.setValueAtTime(value, this.context.currentTime);
   }
 }
 
 /**
-* Callback function called on beat event
-* @callback Orchestre~beatCallback
-* @param {float} nextBeat - Time of the next coming beat in seconds
-*/
+ * Callback function called on beat event
+ * @callback Orchestre~beatCallback
+ * @param {float} nextBeat - Time of the next coming beat in seconds
+ */
 
 export default Orchestre;

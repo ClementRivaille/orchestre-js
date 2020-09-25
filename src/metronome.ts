@@ -1,5 +1,7 @@
+import EventEmitter from "./event-emitter";
+
 const MARGIN = 0.000001;
-function areEquals(a: any, b: any) {
+function areEquals(a: number, b: number): boolean {
   return Math.abs(a - b) < MARGIN;
 }
 
@@ -12,21 +14,20 @@ function areEquals(a: any, b: any) {
  * @property {AudioContext} context
  */
 class Metronome {
-  beatLength: any;
-  context: any;
-  eventEmitter: any;
-  loopInterval: any;
-  nextBeat: any;
-  startTime: any;
-  constructor(bpm: any, context: any, eventEmitter: any) {
-    this.context = context;
-    this.eventEmitter = eventEmitter;
-
+  public beatLength: number;
+  private loopInterval: NodeJS.Timeout | undefined;
+  private nextBeat: number = 0;
+  private startTime: number = 0;
+  constructor(
+    bpm: number,
+    private context: AudioContext,
+    private eventEmitter: EventEmitter
+  ) {
     this.beatLength = 60 / bpm;
     this._clock = this._clock.bind(this);
   }
 
-  start(startTime: any) {
+  start(startTime: number) {
     this.startTime = startTime;
     this.nextBeat = this.beatLength;
 
@@ -37,10 +38,10 @@ class Metronome {
   }
 
   /*
-  * Loop checking time each frame
-  * The metronom is always one beat ahead, and calculate the time of the upcoming beat
-  */
-  _clock() {
+   * Loop checking time each frame
+   * The metronom is always one beat ahead, and calculate the time of the upcoming beat
+   */
+  private _clock() {
     // Get current time (relative to start time)
     let currentTime = this.context.currentTime - this.startTime;
     // When next beat is reached, update its value
@@ -51,15 +52,15 @@ class Metronome {
   }
 
   /* Emit beat event, and give the global time of next beat */
-  _schedule() {
-    this.eventEmitter.emit('beat', this.startTime + this.nextBeat);
+  private _schedule() {
+    this.eventEmitter.emit("beat", this.startTime + this.nextBeat);
   }
 
   /**
    * Public method use to obtain global next beat time
    * @returns {float} time in seconds of the beat
    */
-  getNextBeatTime() {
+  getNextBeatTime(): number {
     this._fixBeat();
     return this.startTime + this.nextBeat;
   }
@@ -69,7 +70,7 @@ class Metronome {
    * @param {number} beats - Number of beats
    * @returns {float} time in seconds of the beat
    */
-  getNextNthBeatTime(beats: any) {
+  getNextNthBeatTime(beats: number): number {
     this._fixBeat();
     return this.startTime + this.nextBeat + (beats - 1) * this.beatLength;
   }
@@ -79,8 +80,8 @@ class Metronome {
    * @param {float} time - time in seconds from an audio context
    * @returns {float} time since last beat
    */
-  getOffset(time: any) {
-    const offset = (time - this.startTime)%this.beatLength;
+  getOffset(time: number): number {
+    const offset = (time - this.startTime) % this.beatLength;
     return areEquals(this.beatLength, offset) ? 0 : offset;
   }
 
@@ -90,26 +91,31 @@ class Metronome {
    * @param {number} measureSize - Number of beats in a measure
    * @returns {number} position (from 0 to n - 1)
    */
-  getBeatPosition(time: any, measureSize: any) {
+  getBeatPosition(time: number, measureSize: number): number {
     const measureLength = this.beatLength * measureSize;
     const measurePosition = (time - this.startTime) % measureLength;
     // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
     if (areEquals(measureLength - measurePosition)) return 0;
     const position = Math.floor(measurePosition / this.beatLength);
-    return !areEquals(this.beatLength, Math.abs(measurePosition - (position * this.beatLength))) ?
-      position : (position + 1) % measureSize;
+    return !areEquals(
+      this.beatLength,
+      Math.abs(measurePosition - position * this.beatLength)
+    )
+      ? position
+      : (position + 1) % measureSize;
   }
 
-
   stop() {
-    clearInterval(this.loopInterval);
+    if (this.loopInterval) {
+      clearInterval(this.loopInterval);
+    }
   }
 
   /*
-  * If the getter methods are called just on a beat, check if the next beat value is still valid
-  * This is to avoid giving a next beat value that is actually in the past
-  */
-  _fixBeat() {
+   * If the getter methods are called just on a beat, check if the next beat value is still valid
+   * This is to avoid giving a next beat value that is actually in the past
+   */
+  private _fixBeat() {
     let currentTime = this.context.currentTime - this.startTime;
     if (currentTime >= this.nextBeat || areEquals(this.nextBeat, currentTime)) {
       this.nextBeat += this.beatLength;
