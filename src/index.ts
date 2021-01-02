@@ -3,7 +3,6 @@ export {
   PlayerOptions,
   PlayerEventOptions,
   EventOptions,
-  BeatEventOption,
 } from './orchestre';
 export { default as BufferLoader, Sound } from './buffer-loader';
 export { default as Metronome } from './metronome';

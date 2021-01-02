@@ -150,37 +150,33 @@ _Warning:_ Once an action has been scheduled, it can't be cancelled.
 
 ### Trigger events
 
-If you want to call an event function on a beat, you can use `onBeat`:
+To wait one or more beat before executing an event, you can use the `wait` method:
 
 ```javascript
-const listenerId = orchestra.onBeat(() => {
-  // Do something
-}, 4); // Function will be called in 4 beats
+await orchestra.wait(2); // Waits 2 beats
 ```
 
-`onBeat` takes also a third _options_ parameter:
+`wait` takes also a second _options_ parameter:
 
-- **repeat** _(bool)_: keep calling the function every n beats
-- **absolute** _(bool)_: call the function on the absolute bar of n beats
+- **absolute** _(bool)_: wait for the next bar of n beats
 - **offset** _(number)_: use with absolute to set a position in the bar
 
-Here is how to perform an action at the third note of every bar of 4 beats:
+If you want to regularly perform an action, use `addListener`. It takes a callback, the length of the interval in beats, and the same options as _wait_. Here is how to call an event at the third note of every bar of 4 beats:
 
 ```javascript
-const listenerId = orchestra.onBeat(
+const listenerId = orchestra.addListener(
   () => {
-    /*… */
+    /* Do something */
   },
   4,
   {
-    repeat: true,
     absolute: true,
     offset: 2,
   }
 );
 ```
 
-If you want to remove a listener you added with `onBeat`, use `removeListener` with its id:
+To remove a listener, use `removeListener` with its id:
 
 ```javascript
 orchestra.removeListener(listenerId);
@@ -271,7 +267,7 @@ Here are some metronome's methods you can use :
 - `getOffset(time: float): float` gives in seconds the offset of the given time relatively to the closest beat before it
 - `getBeatPosition(time: float, barSize: number): number` for absolute bars of _barSize_ beats, gives the position of the given time. For example, for a bar of 4 beat, results may go from 0 (first beat) to 3 (last beat).
 
-For the simple tasks though (such as counting the position in a bar), I would advise not to use these functions and instead use `onBeat` method on the orchestra to manage your own counters.
+For the simple tasks though (such as counting the position in a bar), I would advise not to use these functions and instead use the `addListener` method on the orchestra to manage your own counters.
 
 ## API
 

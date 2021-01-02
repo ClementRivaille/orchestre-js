@@ -42,7 +42,8 @@ Manage sounds and activate them as players
     - [.stop(name, [options])](#Orchestre+stop)
     - [.isPlaying(name)](#Orchestre+isPlaying) ⇒ <code>boolean</code>
     - [.schedule(name, beats, [action], [options])](#Orchestre+schedule)
-    - [.onBeat(callback, [beats], [options])](#Orchestre+onBeat) ⇒ <code>number</code>
+    - [.wait([beats], [options])](#Orchestre+wait) ⇒ <code>Promise</code>
+    - [.addListener(callback, [beats], [options])](#Orchestre+addListener) ⇒ <code>number</code>
     - [.removeListener(id)](#Orchestre+removeListener) ⇒ <code>boolean</code>
     - [.suspend()](#Orchestre+suspend) ⇒ <code>Promise</code>
     - [.resume()](#Orchestre+resume) ⇒ <code>Promise</code>
@@ -217,23 +218,38 @@ Schedule an action (play, stop, or toggle) for a player on an incoming beat
 | [options.absolute] | <code>boolean</code> |                                             | Action will be performed on the next absolute nth beat (next bar of n beat) |
 | [options.offset]   | <code>number</code>  |                                             | Use with absolute to set a position in the bar                              |
 
-<a name="Orchestre+onBeat"></a>
+<a name="Orchestre+wait"></a>
 
-### orchestre.onBeat(callback, [beats], [options]) ⇒ <code>number</code>
+### orchestre.wait([beats], [options]) ⇒ <code>number</code>
 
-Wait a number of beats before calling a function
+Wait for a number of beats
+
+**Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
+**Returns**: <code>Promise</code> - Resolves on the scheduled beat with its position in seconds
+
+| Param              | Type                 | Default         | Description                                                                 |
+| ------------------ | -------------------- | --------------- | --------------------------------------------------------------------------- |
+| [beats]            | <code>number</code>  | <code>1</code>  | number of beats to wait                                                     |
+| [options]          | <code>objects</code> | <code>{}</code> |                                                                             |
+| [options.absolute] | <code>boolean</code> |                 | Callback will be called on the next absolute nth beat (next bar of n beats) |
+| [options.offset]   | <code>number</code>  |                 | Use with absolute to set a position in the bar                              |
+
+<a name="Orchestre+addListener"></a>
+
+### orchestre.addListener(callback, [beats], [options]) ⇒ <code>number</code>
+
+Call a function every n beats
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 **Returns**: <code>number</code> - Listener's id
 
-| Param              | Type                                                  | Default         | Description                                                                 |
-| ------------------ | ----------------------------------------------------- | --------------- | --------------------------------------------------------------------------- |
-| callback           | [<code>beatCallback</code>](#Orchestre..beatCallback) |                 | Function to call                                                            |
-| [beats]            | <code>number</code>                                   | <code>1</code>  | number of beats to wait                                                     |
-| [options]          | <code>objects</code>                                  | <code>{}</code> |                                                                             |
-| [options.repeat]   | <code>boolean</code>                                  |                 | Callback will be called every n beats                                       |
-| [options.absolute] | <code>boolean</code>                                  |                 | Callback will be called on the next absolute nth beat (next bar of n beats) |
-| [options.offset]   | <code>number</code>                                   |                 | Use with absolute to set a position in the bar                              |
+| Param              | Type                                                  | Default         | Description                                                   |
+| ------------------ | ----------------------------------------------------- | --------------- | ------------------------------------------------------------- |
+| callback           | [<code>beatCallback</code>](#Orchestre..beatCallback) |                 | Function to call                                              |
+| [beats]            | <code>number</code>                                   | <code>1</code>  | number of beats to wait                                       |
+| [options]          | <code>objects</code>                                  | <code>{}</code> |                                                               |
+| [options.absolute] | <code>boolean</code>                                  |                 | Callback will be called on absolute nth beat (bar of n beats) |
+| [options.offset]   | <code>number</code>                                   |                 | Use with absolute to set a position in the bar                |
 
 <a name="Orchestre+removeListener"></a>
 

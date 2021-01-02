@@ -48,44 +48,46 @@ let volume = 1;
 orchestre.addPlayers(players).then(() => {
   orchestre.start(['drum']);
   document.getElementById('control').className = '';
-  eventId = orchestre.onBeat(beat, 2, {repeat: true})
+  eventId = orchestre.addListener(beat, 2, { repeat: true })
 });
 
-window.bass = function() {
+window.bass = function () {
   orchestre.toggle('bass', {
     fade: 0.01
   });
 };
-window.piano = function() {
+window.piano = function () {
   orchestre.toggle('piano', {
     fade: 0.01
   });
 };
-window.melody = function() {
+window.melody = function () {
   orchestre.toggle('melody', {
     fade: 0.02
   });
 };
-window.organ = function() {
+window.organ = function () {
   orchestre.toggle('organ', {
     fade: 0.02
   });
 };
-window.synth = function() {
+window.synth = function () {
   orchestre.toggle('synth', {
     fade: 1.2,
     now: true
   });
 };
-window.jingle = function() {
+window.jingle = function () {
   orchestre.toggle('jingle', {
     once: true
   });
 };
-window.count = function() {
-  orchestre.toggle('doremi', {
+window.count = async function () {
+  orchestre.play('doremi', {
     once: true
   });
+  await orchestre.wait(8)
+  console.log("EIGHT")
 };
 
 function beat() {
@@ -93,15 +95,15 @@ function beat() {
   beatElem.className = beatElem.className === 'hidden' ? '' : 'hidden';
 }
 
-window.stopEvent = function() {
+window.stopEvent = function () {
   orchestre.removeListener(eventId);
 }
 
-window.stop = function() {
+window.stop = function () {
   orchestre.fullStop();
 }
 
-window.pause = function() {
+window.pause = function () {
   if (orchestre.paused) {
     orchestre.resume();
   }
@@ -110,7 +112,7 @@ window.pause = function() {
   }
 }
 
-window.changeVolume = function(positive) {
+window.changeVolume = function (positive) {
   volume = volume + (positive ? 0.1 : -0.1);
   orchestre.setVolume(volume);
 }

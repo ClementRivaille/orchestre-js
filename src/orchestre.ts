@@ -28,10 +28,6 @@ export interface PlayerEventOptions extends EventOptions {
   once?: boolean;
 }
 
-export interface BeatEventOption extends EventOptions {
-  repeat?: boolean;
-}
-
 /**
  * Manage sounds and activate them as players
  * @param {number} bpm - Beats per minute
@@ -82,7 +78,7 @@ class Orchestre {
    */
   private _updateEvents(time: number) {
     if (this.subscribers.length > 0) {
-      const toRemove = [];
+      const toRemove: number[] = [];
       for (const sub of this.subscribers) {
         // Decrease the number of beat to wait
         sub.wait -= 1;
@@ -96,14 +92,14 @@ class Orchestre {
             if (sub.repeat)
               // Repeat
               sub.wait = sub.length;
-            else toRemove.push(this.subscribers.indexOf(sub));
+            else toRemove.push(sub.id);
           }
         }
       }
       // Remove called subscribers
-      for (let i of toRemove) {
-        this.subscribers.splice(i, 1);
-      }
+      this.subscribers = this.subscribers.filter(
+        (sub) => !toRemove.includes(sub.id)
+      );
     }
   }
 
@@ -357,26 +353,51 @@ class Orchestre {
   }
 
   /**
-   * Wait a number of beats before calling a function
+   * Wait for a number of beats
+   * @param {number} [beats=1] - number of beats to wait
+   * @param {objects} [options={}]
+   * @param {boolean} [options.absolute] - Callback will be called on the next absolute nth beat (next bar of n beats)
+   * @param {number} [options.offset] - Use with absolute to set a position in the bar
+   * @returns {Promise<number>} Resolves on the scheduled beat with its position in seconds
+   */
+  wait(beats = 1, options: EventOptions = {}): Promise<number> {
+    this.subId++;
+    return new Promise((resolve) => {
+      this.subscribers.push({
+        id: this.subId,
+        callback: resolve,
+        length: beats,
+        repeat: false,
+        wait:
+          beats -
+          (options.absolute
+            ? this.metronome.getBeatPosition(this.context.currentTime, beats)
+            : 0) +
+          (options.offset || 0),
+      });
+    });
+  }
+
+  /**
+   * Call a function every n beats
    * @param {Orchestre~beatCallback} callback - Function to call
    * @param {number} [beats=1] - number of beats to wait
    * @param {objects} [options={}]
-   * @param {boolean} [options.repeat] - Callback will be called every n beats
-   * @param {boolean} [options.absolute] - Callback will be called on the next absolute nth beat (next bar of n beats)
+   * @param {boolean} [options.absolute] - Callback will be called on absolute nth beat (bar of n beats)
    * @param {number} [options.offset] - Use with absolute to set a position in the bar
    * @returns {number} Listener's id
    */
-  onBeat(
-    callback: (nextBeat: number) => void,
+  addListener(
+    callback: (beat: number) => void,
     beats = 1,
-    options: BeatEventOption = {}
+    options: EventOptions = {}
   ): number {
     this.subId++;
     this.subscribers.push({
       id: this.subId,
       callback,
       length: beats,
-      repeat: !!options.repeat,
+      repeat: true,
       wait:
         beats -
         (options.absolute
@@ -384,8 +405,6 @@ class Orchestre {
           : 0) +
         (options.offset || 0),
     });
-
-    // Return id
     return this.subId;
   }
 
