@@ -2,11 +2,14 @@
   "name": "orchestre-js",
   "version": "1.1.0",
   "description": "Audio tool to easily create dynamic music",
-  "main": "src/orchestre.js",
+  "main": "dist/Orchestre.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "scripts": {
     "start": "ENV=development webpack-dev-server",
-    "build": "webpack",
-    "doc": "jsdoc2md src/orchestre.js src/metronome.js > doc/api.md"
+    "prebuild": "rm -rf dist/*",
+    "build": "tsc && webpack",
+    "doc": "jsdoc2md src/orchestre.ts src/metronome.js > doc/api.md"
   },
   "keywords": [
     "web audio api",
@@ -36,10 +39,12 @@
     "babel-preset-stage-0": "^6.24.1",
     "eslint": "^4.19.1",
     "jsdoc-to-markdown": "^4.0.1",
+    "rimraf": "^3.0.2",
+    "ts-loader": "^8.0.4",
     "ts-migrate": "^0.1.4",
     "webpack": "^4.7.0",
     "webpack-cli": "^3.0.1",
-    "webpack-dev-server": "^3.1.4",
-    "ts-loader": "^8.0.4"
-  }
+    "webpack-dev-server": "^3.1.4"
+  },
+  "dependencies": {}
 }

@@ -32,13 +32,14 @@ var devConfig = {
 };
 
 var buildConfig = {
-  entry: ["babel-polyfill", "./src/orchestre.ts"],
+  entry: {
+    Orchestre: ["babel-polyfill","./src/index.ts"]
+  },
   devtool: "source-map",
   output: {
-    filename: "orchestre.min.js",
-    library: "Orchestre",
-    libraryTarget: "var",
-    libraryExport: "default",
+    filename: "[name].js",
+    library: "OrchestreJs",
+    libraryTarget: "umd",
     path: path.join(__dirname, "dist")
   },
   target: "web",
@@ -47,8 +48,17 @@ var buildConfig = {
     rules: [
       {
         test: /\.ts$/,
-        use: "ts-loader",
-        exclude: /node_modules/
+        use: [{
+          loader: "ts-loader",
+          options: {
+            compilerOptions: {
+              declaration: false,
+              sourceMap: false
+            }
+          }
+        }],  
+        exclude: /node_modules/,
+        
       },
       {
         test: /\.js$/,

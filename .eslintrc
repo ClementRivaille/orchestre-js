@@ -4,6 +4,7 @@
     "sourceType": "module",
     "ecmaVersion": 2017
   },
+  "ignorePatterns": "dist/*",
   "env": {
     "node": true,
     "browser": true,

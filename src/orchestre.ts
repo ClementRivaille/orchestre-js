@@ -1,8 +1,8 @@
-import BufferLoader from "./buffer-loader";
-import EventEmitter from "./event-emitter";
-import Metronome from "./metronome";
-import Player, { PlayerConfiguration } from "./player";
-import SoundLoop from "./sound-loop";
+import BufferLoader from './buffer-loader';
+import EventEmitter from './event-emitter';
+import Metronome from './metronome';
+import Player, { PlayerConfiguration } from './player';
+import SoundLoop from './sound-loop';
 
 interface Subscription {
   id: number;
@@ -12,23 +12,23 @@ interface Subscription {
   wait: number;
 }
 
-interface PlayerOptions {
+export interface PlayerOptions {
   fade?: number;
   now?: boolean;
   once?: boolean;
 }
 
-interface EventOptions {
+export interface EventOptions {
   absolute?: boolean;
   offset?: number;
 }
 
-interface PlayerEventOptions extends EventOptions {
+export interface PlayerEventOptions extends EventOptions {
   fade?: number;
   once?: boolean;
 }
 
-interface BeatEventOption extends EventOptions {
+export interface BeatEventOption extends EventOptions {
   repeat?: boolean;
 }
 
@@ -112,11 +112,11 @@ class Orchestre {
    * @param {string[]} [players=[]] - names of players to start immediately
    */
   start(players: string[] = []) {
-    if (this.started) throw new Error("Orchestre is already started");
+    if (this.started) throw new Error('Orchestre is already started');
     this.context.resume();
     this.metronome.start(this.context.currentTime);
 
-    this.eventEmitter.subscribe("beat", this._updateEvents);
+    this.eventEmitter.subscribe('beat', this._updateEvents);
     this.started = true;
     this.paused = false;
 
@@ -129,12 +129,12 @@ class Orchestre {
    * Immediately stop all the instruments, then stop the metronome
    */
   fullStop() {
-    if (!this.started) throw new Error("Orchestre has not been started");
+    if (!this.started) throw new Error('Orchestre has not been started');
     for (const player in this.players) {
       if (this.players.hasOwnProperty(player))
         this.players[player].soundLoop.stop(this.context.currentTime);
     }
-    this.eventEmitter.unsubscribe("beat", this._updateEvents);
+    this.eventEmitter.unsubscribe('beat', this._updateEvents);
     this.metronome.stop();
     this.started = false;
     this.paused = false;
@@ -167,7 +167,7 @@ class Orchestre {
           !!sound.absolute,
           sound.destination || this.master
         ),
-        playing: false
+        playing: false,
       };
       this.players[sound.name] = player;
     }
@@ -203,7 +203,7 @@ class Orchestre {
           absolute,
           destination || this.master
         ),
-        playing: false
+        playing: false,
       };
     });
   }
@@ -233,7 +233,7 @@ class Orchestre {
    * @param {boolean} [options.once] - Play sound only once, then stop
    */
   toggle(name: string, options: PlayerOptions = {}): boolean {
-    if (!this.started) throw new Error("Orchestre has not been started");
+    if (!this.started) throw new Error('Orchestre has not been started');
     let player = this.players[name];
     if (!player) throw new Error(`Player ${name} does not exist`);
 
@@ -268,7 +268,7 @@ class Orchestre {
    * @param {boolean} [options.once] - Play sound only once, then stop
    */
   play(name: string, options: PlayerOptions = {}) {
-    if (!this.started) throw new Error("Orchestre has not been started");
+    if (!this.started) throw new Error('Orchestre has not been started');
     let player = this.players[name];
     if (!player) throw new Error(`play: player ${name} does not exist`);
     player.soundLoop.start(
@@ -287,7 +287,7 @@ class Orchestre {
    * @param {boolean} [options.now] - If true, sound will stop immediately. Otherwise, it waits for next beat.
    */
   stop(name: string, options: PlayerOptions = {}) {
-    if (!this.started) throw new Error("Orchestre has not been started");
+    if (!this.started) throw new Error('Orchestre has not been started');
     let player = this.players[name];
     if (!player) throw new Error(`stop: player ${name} does not exist`);
     player.soundLoop.stop(
@@ -318,10 +318,10 @@ class Orchestre {
   schedule(
     name: string,
     beats: number,
-    action: "play" | "stop" | "toggle" = "toggle",
+    action: 'play' | 'stop' | 'toggle' = 'toggle',
     options: PlayerEventOptions = {}
   ) {
-    if (!this.started) throw new Error("Orchestre has not been started");
+    if (!this.started) throw new Error('Orchestre has not been started');
     const player = this.players[name];
     if (!player) throw new Error(`schedule: player ${name} does not exist`);
     if (beats <= 0)
@@ -335,8 +335,8 @@ class Orchestre {
       (options.offset || 0);
     const eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
     if (
-      action === "play" ||
-      (action === "toggle" && !player.soundLoop.playing)
+      action === 'play' ||
+      (action === 'toggle' && !player.soundLoop.playing)
     ) {
       player.soundLoop.start(
         eventTime,
@@ -345,8 +345,8 @@ class Orchestre {
         options.once
       );
     } else if (
-      action === "stop" ||
-      (action === "toggle" && player.soundLoop.playing)
+      action === 'stop' ||
+      (action === 'toggle' && player.soundLoop.playing)
     ) {
       player.soundLoop.stop(eventTime, options.fade || 0);
     } else {
@@ -382,7 +382,7 @@ class Orchestre {
         (options.absolute
           ? this.metronome.getBeatPosition(this.context.currentTime, beats)
           : 0) +
-        (options.offset || 0)
+        (options.offset || 0),
     });
 
     // Return id
