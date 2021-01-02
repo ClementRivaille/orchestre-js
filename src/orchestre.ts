@@ -312,8 +312,8 @@ class Orchestre {
    * @param {object} [options={}]
    * @param {float} [options.fade] - Time constant for fade in or fade out
    * @param {boolean} [options.once] - Play sound only once, then stop
-   * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next measure of n beat)
-   * @param {number} [options.offset] - Use with absolute to set a position in the measure
+   * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next bar of n beat)
+   * @param {number} [options.offset] - Use with absolute to set a position in the bar
    */
   schedule(
     name: string,
@@ -362,8 +362,8 @@ class Orchestre {
    * @param {number} [beats=1] - number of beats to wait
    * @param {objects} [options={}]
    * @param {boolean} [options.repeat] - Callback will be called every n beats
-   * @param {boolean} [options.absolute] - Callback will be called on the next absolute nth beat (next measure of n beats)
-   * @param {number} [options.offset] - Use with absolute to set a position in the measure
+   * @param {boolean} [options.absolute] - Callback will be called on the next absolute nth beat (next bar of n beats)
+   * @param {number} [options.offset] - Use with absolute to set a position in the bar
    * @returns {number} Listener's id
    */
   onBeat(

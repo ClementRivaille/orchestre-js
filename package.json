@@ -8,8 +8,7 @@
   "scripts": {
     "start": "ENV=development webpack-dev-server",
     "prebuild": "rm -rf dist/*",
-    "build": "tsc && webpack",
-    "doc": "jsdoc2md src/orchestre.ts src/metronome.js > doc/api.md"
+    "build": "tsc && webpack"
   },
   "keywords": [
     "web audio api",

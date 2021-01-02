@@ -1,4 +1,4 @@
-import EventEmitter from "./event-emitter";
+import EventEmitter from './event-emitter';
 
 const MARGIN = 0.000001;
 function areEquals(a: number, b: number): boolean {
@@ -53,7 +53,7 @@ class Metronome {
 
   /* Emit beat event, and give the global time of next beat */
   private _schedule() {
-    this.eventEmitter.emit("beat", this.startTime + this.nextBeat);
+    this.eventEmitter.emit('beat', this.startTime + this.nextBeat);
   }
 
   /**
@@ -86,23 +86,23 @@ class Metronome {
   }
 
   /**
-   * Gets the position of the given time in an absolute measure of n beats
+   * Gets the position of the given time in an absolute bar of n beats
    * @param {float} time
-   * @param {number} measureSize - Number of beats in a measure
+   * @param {number} barSize - Number of beats in a bar
    * @returns {number} position (from 0 to n - 1)
    */
-  getBeatPosition(time: number, measureSize: number): number {
-    const measureLength = this.beatLength * measureSize;
-    const measurePosition = (time - this.startTime) % measureLength;
+  getBeatPosition(time: number, barSize: number): number {
+    const barLength = this.beatLength * barSize;
+    const barPosition = (time - this.startTime) % barLength;
     // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
-    if (areEquals(measureLength - measurePosition)) return 0;
-    const position = Math.floor(measurePosition / this.beatLength);
+    if (areEquals(barLength - barPosition)) return 0;
+    const position = Math.floor(barPosition / this.beatLength);
     return !areEquals(
       this.beatLength,
-      Math.abs(measurePosition - position * this.beatLength)
+      Math.abs(barPosition - position * this.beatLength)
     )
       ? position
-      : (position + 1) % measureSize;
+      : (position + 1) % barSize;
   }
 
   stop() {
