@@ -1,157 +1,155 @@
 <!doctype html>
 <html>
-  <head>
-    <script src="./bundle.js"></script>
-    <link rel="stylesheet" href="style.css">
-    <title>Orchestre JS</title>
-  </head>
-  <body>
-    <header>
-      <h1>Orchestre-JS</h1>
-      <p>A web tool to create dynamic music</p>
-      <button onclick="start()" id="startButton">Start the audio demo</button>
-      <p id="loading" class="hidden" aria-live="assertive" aria-relevant="text">Loading…</p>
-      <p id="error" class="hidden" aria-live="assertive" aria-relevant="text">
-        <strong>Something went wrong! You might need to try another browser?</strong>
-      </p>
-    </header>
+
+<head>
+  <script src="./bundle.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>Orchestre JS</title>
+</head>
+
+<body>
+  <header>
+    <h1>Orchestre-JS</h1>
+    <p>A web tool to create dynamic music</p>
+    <button onclick="start()" id="startButton">Start the audio demo</button>
+    <p id="loading" class="hidden" aria-live="assertive" aria-relevant="text">Loading…</p>
+    <p id="error" class="hidden" aria-live="assertive" aria-relevant="text">
+      <strong>Something went wrong! You might need to try another browser?</strong>
+    </p>
+  </header>
 
 
-    <main role="main" aria-live="polite" aria-relevant="additions">
+  <main role="main" aria-live="polite" aria-relevant="additions">
 
-      <div id="control" class="hidden">
-        <h2 class="sr-only">Controls</h2>
-        <button onclick="pause()" id="pause-btn">
-          <img id="pause-icon" src="./assets/pause.svg" alt="Pause" height="15rem"/>
-        </button>
-        <img id="pause-icon" src="./assets/volume.svg" aria-hidden="true" height="15rem"/>
-        <button onclick="changeVolume(false)" aria-label="Volume down" id="vol-down-btn">-</button>
-        <button onclick="changeVolume(true)" aria-label="Volume up" disabled class="disabled" id="vol-up-btn">+</button>
+    <div id="control" class="hidden">
+      <h2 class="sr-only">Controls</h2>
+      <button onclick="pause()" id="pause-btn">
+        <img id="pause-icon" src="./assets/pause.svg" alt="Pause" height="15rem" />
+      </button>
+      <img id="pause-icon" src="./assets/volume.svg" aria-hidden="true" height="15rem" />
+      <button onclick="changeVolume(false)" aria-label="Volume down" id="vol-down-btn">-</button>
+      <button onclick="changeVolume(true)" aria-label="Volume up" disabled class="disabled" id="vol-up-btn">+</button>
+    </div>
+
+    <div id="demo" class="hidden">
+      <div class="text" id="init">
+        <h2>Initialization</h2>
+        Initialize an orchestra by providing your song's BPM, then start adding players. Each player represents a
+        musical layer. It needs a name, an audio file, and a length in beat.
       </div>
-
-      <div id="demo" class="hidden">
-        <div class="text" id="init">
-          <h2>Initialization</h2>
-          Initialize an orchestra by providing your song's BPM, then start adding players. Each player represents a musical layer. It needs a name, an audio file, and a length in beat.
-        </div>
-        <div class="code">
-<pre>
+      <div class="code">
+        <pre>
 const orchestre = new Orchestre(120);
-orchestre.addPlayers([
+await orchestre.addPlayers([
   {name: 'bass', url: './assets/bass.ogg', length: 16, absolute: true},
   {name: 'melody', url: './assets/melody.ogg', length: 8, absolute: false},
   // etc...
-]).then(function() {
-  orchestre.start();
-});
+])
+orchestre.start();
 </pre>
-        </div>
+      </div>
 
-        <div class="text" id="players">
-          <h2>Play</h2>
-          <p>
-            Activate and deactivate your players to make them play in sync.<br/>
-            There are two kinds of players: absolute and relative. Play around with them to hear the difference!
-          </p>
-          <div class="players">
-            <div>
-              <h3>Absolute</h3>
-              <button onclick="bass()" id="bass-btn" aria-pressed="false">Bass (16 beats)</button>
-              <button onclick="piano()" id="piano-btn" aria-pressed="false">Piano (16 beats)</button>
-              <p>Will always stay on the same beats</p>
-            </div>
-            <div>
-              <h3>Relative</h3>
-              <button onclick="melody()" id="melody-btn" aria-pressed="false">Melody (8 beats)</button>
-              <button onclick="organ()" id="organ-btn" aria-pressed="false">Organ (7 beats)</button>
-              <p>Will play on the first beat when activated</p>
-            </div>
+      <div class="text" id="players">
+        <h2>Play</h2>
+        <p>
+          Activate and deactivate your players to make them play in sync.<br />
+          There are two kinds of players: absolute and relative. Play around with them to hear the difference!
+        </p>
+        <div class="players">
+          <div>
+            <h3>Absolute</h3>
+            <button onclick="bass()" id="bass-btn" aria-pressed="false">Bass (16 beats)</button>
+            <button onclick="piano()" id="piano-btn" aria-pressed="false">Piano (16 beats)</button>
+            <p>Will always stay on the same beats</p>
+          </div>
+          <div>
+            <h3>Relative</h3>
+            <button onclick="melody()" id="melody-btn" aria-pressed="false">Melody (8 beats)</button>
+            <button onclick="organ()" id="organ-btn" aria-pressed="false">Organ (7 beats)</button>
+            <p>Will play on the first beat when activated</p>
           </div>
         </div>
-        <div class="code">
-<pre>
+      </div>
+      <div class="code">
+        <pre>
 orchestre.play('bass');
 </pre>
-<pre>
+        <pre>
 orchestre.stop('bass');
 </pre>
-<pre>
+        <pre>
 // alternate between play and stop
 orchestre.toggle('bass');
 </pre>
-        </div>
+      </div>
 
-        <div class="text" id="options">
-          <h2>Options</h2>
-          <p>Orchestre-JS comes with several options to use players in different ways.</p>
+      <div class="text" id="options">
+        <h2>Options</h2>
+        <p>Orchestre-JS comes with several options to use players in different ways.</p>
 
-          <div class="players">
-            <div>
-              <p>Play or stop immediately with a fade in and fade out</p>
-              <button onclick="synth()" id="synth-btn" aria-pressed="false">Synth</button>
-            </div>
-            <div>
-              <p>Play only once</p>
-              <button onclick="jingle()" id="jingle-btn">Jingle</button>
-            </div>
+        <div class="players">
+          <div>
+            <p>Play or stop immediately with a fade in and fade out</p>
+            <button onclick="synth()" id="synth-btn" aria-pressed="false">Synth</button>
+          </div>
+          <div>
+            <p>Play only once</p>
+            <button onclick="jingle()" id="jingle-btn">Jingle</button>
           </div>
         </div>
-        <div class="code">
-<pre>
+      </div>
+      <div class="code">
+        <pre>
 orchestre.toggle('synth', {
   now: true,
   fade: 1.2
 });
 </pre>
-<pre>
+        <pre>
 orchestre.play('jingle', {
   once: true
 });
 </pre>
-        </div>
+      </div>
 
-        <div class="text" id="events">
-          <h2>Events</h2>
-          <p>Subscribe to events to trigger actions on beat.</p>
-          <div class="players">
-            <div>
-              <button onclick="count()" id="count-btn">Count to 8</button>
-              <div id="eight" aria-live="assertive" aria-relevant="text">
-                EIGHT!
-              </div>
-            </div>
-            <div>
-              <p>Called every two beats</p>
-              <div id="beat" class="off">
-                <div></div>
-                <span class="sr-only" id="beat-text">off</span>
-              </div>
-              <button id="animation-stop" onclick="animationStop()">Stop the animation</button>
+      <div class="text" id="events">
+        <h2>Events</h2>
+        <p>Subscribe to events to trigger actions on beat.</p>
+        <div class="players">
+          <div>
+            <button onclick="count()" id="count-btn">Count to 8</button>
+            <div id="eight" aria-live="assertive" aria-relevant="text">
+              EIGHT!
             </div>
           </div>
+          <div>
+            <p>Called every two beats</p>
+            <div id="beat" class="off">
+              <div></div>
+              <span class="sr-only" id="beat-text">off</span>
+            </div>
+            <button id="animation-stop" onclick="animationStop()">Stop the animation</button>
+          </div>
         </div>
-        <div class="code">
-<pre>
-orchestre.onBeat(function() {
-  document.getElementById('eight').className = 'trigger';
-}, 8);
+      </div>
+      <div class="code">
+        <pre>
+await orchestre.wait(8);
 </pre>
-<pre>
-let listenerId = orchestre.onBeat(function() {
-  const beatElem = document.getElementById('beat');
-  beatElem.className = beatElem.className === 'on' ? 'off' : 'on';
-}, 2, {repeat: true});
+        <pre>
+let listenerId = orchestre.addListener(() => { playAnimation() }, 2);
 </pre>
-<pre>
+        <pre>
 orchestre.removeListener(listenerId);
 </pre>
-        </div>
-
       </div>
-    </main>
 
-    <footer>
-      <a href="https://github.com/ClementRivaille/orchestre-js">View it on Github</a>
-    </footer>
-  </body>
+    </div>
+  </main>
+
+  <footer>
+    <a href="https://github.com/ClementRivaille/orchestre-js">View it on Github</a>
+  </footer>
+</body>
+
 </html>
