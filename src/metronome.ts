@@ -94,8 +94,7 @@ class Metronome {
   getBeatPosition(time: number, barSize: number): number {
     const barLength = this.beatLength * barSize;
     const barPosition = (time - this.startTime) % barLength;
-    // @ts-expect-error ts-migrate(2554) FIXME: Expected 2 arguments, but got 1.
-    if (areEquals(barLength - barPosition)) return 0;
+    if (areEquals(barLength, barPosition)) return 0;
     const position = Math.floor(barPosition / this.beatLength);
     return !areEquals(
       this.beatLength,

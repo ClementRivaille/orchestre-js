@@ -1,5 +1,5 @@
-import EventEmitter from "./event-emitter";
-import Metronome from "./metronome";
+import EventEmitter from './event-emitter';
+import Metronome from './metronome';
 
 /**
  * Sound loop that stays in sync with the beats
@@ -83,7 +83,7 @@ class SoundLoop {
 
     // Subscribe to beat events
     if (!this.subscribed && !once) {
-      this.eventEmitter.subscribe("beat", this._beatSchedule);
+      this.eventEmitter.subscribe('beat', this._beatSchedule);
       this.subscribed = true;
     }
 
@@ -119,7 +119,7 @@ class SoundLoop {
       ) {
         this.source.stop(this.stopTime);
         this.stopped = true;
-        this.eventEmitter.unsubscribe("beat", this._beatSchedule);
+        this.eventEmitter.unsubscribe('beat', this._beatSchedule);
         this.subscribed = false;
       }
     }, (stopTime - this.context.currentTime) * 1000 + length * 5000);
