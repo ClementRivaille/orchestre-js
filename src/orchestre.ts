@@ -87,7 +87,7 @@ class Orchestre {
           try {
             sub.callback(time);
           } catch (err) {
-            throw new err();
+            throw err;
           } finally {
             if (sub.repeat)
               // Repeat
