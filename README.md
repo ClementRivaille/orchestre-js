@@ -6,7 +6,7 @@ Audio tool to create adaptive and interactive music.
 
 Orchestre-JS is an audio library for managing dynamic music, by playing vertical or horizontal layers. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, transitionning through verses, or call events on beats. Orchestre-JS aims to provides a simple way to create dynamic soundtracks for your web games or applications.
 
-If you want to see the library in action, you can check out those games: [Moog Memories](https://itooh.itch.io/moog-memories), [Blood Not Allowed](https://itooh.itch.io/blood-not-allowed) (made with Twine), and [Step Out](https://itooh.itch.io/step-out) (made with Phaser).
+If you want to see the library in action, you can check out those games: [Echoes Traveler](https://itooh.itch.io/echoes-traveler), [Blood Not Allowed](https://itooh.itch.io/blood-not-allowed) (made with Twine), and [Step Out](https://itooh.itch.io/step-out).
 If you use Orchestre-JS in your creations, I would be really glad to see them! Feel free to show them to me.
 
 ## Install
