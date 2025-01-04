@@ -1,5 +1,7 @@
 # Orchestre-JS
 
+![Logo](./doc/logo.png)
+
 Audio tool to create adaptive and interactive music.
 
 [View demo](https://clementrivaille.github.io/orchestre-js/)
