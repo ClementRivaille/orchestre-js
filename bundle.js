@@ -102,6 +102,8 @@ var _orchestre2 = _interopRequireDefault(_orchestre);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 var players = [{
   name: 'drum',
   url: './assets/drum.ogg',
@@ -142,11 +144,27 @@ var players = [{
   url: './assets/doremi.ogg',
   length: 12,
   absolute: false
+}, {
+  name: 'shamisen',
+  url: './assets/shamisen.ogg',
+  length: 8,
+  absolute: false
 }];
 
-var orchestre = new _orchestre2.default(120);
+var orchestre = void 0;
 var volume = 1;
 var listenerId = -1;
+
+try {
+  orchestre = new _orchestre2.default(120);
+} catch (err) {
+  window.addEventListener('load', function () {
+    document.getElementById('error').className = '';
+    document.getElementById('startButton').className = 'hidden';
+    document.getElementById('demo').className = '';
+    throw new Error(err);
+  }, false);
+}
 
 window.start = function () {
   document.getElementById('startButton').className = 'hidden';
@@ -158,7 +176,13 @@ window.start = function () {
     document.getElementById('demo').className = '';
     document.getElementById('control').className = '';
     document.getElementsByTagName('footer')[0].className = '';
-    listenerId = orchestre.onBeat(beat, 2, { repeat: true });
+    listenerId = orchestre.addListener(beat, 2);
+  }).catch(function (err) {
+    document.getElementById('loading').className = 'hidden';
+    document.getElementById('error').className = '';
+    document.getElementById('demo').className = '';
+    document.getElementsByTagName('footer')[0].className = '';
+    throw new Error(err);
   });
 };
 
@@ -198,37 +222,94 @@ window.synth = function () {
   document.getElementById('synth-btn').className = orchestre.isPlaying('synth') ? 'active' : '';
   document.getElementById('synth-btn').setAttribute('aria-pressed', orchestre.isPlaying('synth'));
 };
-window.jingle = function () {
-  orchestre.toggle('jingle', {
-    once: true
-  });
+window.jingle = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+  var jingleBtn;
+  return regeneratorRuntime.wrap(function _callee$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          orchestre.toggle('jingle', {
+            once: true
+          });
 
-  var jingleBtn = document.getElementById('jingle-btn');
-  jingleBtn.className = 'disabled';
-  jingleBtn.setAttribute('disabled', true);
-  orchestre.onBeat(function () {
-    jingleBtn.className = '';
-    jingleBtn.removeAttribute('disabled');
-  }, 4);
-};
-window.count = function () {
-  orchestre.toggle('doremi', {
-    once: true
-  });
-  var countBtn = document.getElementById('count-btn');
-  countBtn.className = 'disabled';
-  countBtn.setAttribute('disabled', true);
-  orchestre.onBeat(function () {
-    countBtn.className = '';
-    countBtn.removeAttribute('disabled');
+          jingleBtn = document.getElementById('jingle-btn');
 
-    var eightElem = document.getElementById('eight');
-    eightElem.className = 'trigger';
-    setTimeout(function () {
-      eightElem.className = '';
-    }, 1500);
-  }, 8);
-};
+          jingleBtn.className = 'disabled';
+          jingleBtn.setAttribute('disabled', true);
+          _context.next = 6;
+          return orchestre.wait(4);
+
+        case 6:
+          jingleBtn.className = '';
+          jingleBtn.removeAttribute('disabled');
+
+        case 8:
+        case 'end':
+          return _context.stop();
+      }
+    }
+  }, _callee, this);
+}));
+window.shamisen = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+  var scheduler;
+  return regeneratorRuntime.wrap(function _callee2$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          orchestre.schedule("shamisen", 8, "toggle", { absolute: true });
+          document.getElementById('shamisen-btn').className = orchestre.isPlaying('shamisen') ? 'active' : '';
+          document.getElementById('shamisen-btn').setAttribute('aria-pressed', orchestre.isPlaying('shamisen'));
+
+          scheduler = document.getElementById("scheduler");
+
+          scheduler.className = "trigger";
+          _context2.next = 7;
+          return orchestre.wait(8, { absolute: true });
+
+        case 7:
+          scheduler.className = "";
+
+        case 8:
+        case 'end':
+          return _context2.stop();
+      }
+    }
+  }, _callee2, this);
+}));
+window.count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+  var countBtn, eightElem;
+  return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          orchestre.toggle('doremi', {
+            once: true
+          });
+          countBtn = document.getElementById('count-btn');
+
+          countBtn.className = 'disabled';
+          countBtn.setAttribute('disabled', true);
+          _context3.next = 6;
+          return orchestre.wait(8);
+
+        case 6:
+          countBtn.className = '';
+          countBtn.removeAttribute('disabled');
+
+          eightElem = document.getElementById('eight');
+
+          eightElem.className = 'trigger';
+          setTimeout(function () {
+            eightElem.className = '';
+          }, 1500);
+
+        case 11:
+        case 'end':
+          return _context3.stop();
+      }
+    }
+  }, _callee3, this);
+}));
 
 function beat() {
   var beatElem = document.getElementById('beat');
@@ -244,7 +325,7 @@ window.animationStop = function () {
     listenerId = -1;
     animBtn.textContent = 'Start the animation';
   } else {
-    listenerId = orchestre.onBeat(beat, 2, { repeat: true });
+    listenerId = orchestre.addListener(beat, 2);
     animBtn.textContent = 'Stop the animation';
   }
 };
@@ -299,7 +380,7 @@ window.changeVolume = function (positive) {
 
 __webpack_require__(/*! core-js/shim */ "./node_modules/core-js/shim.js");
 
-__webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/babel-polyfill/node_modules/regenerator-runtime/runtime.js");
+__webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/regenerator-runtime/runtime.js");
 
 __webpack_require__(/*! core-js/fn/regexp/escape */ "./node_modules/core-js/fn/regexp/escape.js");
 
@@ -324,724 +405,6 @@ define(String.prototype, "padRight", "".padEnd);
   [][key] && define(Array, key, Function.call.bind([][key]));
 });
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
-
-/***/ }),
-
-/***/ "./node_modules/babel-polyfill/node_modules/regenerator-runtime/runtime.js":
-/*!*********************************************************************************!*\
-  !*** ./node_modules/babel-polyfill/node_modules/regenerator-runtime/runtime.js ***!
-  \*********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global, module) {
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/**
- * Copyright (c) 2014, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
- * additional grant of patent rights can be found in the PATENTS file in
- * the same directory.
- */
-
-!function (global) {
-  "use strict";
-
-  var Op = Object.prototype;
-  var hasOwn = Op.hasOwnProperty;
-  var undefined; // More compressible than void 0.
-  var $Symbol = typeof Symbol === "function" ? Symbol : {};
-  var iteratorSymbol = $Symbol.iterator || "@@iterator";
-  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
-  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-
-  var inModule = ( false ? undefined : _typeof(module)) === "object";
-  var runtime = global.regeneratorRuntime;
-  if (runtime) {
-    if (inModule) {
-      // If regeneratorRuntime is defined globally and we're in a module,
-      // make the exports object identical to regeneratorRuntime.
-      module.exports = runtime;
-    }
-    // Don't bother evaluating the rest of this file if the runtime was
-    // already defined globally.
-    return;
-  }
-
-  // Define the runtime globally (as expected by generated code) as either
-  // module.exports (if we're in a module) or a new, empty object.
-  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-
-  function wrap(innerFn, outerFn, self, tryLocsList) {
-    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
-    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
-    var generator = Object.create(protoGenerator.prototype);
-    var context = new Context(tryLocsList || []);
-
-    // The ._invoke method unifies the implementations of the .next,
-    // .throw, and .return methods.
-    generator._invoke = makeInvokeMethod(innerFn, self, context);
-
-    return generator;
-  }
-  runtime.wrap = wrap;
-
-  // Try/catch helper to minimize deoptimizations. Returns a completion
-  // record like context.tryEntries[i].completion. This interface could
-  // have been (and was previously) designed to take a closure to be
-  // invoked without arguments, but in all the cases we care about we
-  // already have an existing method we want to call, so there's no need
-  // to create a new function object. We can even get away with assuming
-  // the method takes exactly one argument, since that happens to be true
-  // in every case, so we don't have to touch the arguments object. The
-  // only additional allocation required is the completion record, which
-  // has a stable shape and so hopefully should be cheap to allocate.
-  function tryCatch(fn, obj, arg) {
-    try {
-      return { type: "normal", arg: fn.call(obj, arg) };
-    } catch (err) {
-      return { type: "throw", arg: err };
-    }
-  }
-
-  var GenStateSuspendedStart = "suspendedStart";
-  var GenStateSuspendedYield = "suspendedYield";
-  var GenStateExecuting = "executing";
-  var GenStateCompleted = "completed";
-
-  // Returning this object from the innerFn has the same effect as
-  // breaking out of the dispatch switch statement.
-  var ContinueSentinel = {};
-
-  // Dummy constructor functions that we use as the .constructor and
-  // .constructor.prototype properties for functions that return Generator
-  // objects. For full spec compliance, you may wish to configure your
-  // minifier not to mangle the names of these two functions.
-  function Generator() {}
-  function GeneratorFunction() {}
-  function GeneratorFunctionPrototype() {}
-
-  // This is a polyfill for %IteratorPrototype% for environments that
-  // don't natively support it.
-  var IteratorPrototype = {};
-  IteratorPrototype[iteratorSymbol] = function () {
-    return this;
-  };
-
-  var getProto = Object.getPrototypeOf;
-  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-  if (NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
-    // This environment has a native %IteratorPrototype%; use it instead
-    // of the polyfill.
-    IteratorPrototype = NativeIteratorPrototype;
-  }
-
-  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
-  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-  GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
-
-  // Helper for defining the .next, .throw, and .return methods of the
-  // Iterator interface in terms of a single ._invoke method.
-  function defineIteratorMethods(prototype) {
-    ["next", "throw", "return"].forEach(function (method) {
-      prototype[method] = function (arg) {
-        return this._invoke(method, arg);
-      };
-    });
-  }
-
-  runtime.isGeneratorFunction = function (genFun) {
-    var ctor = typeof genFun === "function" && genFun.constructor;
-    return ctor ? ctor === GeneratorFunction ||
-    // For the native GeneratorFunction constructor, the best we can
-    // do is to check its .name property.
-    (ctor.displayName || ctor.name) === "GeneratorFunction" : false;
-  };
-
-  runtime.mark = function (genFun) {
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
-    } else {
-      genFun.__proto__ = GeneratorFunctionPrototype;
-      if (!(toStringTagSymbol in genFun)) {
-        genFun[toStringTagSymbol] = "GeneratorFunction";
-      }
-    }
-    genFun.prototype = Object.create(Gp);
-    return genFun;
-  };
-
-  // Within the body of any async function, `await x` is transformed to
-  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
-  // `hasOwn.call(value, "__await")` to determine if the yielded value is
-  // meant to be awaited.
-  runtime.awrap = function (arg) {
-    return { __await: arg };
-  };
-
-  function AsyncIterator(generator) {
-    function invoke(method, arg, resolve, reject) {
-      var record = tryCatch(generator[method], generator, arg);
-      if (record.type === "throw") {
-        reject(record.arg);
-      } else {
-        var result = record.arg;
-        var value = result.value;
-        if (value && (typeof value === "undefined" ? "undefined" : _typeof(value)) === "object" && hasOwn.call(value, "__await")) {
-          return Promise.resolve(value.__await).then(function (value) {
-            invoke("next", value, resolve, reject);
-          }, function (err) {
-            invoke("throw", err, resolve, reject);
-          });
-        }
-
-        return Promise.resolve(value).then(function (unwrapped) {
-          // When a yielded Promise is resolved, its final value becomes
-          // the .value of the Promise<{value,done}> result for the
-          // current iteration. If the Promise is rejected, however, the
-          // result for this iteration will be rejected with the same
-          // reason. Note that rejections of yielded Promises are not
-          // thrown back into the generator function, as is the case
-          // when an awaited Promise is rejected. This difference in
-          // behavior between yield and await is important, because it
-          // allows the consumer to decide what to do with the yielded
-          // rejection (swallow it and continue, manually .throw it back
-          // into the generator, abandon iteration, whatever). With
-          // await, by contrast, there is no opportunity to examine the
-          // rejection reason outside the generator function, so the
-          // only option is to throw it from the await expression, and
-          // let the generator function handle the exception.
-          result.value = unwrapped;
-          resolve(result);
-        }, reject);
-      }
-    }
-
-    if (_typeof(global.process) === "object" && global.process.domain) {
-      invoke = global.process.domain.bind(invoke);
-    }
-
-    var previousPromise;
-
-    function enqueue(method, arg) {
-      function callInvokeWithMethodAndArg() {
-        return new Promise(function (resolve, reject) {
-          invoke(method, arg, resolve, reject);
-        });
-      }
-
-      return previousPromise =
-      // If enqueue has been called before, then we want to wait until
-      // all previous Promises have been resolved before calling invoke,
-      // so that results are always delivered in the correct order. If
-      // enqueue has not been called before, then it is important to
-      // call invoke immediately, without waiting on a callback to fire,
-      // so that the async generator function has the opportunity to do
-      // any necessary setup in a predictable way. This predictability
-      // is why the Promise constructor synchronously invokes its
-      // executor callback, and why async functions synchronously
-      // execute code before the first await. Since we implement simple
-      // async functions in terms of async generators, it is especially
-      // important to get this right, even though it requires care.
-      previousPromise ? previousPromise.then(callInvokeWithMethodAndArg,
-      // Avoid propagating failures to Promises returned by later
-      // invocations of the iterator.
-      callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
-    }
-
-    // Define the unified helper method that is used to implement .next,
-    // .throw, and .return (see defineIteratorMethods).
-    this._invoke = enqueue;
-  }
-
-  defineIteratorMethods(AsyncIterator.prototype);
-  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
-    return this;
-  };
-  runtime.AsyncIterator = AsyncIterator;
-
-  // Note that simple async functions are implemented on top of
-  // AsyncIterator objects; they just return a Promise for the value of
-  // the final result produced by the iterator.
-  runtime.async = function (innerFn, outerFn, self, tryLocsList) {
-    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList));
-
-    return runtime.isGeneratorFunction(outerFn) ? iter // If outerFn is a generator, return the full iterator.
-    : iter.next().then(function (result) {
-      return result.done ? result.value : iter.next();
-    });
-  };
-
-  function makeInvokeMethod(innerFn, self, context) {
-    var state = GenStateSuspendedStart;
-
-    return function invoke(method, arg) {
-      if (state === GenStateExecuting) {
-        throw new Error("Generator is already running");
-      }
-
-      if (state === GenStateCompleted) {
-        if (method === "throw") {
-          throw arg;
-        }
-
-        // Be forgiving, per 25.3.3.3.3 of the spec:
-        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-        return doneResult();
-      }
-
-      context.method = method;
-      context.arg = arg;
-
-      while (true) {
-        var delegate = context.delegate;
-        if (delegate) {
-          var delegateResult = maybeInvokeDelegate(delegate, context);
-          if (delegateResult) {
-            if (delegateResult === ContinueSentinel) continue;
-            return delegateResult;
-          }
-        }
-
-        if (context.method === "next") {
-          // Setting context._sent for legacy support of Babel's
-          // function.sent implementation.
-          context.sent = context._sent = context.arg;
-        } else if (context.method === "throw") {
-          if (state === GenStateSuspendedStart) {
-            state = GenStateCompleted;
-            throw context.arg;
-          }
-
-          context.dispatchException(context.arg);
-        } else if (context.method === "return") {
-          context.abrupt("return", context.arg);
-        }
-
-        state = GenStateExecuting;
-
-        var record = tryCatch(innerFn, self, context);
-        if (record.type === "normal") {
-          // If an exception is thrown from innerFn, we leave state ===
-          // GenStateExecuting and loop back for another invocation.
-          state = context.done ? GenStateCompleted : GenStateSuspendedYield;
-
-          if (record.arg === ContinueSentinel) {
-            continue;
-          }
-
-          return {
-            value: record.arg,
-            done: context.done
-          };
-        } else if (record.type === "throw") {
-          state = GenStateCompleted;
-          // Dispatch the exception by looping back around to the
-          // context.dispatchException(context.arg) call above.
-          context.method = "throw";
-          context.arg = record.arg;
-        }
-      }
-    };
-  }
-
-  // Call delegate.iterator[context.method](context.arg) and handle the
-  // result, either by returning a { value, done } result from the
-  // delegate iterator, or by modifying context.method and context.arg,
-  // setting context.delegate to null, and returning the ContinueSentinel.
-  function maybeInvokeDelegate(delegate, context) {
-    var method = delegate.iterator[context.method];
-    if (method === undefined) {
-      // A .throw or .return when the delegate iterator has no .throw
-      // method always terminates the yield* loop.
-      context.delegate = null;
-
-      if (context.method === "throw") {
-        if (delegate.iterator.return) {
-          // If the delegate iterator has a return method, give it a
-          // chance to clean up.
-          context.method = "return";
-          context.arg = undefined;
-          maybeInvokeDelegate(delegate, context);
-
-          if (context.method === "throw") {
-            // If maybeInvokeDelegate(context) changed context.method from
-            // "return" to "throw", let that override the TypeError below.
-            return ContinueSentinel;
-          }
-        }
-
-        context.method = "throw";
-        context.arg = new TypeError("The iterator does not provide a 'throw' method");
-      }
-
-      return ContinueSentinel;
-    }
-
-    var record = tryCatch(method, delegate.iterator, context.arg);
-
-    if (record.type === "throw") {
-      context.method = "throw";
-      context.arg = record.arg;
-      context.delegate = null;
-      return ContinueSentinel;
-    }
-
-    var info = record.arg;
-
-    if (!info) {
-      context.method = "throw";
-      context.arg = new TypeError("iterator result is not an object");
-      context.delegate = null;
-      return ContinueSentinel;
-    }
-
-    if (info.done) {
-      // Assign the result of the finished delegate to the temporary
-      // variable specified by delegate.resultName (see delegateYield).
-      context[delegate.resultName] = info.value;
-
-      // Resume execution at the desired location (see delegateYield).
-      context.next = delegate.nextLoc;
-
-      // If context.method was "throw" but the delegate handled the
-      // exception, let the outer generator proceed normally. If
-      // context.method was "next", forget context.arg since it has been
-      // "consumed" by the delegate iterator. If context.method was
-      // "return", allow the original .return call to continue in the
-      // outer generator.
-      if (context.method !== "return") {
-        context.method = "next";
-        context.arg = undefined;
-      }
-    } else {
-      // Re-yield the result returned by the delegate method.
-      return info;
-    }
-
-    // The delegate iterator is finished, so forget it and continue with
-    // the outer generator.
-    context.delegate = null;
-    return ContinueSentinel;
-  }
-
-  // Define Generator.prototype.{next,throw,return} in terms of the
-  // unified ._invoke helper method.
-  defineIteratorMethods(Gp);
-
-  Gp[toStringTagSymbol] = "Generator";
-
-  // A Generator should always return itself as the iterator object when the
-  // @@iterator function is called on it. Some browsers' implementations of the
-  // iterator prototype chain incorrectly implement this, causing the Generator
-  // object to not be returned from this call. This ensures that doesn't happen.
-  // See https://github.com/facebook/regenerator/issues/274 for more details.
-  Gp[iteratorSymbol] = function () {
-    return this;
-  };
-
-  Gp.toString = function () {
-    return "[object Generator]";
-  };
-
-  function pushTryEntry(locs) {
-    var entry = { tryLoc: locs[0] };
-
-    if (1 in locs) {
-      entry.catchLoc = locs[1];
-    }
-
-    if (2 in locs) {
-      entry.finallyLoc = locs[2];
-      entry.afterLoc = locs[3];
-    }
-
-    this.tryEntries.push(entry);
-  }
-
-  function resetTryEntry(entry) {
-    var record = entry.completion || {};
-    record.type = "normal";
-    delete record.arg;
-    entry.completion = record;
-  }
-
-  function Context(tryLocsList) {
-    // The root entry object (effectively a try statement without a catch
-    // or a finally block) gives us a place to store values thrown from
-    // locations where there is no enclosing try statement.
-    this.tryEntries = [{ tryLoc: "root" }];
-    tryLocsList.forEach(pushTryEntry, this);
-    this.reset(true);
-  }
-
-  runtime.keys = function (object) {
-    var keys = [];
-    for (var key in object) {
-      keys.push(key);
-    }
-    keys.reverse();
-
-    // Rather than returning an object with a next method, we keep
-    // things simple and return the next function itself.
-    return function next() {
-      while (keys.length) {
-        var key = keys.pop();
-        if (key in object) {
-          next.value = key;
-          next.done = false;
-          return next;
-        }
-      }
-
-      // To avoid creating an additional object, we just hang the .value
-      // and .done properties off the next function object itself. This
-      // also ensures that the minifier will not anonymize the function.
-      next.done = true;
-      return next;
-    };
-  };
-
-  function values(iterable) {
-    if (iterable) {
-      var iteratorMethod = iterable[iteratorSymbol];
-      if (iteratorMethod) {
-        return iteratorMethod.call(iterable);
-      }
-
-      if (typeof iterable.next === "function") {
-        return iterable;
-      }
-
-      if (!isNaN(iterable.length)) {
-        var i = -1,
-            next = function next() {
-          while (++i < iterable.length) {
-            if (hasOwn.call(iterable, i)) {
-              next.value = iterable[i];
-              next.done = false;
-              return next;
-            }
-          }
-
-          next.value = undefined;
-          next.done = true;
-
-          return next;
-        };
-
-        return next.next = next;
-      }
-    }
-
-    // Return an iterator with no values.
-    return { next: doneResult };
-  }
-  runtime.values = values;
-
-  function doneResult() {
-    return { value: undefined, done: true };
-  }
-
-  Context.prototype = {
-    constructor: Context,
-
-    reset: function reset(skipTempReset) {
-      this.prev = 0;
-      this.next = 0;
-      // Resetting context._sent for legacy support of Babel's
-      // function.sent implementation.
-      this.sent = this._sent = undefined;
-      this.done = false;
-      this.delegate = null;
-
-      this.method = "next";
-      this.arg = undefined;
-
-      this.tryEntries.forEach(resetTryEntry);
-
-      if (!skipTempReset) {
-        for (var name in this) {
-          // Not sure about the optimal order of these conditions:
-          if (name.charAt(0) === "t" && hasOwn.call(this, name) && !isNaN(+name.slice(1))) {
-            this[name] = undefined;
-          }
-        }
-      }
-    },
-
-    stop: function stop() {
-      this.done = true;
-
-      var rootEntry = this.tryEntries[0];
-      var rootRecord = rootEntry.completion;
-      if (rootRecord.type === "throw") {
-        throw rootRecord.arg;
-      }
-
-      return this.rval;
-    },
-
-    dispatchException: function dispatchException(exception) {
-      if (this.done) {
-        throw exception;
-      }
-
-      var context = this;
-      function handle(loc, caught) {
-        record.type = "throw";
-        record.arg = exception;
-        context.next = loc;
-
-        if (caught) {
-          // If the dispatched exception was caught by a catch block,
-          // then let that catch block handle the exception normally.
-          context.method = "next";
-          context.arg = undefined;
-        }
-
-        return !!caught;
-      }
-
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        var record = entry.completion;
-
-        if (entry.tryLoc === "root") {
-          // Exception thrown outside of any try block that could handle
-          // it, so set the completion value of the entire function to
-          // throw the exception.
-          return handle("end");
-        }
-
-        if (entry.tryLoc <= this.prev) {
-          var hasCatch = hasOwn.call(entry, "catchLoc");
-          var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-          if (hasCatch && hasFinally) {
-            if (this.prev < entry.catchLoc) {
-              return handle(entry.catchLoc, true);
-            } else if (this.prev < entry.finallyLoc) {
-              return handle(entry.finallyLoc);
-            }
-          } else if (hasCatch) {
-            if (this.prev < entry.catchLoc) {
-              return handle(entry.catchLoc, true);
-            }
-          } else if (hasFinally) {
-            if (this.prev < entry.finallyLoc) {
-              return handle(entry.finallyLoc);
-            }
-          } else {
-            throw new Error("try statement without catch or finally");
-          }
-        }
-      }
-    },
-
-    abrupt: function abrupt(type, arg) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
-          var finallyEntry = entry;
-          break;
-        }
-      }
-
-      if (finallyEntry && (type === "break" || type === "continue") && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc) {
-        // Ignore the finally entry if control is not jumping to a
-        // location outside the try/catch block.
-        finallyEntry = null;
-      }
-
-      var record = finallyEntry ? finallyEntry.completion : {};
-      record.type = type;
-      record.arg = arg;
-
-      if (finallyEntry) {
-        this.method = "next";
-        this.next = finallyEntry.finallyLoc;
-        return ContinueSentinel;
-      }
-
-      return this.complete(record);
-    },
-
-    complete: function complete(record, afterLoc) {
-      if (record.type === "throw") {
-        throw record.arg;
-      }
-
-      if (record.type === "break" || record.type === "continue") {
-        this.next = record.arg;
-      } else if (record.type === "return") {
-        this.rval = this.arg = record.arg;
-        this.method = "return";
-        this.next = "end";
-      } else if (record.type === "normal" && afterLoc) {
-        this.next = afterLoc;
-      }
-
-      return ContinueSentinel;
-    },
-
-    finish: function finish(finallyLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.finallyLoc === finallyLoc) {
-          this.complete(entry.completion, entry.afterLoc);
-          resetTryEntry(entry);
-          return ContinueSentinel;
-        }
-      }
-    },
-
-    "catch": function _catch(tryLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc === tryLoc) {
-          var record = entry.completion;
-          if (record.type === "throw") {
-            var thrown = record.arg;
-            resetTryEntry(entry);
-          }
-          return thrown;
-        }
-      }
-
-      // The context.catch method must only be called with a location
-      // argument that corresponds to a known catch block.
-      throw new Error("illegal catch attempt");
-    },
-
-    delegateYield: function delegateYield(iterable, resultName, nextLoc) {
-      this.delegate = {
-        iterator: values(iterable),
-        resultName: resultName,
-        nextLoc: nextLoc
-      };
-
-      if (this.method === "next") {
-        // Deliberately forget the last sent value so that we don't
-        // accidentally pass it on to the delegate.
-        this.arg = undefined;
-      }
-
-      return ContinueSentinel;
-    }
-  };
-}(
-// Among the various tricks for obtaining a reference to the global
-// object, this seems to be the most reliable technique that does not
-// use indirect eval (which violates Content Security Policy).
-(typeof global === "undefined" ? "undefined" : _typeof(global)) === "object" ? global : (typeof window === "undefined" ? "undefined" : _typeof(window)) === "object" ? window : (typeof self === "undefined" ? "undefined" : _typeof(self)) === "object" ? self : undefined);
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js"), __webpack_require__(/*! ./../../../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
 
 /***/ }),
 
@@ -1111,6 +474,26 @@ var ArrayProto = Array.prototype;
 if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__(/*! ./_hide */ "./node_modules/core-js/modules/_hide.js")(ArrayProto, UNSCOPABLES, {});
 module.exports = function (key) {
   ArrayProto[UNSCOPABLES][key] = true;
+};
+
+/***/ }),
+
+/***/ "./node_modules/core-js/modules/_advance-string-index.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/core-js/modules/_advance-string-index.js ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var at = __webpack_require__(/*! ./_string-at */ "./node_modules/core-js/modules/_string-at.js")(true);
+
+// `AdvanceStringIndex` abstract operation
+// https://tc39.github.io/ecma262/#sec-advancestringindex
+module.exports = function (S, index, unicode) {
+  return index + (unicode ? at(S, index).length : 1);
 };
 
 /***/ }),
@@ -1909,7 +1292,7 @@ module.exports = function (NAME, wrapper, methods, common, IS_MAP, IS_WEAK) {
 "use strict";
 
 
-var core = module.exports = { version: '2.5.7' };
+var core = module.exports = { version: '2.6.12' };
 if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 /***/ }),
@@ -2238,24 +1621,88 @@ module.exports = function (exec) {
 "use strict";
 
 
-var hide = __webpack_require__(/*! ./_hide */ "./node_modules/core-js/modules/_hide.js");
+__webpack_require__(/*! ./es6.regexp.exec */ "./node_modules/core-js/modules/es6.regexp.exec.js");
 var redefine = __webpack_require__(/*! ./_redefine */ "./node_modules/core-js/modules/_redefine.js");
+var hide = __webpack_require__(/*! ./_hide */ "./node_modules/core-js/modules/_hide.js");
 var fails = __webpack_require__(/*! ./_fails */ "./node_modules/core-js/modules/_fails.js");
 var defined = __webpack_require__(/*! ./_defined */ "./node_modules/core-js/modules/_defined.js");
 var wks = __webpack_require__(/*! ./_wks */ "./node_modules/core-js/modules/_wks.js");
+var regexpExec = __webpack_require__(/*! ./_regexp-exec */ "./node_modules/core-js/modules/_regexp-exec.js");
+
+var SPECIES = wks('species');
+
+var REPLACE_SUPPORTS_NAMED_GROUPS = !fails(function () {
+  // #replace needs built-in support for named groups.
+  // #match works fine because it just return the exec results, even if it has
+  // a "grops" property.
+  var re = /./;
+  re.exec = function () {
+    var result = [];
+    result.groups = { a: '7' };
+    return result;
+  };
+  return ''.replace(re, '$<a>') !== '7';
+});
+
+var SPLIT_WORKS_WITH_OVERWRITTEN_EXEC = function () {
+  // Chrome 51 has a buggy "split" implementation when RegExp#exec !== nativeExec
+  var re = /(?:)/;
+  var originalExec = re.exec;
+  re.exec = function () {
+    return originalExec.apply(this, arguments);
+  };
+  var result = 'ab'.split(re);
+  return result.length === 2 && result[0] === 'a' && result[1] === 'b';
+}();
 
 module.exports = function (KEY, length, exec) {
   var SYMBOL = wks(KEY);
-  var fns = exec(defined, SYMBOL, ''[KEY]);
-  var strfn = fns[0];
-  var rxfn = fns[1];
-  if (fails(function () {
+
+  var DELEGATES_TO_SYMBOL = !fails(function () {
+    // String methods call symbol-named RegEp methods
     var O = {};
     O[SYMBOL] = function () {
       return 7;
     };
     return ''[KEY](O) != 7;
-  })) {
+  });
+
+  var DELEGATES_TO_EXEC = DELEGATES_TO_SYMBOL ? !fails(function () {
+    // Symbol-named RegExp methods call .exec
+    var execCalled = false;
+    var re = /a/;
+    re.exec = function () {
+      execCalled = true;return null;
+    };
+    if (KEY === 'split') {
+      // RegExp[@@split] doesn't call the regex's exec method, but first creates
+      // a new one. We need to return the patched regex when creating the new one.
+      re.constructor = {};
+      re.constructor[SPECIES] = function () {
+        return re;
+      };
+    }
+    re[SYMBOL]('');
+    return !execCalled;
+  }) : undefined;
+
+  if (!DELEGATES_TO_SYMBOL || !DELEGATES_TO_EXEC || KEY === 'replace' && !REPLACE_SUPPORTS_NAMED_GROUPS || KEY === 'split' && !SPLIT_WORKS_WITH_OVERWRITTEN_EXEC) {
+    var nativeRegExpMethod = /./[SYMBOL];
+    var fns = exec(defined, SYMBOL, ''[KEY], function maybeCallNative(nativeMethod, regexp, str, arg2, forceStringMethod) {
+      if (regexp.exec === regexpExec) {
+        if (DELEGATES_TO_SYMBOL && !forceStringMethod) {
+          // The native String method already delegates to @@method (this
+          // polyfilled function), leasing to infinite recursion.
+          // We avoid it by directly calling the native @@method method.
+          return { done: true, value: nativeRegExpMethod.call(regexp, str, arg2) };
+        }
+        return { done: true, value: nativeMethod.call(str, regexp, arg2) };
+      }
+      return { done: false };
+    });
+    var strfn = fns[0];
+    var rxfn = fns[1];
+
     redefine(String.prototype, KEY, strfn);
     hide(RegExp.prototype, SYMBOL, length == 2
     // 21.2.5.8 RegExp.prototype[@@replace](string, replaceValue)
@@ -2386,6 +1833,20 @@ var _exports = module.exports = function (iterable, entries, fn, that, ITERATOR)
 };
 _exports.BREAK = BREAK;
 _exports.RETURN = RETURN;
+
+/***/ }),
+
+/***/ "./node_modules/core-js/modules/_function-to-string.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/core-js/modules/_function-to-string.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(/*! ./_shared */ "./node_modules/core-js/modules/_shared.js")('native-function-to-string', Function.toString);
 
 /***/ }),
 
@@ -3257,6 +2718,7 @@ module.exports.f = function (C) {
 
 // 19.1.2.1 Object.assign(target, source, ...)
 
+var DESCRIPTORS = __webpack_require__(/*! ./_descriptors */ "./node_modules/core-js/modules/_descriptors.js");
 var getKeys = __webpack_require__(/*! ./_object-keys */ "./node_modules/core-js/modules/_object-keys.js");
 var gOPS = __webpack_require__(/*! ./_object-gops */ "./node_modules/core-js/modules/_object-gops.js");
 var pIE = __webpack_require__(/*! ./_object-pie */ "./node_modules/core-js/modules/_object-pie.js");
@@ -3290,7 +2752,8 @@ module.exports = !$assign || __webpack_require__(/*! ./_fails */ "./node_modules
     var j = 0;
     var key;
     while (length > j) {
-      if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
+      key = keys[j++];
+      if (!DESCRIPTORS || isEnum.call(S, key)) T[key] = S[key];
     }
   }return T;
 } : $assign;
@@ -3652,6 +3115,7 @@ module.exports = function (KEY, exec) {
 "use strict";
 
 
+var DESCRIPTORS = __webpack_require__(/*! ./_descriptors */ "./node_modules/core-js/modules/_descriptors.js");
 var getKeys = __webpack_require__(/*! ./_object-keys */ "./node_modules/core-js/modules/_object-keys.js");
 var toIObject = __webpack_require__(/*! ./_to-iobject */ "./node_modules/core-js/modules/_to-iobject.js");
 var isEnum = __webpack_require__(/*! ./_object-pie */ "./node_modules/core-js/modules/_object-pie.js").f;
@@ -3664,10 +3128,12 @@ module.exports = function (isEntries) {
     var result = [];
     var key;
     while (length > i) {
-      if (isEnum.call(O, key = keys[i++])) {
+      key = keys[i++];
+      if (!DESCRIPTORS || isEnum.call(O, key)) {
         result.push(isEntries ? [key, O[key]] : O[key]);
       }
-    }return result;
+    }
+    return result;
   };
 };
 
@@ -3838,8 +3304,8 @@ var global = __webpack_require__(/*! ./_global */ "./node_modules/core-js/module
 var hide = __webpack_require__(/*! ./_hide */ "./node_modules/core-js/modules/_hide.js");
 var has = __webpack_require__(/*! ./_has */ "./node_modules/core-js/modules/_has.js");
 var SRC = __webpack_require__(/*! ./_uid */ "./node_modules/core-js/modules/_uid.js")('src');
+var $toString = __webpack_require__(/*! ./_function-to-string */ "./node_modules/core-js/modules/_function-to-string.js");
 var TO_STRING = 'toString';
-var $toString = Function[TO_STRING];
 var TPL = ('' + $toString).split(TO_STRING);
 
 __webpack_require__(/*! ./_core */ "./node_modules/core-js/modules/_core.js").inspectSource = function (it) {
@@ -3865,6 +3331,109 @@ __webpack_require__(/*! ./_core */ "./node_modules/core-js/modules/_core.js").in
 })(Function.prototype, TO_STRING, function toString() {
   return typeof this == 'function' && this[SRC] || $toString.call(this);
 });
+
+/***/ }),
+
+/***/ "./node_modules/core-js/modules/_regexp-exec-abstract.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/core-js/modules/_regexp-exec-abstract.js ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var classof = __webpack_require__(/*! ./_classof */ "./node_modules/core-js/modules/_classof.js");
+var builtinExec = RegExp.prototype.exec;
+
+// `RegExpExec` abstract operation
+// https://tc39.github.io/ecma262/#sec-regexpexec
+module.exports = function (R, S) {
+  var exec = R.exec;
+  if (typeof exec === 'function') {
+    var result = exec.call(R, S);
+    if ((typeof result === 'undefined' ? 'undefined' : _typeof(result)) !== 'object') {
+      throw new TypeError('RegExp exec method returned something other than an Object or null');
+    }
+    return result;
+  }
+  if (classof(R) !== 'RegExp') {
+    throw new TypeError('RegExp#exec called on incompatible receiver');
+  }
+  return builtinExec.call(R, S);
+};
+
+/***/ }),
+
+/***/ "./node_modules/core-js/modules/_regexp-exec.js":
+/*!******************************************************!*\
+  !*** ./node_modules/core-js/modules/_regexp-exec.js ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var regexpFlags = __webpack_require__(/*! ./_flags */ "./node_modules/core-js/modules/_flags.js");
+
+var nativeExec = RegExp.prototype.exec;
+// This always refers to the native implementation, because the
+// String#replace polyfill uses ./fix-regexp-well-known-symbol-logic.js,
+// which loads this file before patching the method.
+var nativeReplace = String.prototype.replace;
+
+var patchedExec = nativeExec;
+
+var LAST_INDEX = 'lastIndex';
+
+var UPDATES_LAST_INDEX_WRONG = function () {
+  var re1 = /a/,
+      re2 = /b*/g;
+  nativeExec.call(re1, 'a');
+  nativeExec.call(re2, 'a');
+  return re1[LAST_INDEX] !== 0 || re2[LAST_INDEX] !== 0;
+}();
+
+// nonparticipating capturing group, copied from es5-shim's String#split patch.
+var NPCG_INCLUDED = /()??/.exec('')[1] !== undefined;
+
+var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED;
+
+if (PATCH) {
+  patchedExec = function exec(str) {
+    var re = this;
+    var lastIndex, reCopy, match, i;
+
+    if (NPCG_INCLUDED) {
+      reCopy = new RegExp('^' + re.source + '$(?!\\s)', regexpFlags.call(re));
+    }
+    if (UPDATES_LAST_INDEX_WRONG) lastIndex = re[LAST_INDEX];
+
+    match = nativeExec.call(re, str);
+
+    if (UPDATES_LAST_INDEX_WRONG && match) {
+      re[LAST_INDEX] = re.global ? match.index + match[0].length : lastIndex;
+    }
+    if (NPCG_INCLUDED && match && match.length > 1) {
+      // Fix browsers whose `exec` methods don't consistently return `undefined`
+      // for NPCG, like IE8. NOTE: This doesn' work for /(.?)?/
+      // eslint-disable-next-line no-loop-func
+      nativeReplace.call(match[0], reCopy, function () {
+        for (i = 1; i < arguments.length - 2; i++) {
+          if (arguments[i] === undefined) match[i] = undefined;
+        }
+      });
+    }
+
+    return match;
+  };
+}
+
+module.exports = patchedExec;
 
 /***/ }),
 
@@ -4096,7 +3665,7 @@ var store = global[SHARED] || (global[SHARED] = {});
 })('versions', []).push({
   version: core.version,
   mode: __webpack_require__(/*! ./_library */ "./node_modules/core-js/modules/_library.js") ? 'pure' : 'global',
-  copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
+  copyright: '© 2020 Denis Pushkarev (zloirock.ru)'
 });
 
 /***/ }),
@@ -8281,6 +7850,27 @@ __webpack_require__(/*! ./_set-species */ "./node_modules/core-js/modules/_set-s
 
 /***/ }),
 
+/***/ "./node_modules/core-js/modules/es6.regexp.exec.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/core-js/modules/es6.regexp.exec.js ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var regexpExec = __webpack_require__(/*! ./_regexp-exec */ "./node_modules/core-js/modules/_regexp-exec.js");
+__webpack_require__(/*! ./_export */ "./node_modules/core-js/modules/_export.js")({
+  target: 'RegExp',
+  proto: true,
+  forced: regexpExec !== /./.exec
+}, {
+  exec: regexpExec
+});
+
+/***/ }),
+
 /***/ "./node_modules/core-js/modules/es6.regexp.flags.js":
 /*!**********************************************************!*\
   !*** ./node_modules/core-js/modules/es6.regexp.flags.js ***!
@@ -8309,16 +7899,42 @@ if (__webpack_require__(/*! ./_descriptors */ "./node_modules/core-js/modules/_d
 "use strict";
 
 
-// @@match logic
-__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('match', 1, function (defined, MATCH, $match) {
-  // 21.1.3.11 String.prototype.match(regexp)
-  return [function match(regexp) {
-    'use strict';
+var anObject = __webpack_require__(/*! ./_an-object */ "./node_modules/core-js/modules/_an-object.js");
+var toLength = __webpack_require__(/*! ./_to-length */ "./node_modules/core-js/modules/_to-length.js");
+var advanceStringIndex = __webpack_require__(/*! ./_advance-string-index */ "./node_modules/core-js/modules/_advance-string-index.js");
+var regExpExec = __webpack_require__(/*! ./_regexp-exec-abstract */ "./node_modules/core-js/modules/_regexp-exec-abstract.js");
 
+// @@match logic
+__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('match', 1, function (defined, MATCH, $match, maybeCallNative) {
+  return [
+  // `String.prototype.match` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.match
+  function match(regexp) {
     var O = defined(this);
     var fn = regexp == undefined ? undefined : regexp[MATCH];
     return fn !== undefined ? fn.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
-  }, $match];
+  },
+  // `RegExp.prototype[@@match]` method
+  // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
+  function (regexp) {
+    var res = maybeCallNative($match, regexp, this);
+    if (res.done) return res.value;
+    var rx = anObject(regexp);
+    var S = String(this);
+    if (!rx.global) return regExpExec(rx, S);
+    var fullUnicode = rx.unicode;
+    rx.lastIndex = 0;
+    var A = [];
+    var n = 0;
+    var result;
+    while ((result = regExpExec(rx, S)) !== null) {
+      var matchStr = String(result[0]);
+      A[n] = matchStr;
+      if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
+      n++;
+    }
+    return n === 0 ? null : A;
+  }];
 });
 
 /***/ }),
@@ -8333,16 +7949,124 @@ __webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re
 "use strict";
 
 
-// @@replace logic
-__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('replace', 2, function (defined, REPLACE, $replace) {
-  // 21.1.3.14 String.prototype.replace(searchValue, replaceValue)
-  return [function replace(searchValue, replaceValue) {
-    'use strict';
+var anObject = __webpack_require__(/*! ./_an-object */ "./node_modules/core-js/modules/_an-object.js");
+var toObject = __webpack_require__(/*! ./_to-object */ "./node_modules/core-js/modules/_to-object.js");
+var toLength = __webpack_require__(/*! ./_to-length */ "./node_modules/core-js/modules/_to-length.js");
+var toInteger = __webpack_require__(/*! ./_to-integer */ "./node_modules/core-js/modules/_to-integer.js");
+var advanceStringIndex = __webpack_require__(/*! ./_advance-string-index */ "./node_modules/core-js/modules/_advance-string-index.js");
+var regExpExec = __webpack_require__(/*! ./_regexp-exec-abstract */ "./node_modules/core-js/modules/_regexp-exec-abstract.js");
+var max = Math.max;
+var min = Math.min;
+var floor = Math.floor;
+var SUBSTITUTION_SYMBOLS = /\$([$&`']|\d\d?|<[^>]*>)/g;
+var SUBSTITUTION_SYMBOLS_NO_NAMED = /\$([$&`']|\d\d?)/g;
 
+var maybeToString = function maybeToString(it) {
+  return it === undefined ? it : String(it);
+};
+
+// @@replace logic
+__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('replace', 2, function (defined, REPLACE, $replace, maybeCallNative) {
+  return [
+  // `String.prototype.replace` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.replace
+  function replace(searchValue, replaceValue) {
     var O = defined(this);
     var fn = searchValue == undefined ? undefined : searchValue[REPLACE];
     return fn !== undefined ? fn.call(searchValue, O, replaceValue) : $replace.call(String(O), searchValue, replaceValue);
-  }, $replace];
+  },
+  // `RegExp.prototype[@@replace]` method
+  // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@replace
+  function (regexp, replaceValue) {
+    var res = maybeCallNative($replace, regexp, this, replaceValue);
+    if (res.done) return res.value;
+
+    var rx = anObject(regexp);
+    var S = String(this);
+    var functionalReplace = typeof replaceValue === 'function';
+    if (!functionalReplace) replaceValue = String(replaceValue);
+    var global = rx.global;
+    if (global) {
+      var fullUnicode = rx.unicode;
+      rx.lastIndex = 0;
+    }
+    var results = [];
+    while (true) {
+      var result = regExpExec(rx, S);
+      if (result === null) break;
+      results.push(result);
+      if (!global) break;
+      var matchStr = String(result[0]);
+      if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
+    }
+    var accumulatedResult = '';
+    var nextSourcePosition = 0;
+    for (var i = 0; i < results.length; i++) {
+      result = results[i];
+      var matched = String(result[0]);
+      var position = max(min(toInteger(result.index), S.length), 0);
+      var captures = [];
+      // NOTE: This is equivalent to
+      //   captures = result.slice(1).map(maybeToString)
+      // but for some reason `nativeSlice.call(result, 1, result.length)` (called in
+      // the slice polyfill when slicing native arrays) "doesn't work" in safari 9 and
+      // causes a crash (https://pastebin.com/N21QzeQA) when trying to debug it.
+      for (var j = 1; j < result.length; j++) {
+        captures.push(maybeToString(result[j]));
+      }var namedCaptures = result.groups;
+      if (functionalReplace) {
+        var replacerArgs = [matched].concat(captures, position, S);
+        if (namedCaptures !== undefined) replacerArgs.push(namedCaptures);
+        var replacement = String(replaceValue.apply(undefined, replacerArgs));
+      } else {
+        replacement = getSubstitution(matched, S, position, captures, namedCaptures, replaceValue);
+      }
+      if (position >= nextSourcePosition) {
+        accumulatedResult += S.slice(nextSourcePosition, position) + replacement;
+        nextSourcePosition = position + matched.length;
+      }
+    }
+    return accumulatedResult + S.slice(nextSourcePosition);
+  }];
+
+  // https://tc39.github.io/ecma262/#sec-getsubstitution
+  function getSubstitution(matched, str, position, captures, namedCaptures, replacement) {
+    var tailPos = position + matched.length;
+    var m = captures.length;
+    var symbols = SUBSTITUTION_SYMBOLS_NO_NAMED;
+    if (namedCaptures !== undefined) {
+      namedCaptures = toObject(namedCaptures);
+      symbols = SUBSTITUTION_SYMBOLS;
+    }
+    return $replace.call(replacement, symbols, function (match, ch) {
+      var capture;
+      switch (ch.charAt(0)) {
+        case '$':
+          return '$';
+        case '&':
+          return matched;
+        case '`':
+          return str.slice(0, position);
+        case "'":
+          return str.slice(tailPos);
+        case '<':
+          capture = namedCaptures[ch.slice(1, -1)];
+          break;
+        default:
+          // \d\d?
+          var n = +ch;
+          if (n === 0) return match;
+          if (n > m) {
+            var f = floor(n / 10);
+            if (f === 0) return match;
+            if (f <= m) return captures[f - 1] === undefined ? ch.charAt(1) : captures[f - 1] + ch.charAt(1);
+            return match;
+          }
+          capture = captures[n - 1];
+      }
+      return capture === undefined ? '' : capture;
+    });
+  }
 });
 
 /***/ }),
@@ -8357,16 +8081,33 @@ __webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re
 "use strict";
 
 
-// @@search logic
-__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('search', 1, function (defined, SEARCH, $search) {
-  // 21.1.3.15 String.prototype.search(regexp)
-  return [function search(regexp) {
-    'use strict';
+var anObject = __webpack_require__(/*! ./_an-object */ "./node_modules/core-js/modules/_an-object.js");
+var sameValue = __webpack_require__(/*! ./_same-value */ "./node_modules/core-js/modules/_same-value.js");
+var regExpExec = __webpack_require__(/*! ./_regexp-exec-abstract */ "./node_modules/core-js/modules/_regexp-exec-abstract.js");
 
+// @@search logic
+__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('search', 1, function (defined, SEARCH, $search, maybeCallNative) {
+  return [
+  // `String.prototype.search` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.search
+  function search(regexp) {
     var O = defined(this);
     var fn = regexp == undefined ? undefined : regexp[SEARCH];
     return fn !== undefined ? fn.call(regexp, O) : new RegExp(regexp)[SEARCH](String(O));
-  }, $search];
+  },
+  // `RegExp.prototype[@@search]` method
+  // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@search
+  function (regexp) {
+    var res = maybeCallNative($search, regexp, this);
+    if (res.done) return res.value;
+    var rx = anObject(regexp);
+    var S = String(this);
+    var previousLastIndex = rx.lastIndex;
+    if (!sameValue(previousLastIndex, 0)) rx.lastIndex = 0;
+    var result = regExpExec(rx, S);
+    if (!sameValue(rx.lastIndex, previousLastIndex)) rx.lastIndex = previousLastIndex;
+    return result === null ? -1 : result.index;
+  }];
 });
 
 /***/ }),
@@ -8381,45 +8122,47 @@ __webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re
 "use strict";
 
 
-// @@split logic
-__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('split', 2, function (defined, SPLIT, $split) {
-  'use strict';
+var isRegExp = __webpack_require__(/*! ./_is-regexp */ "./node_modules/core-js/modules/_is-regexp.js");
+var anObject = __webpack_require__(/*! ./_an-object */ "./node_modules/core-js/modules/_an-object.js");
+var speciesConstructor = __webpack_require__(/*! ./_species-constructor */ "./node_modules/core-js/modules/_species-constructor.js");
+var advanceStringIndex = __webpack_require__(/*! ./_advance-string-index */ "./node_modules/core-js/modules/_advance-string-index.js");
+var toLength = __webpack_require__(/*! ./_to-length */ "./node_modules/core-js/modules/_to-length.js");
+var callRegExpExec = __webpack_require__(/*! ./_regexp-exec-abstract */ "./node_modules/core-js/modules/_regexp-exec-abstract.js");
+var regexpExec = __webpack_require__(/*! ./_regexp-exec */ "./node_modules/core-js/modules/_regexp-exec.js");
+var fails = __webpack_require__(/*! ./_fails */ "./node_modules/core-js/modules/_fails.js");
+var $min = Math.min;
+var $push = [].push;
+var $SPLIT = 'split';
+var LENGTH = 'length';
+var LAST_INDEX = 'lastIndex';
+var MAX_UINT32 = 0xffffffff;
 
-  var isRegExp = __webpack_require__(/*! ./_is-regexp */ "./node_modules/core-js/modules/_is-regexp.js");
-  var _split = $split;
-  var $push = [].push;
-  var $SPLIT = 'split';
-  var LENGTH = 'length';
-  var LAST_INDEX = 'lastIndex';
+// babel-minify transpiles RegExp('x', 'y') -> /x/y and it causes SyntaxError
+var SUPPORTS_Y = !fails(function () {
+  RegExp(MAX_UINT32, 'y');
+});
+
+// @@split logic
+__webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re-wks.js")('split', 2, function (defined, SPLIT, $split, maybeCallNative) {
+  var internalSplit;
   if ('abbc'[$SPLIT](/(b)*/)[1] == 'c' || 'test'[$SPLIT](/(?:)/, -1)[LENGTH] != 4 || 'ab'[$SPLIT](/(?:ab)*/)[LENGTH] != 2 || '.'[$SPLIT](/(.?)(.?)/)[LENGTH] != 4 || '.'[$SPLIT](/()()/)[LENGTH] > 1 || ''[$SPLIT](/.?/)[LENGTH]) {
-    var NPCG = /()??/.exec('')[1] === undefined; // nonparticipating capturing group
     // based on es5-shim implementation, need to rework it
-    $split = function $split(separator, limit) {
+    internalSplit = function internalSplit(separator, limit) {
       var string = String(this);
       if (separator === undefined && limit === 0) return [];
       // If `separator` is not a regex, use native split
-      if (!isRegExp(separator)) return _split.call(string, separator, limit);
+      if (!isRegExp(separator)) return $split.call(string, separator, limit);
       var output = [];
       var flags = (separator.ignoreCase ? 'i' : '') + (separator.multiline ? 'm' : '') + (separator.unicode ? 'u' : '') + (separator.sticky ? 'y' : '');
       var lastLastIndex = 0;
-      var splitLimit = limit === undefined ? 4294967295 : limit >>> 0;
+      var splitLimit = limit === undefined ? MAX_UINT32 : limit >>> 0;
       // Make `global` and avoid `lastIndex` issues by working with a copy
       var separatorCopy = new RegExp(separator.source, flags + 'g');
-      var separator2, match, lastIndex, lastLength, i;
-      // Doesn't need flags gy, but they don't hurt
-      if (!NPCG) separator2 = new RegExp('^' + separatorCopy.source + '$(?!\\s)', flags);
-      while (match = separatorCopy.exec(string)) {
-        // `separatorCopy.lastIndex` is not reliable cross-browser
-        lastIndex = match.index + match[0][LENGTH];
+      var match, lastIndex, lastLength;
+      while (match = regexpExec.call(separatorCopy, string)) {
+        lastIndex = separatorCopy[LAST_INDEX];
         if (lastIndex > lastLastIndex) {
           output.push(string.slice(lastLastIndex, match.index));
-          // Fix browsers whose `exec` methods don't consistently return `undefined` for NPCG
-          // eslint-disable-next-line no-loop-func
-          if (!NPCG && match[LENGTH] > 1) match[0].replace(separator2, function () {
-            for (i = 1; i < arguments[LENGTH] - 2; i++) {
-              if (arguments[i] === undefined) match[i] = undefined;
-            }
-          });
           if (match[LENGTH] > 1 && match.index < string[LENGTH]) $push.apply(output, match.slice(1));
           lastLength = match[0][LENGTH];
           lastLastIndex = lastIndex;
@@ -8434,16 +8177,65 @@ __webpack_require__(/*! ./_fix-re-wks */ "./node_modules/core-js/modules/_fix-re
     };
     // Chakra, V8
   } else if ('0'[$SPLIT](undefined, 0)[LENGTH]) {
-    $split = function $split(separator, limit) {
-      return separator === undefined && limit === 0 ? [] : _split.call(this, separator, limit);
+    internalSplit = function internalSplit(separator, limit) {
+      return separator === undefined && limit === 0 ? [] : $split.call(this, separator, limit);
     };
+  } else {
+    internalSplit = $split;
   }
-  // 21.1.3.17 String.prototype.split(separator, limit)
-  return [function split(separator, limit) {
+
+  return [
+  // `String.prototype.split` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.split
+  function split(separator, limit) {
     var O = defined(this);
-    var fn = separator == undefined ? undefined : separator[SPLIT];
-    return fn !== undefined ? fn.call(separator, O, limit) : $split.call(String(O), separator, limit);
-  }, $split];
+    var splitter = separator == undefined ? undefined : separator[SPLIT];
+    return splitter !== undefined ? splitter.call(separator, O, limit) : internalSplit.call(String(O), separator, limit);
+  },
+  // `RegExp.prototype[@@split]` method
+  // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@split
+  //
+  // NOTE: This cannot be properly polyfilled in engines that don't support
+  // the 'y' flag.
+  function (regexp, limit) {
+    var res = maybeCallNative(internalSplit, regexp, this, limit, internalSplit !== $split);
+    if (res.done) return res.value;
+
+    var rx = anObject(regexp);
+    var S = String(this);
+    var C = speciesConstructor(rx, RegExp);
+
+    var unicodeMatching = rx.unicode;
+    var flags = (rx.ignoreCase ? 'i' : '') + (rx.multiline ? 'm' : '') + (rx.unicode ? 'u' : '') + (SUPPORTS_Y ? 'y' : 'g');
+
+    // ^(? + rx + ) is needed, in combination with some S slicing, to
+    // simulate the 'y' flag.
+    var splitter = new C(SUPPORTS_Y ? rx : '^(?:' + rx.source + ')', flags);
+    var lim = limit === undefined ? MAX_UINT32 : limit >>> 0;
+    if (lim === 0) return [];
+    if (S.length === 0) return callRegExpExec(splitter, S) === null ? [S] : [];
+    var p = 0;
+    var q = 0;
+    var A = [];
+    while (q < S.length) {
+      splitter.lastIndex = SUPPORTS_Y ? q : 0;
+      var z = callRegExpExec(splitter, SUPPORTS_Y ? S : S.slice(q));
+      var e;
+      if (z === null || (e = $min(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p) {
+        q = advanceStringIndex(S, q, unicodeMatching);
+      } else {
+        A.push(S.slice(p, q));
+        if (A.length === lim) return A;
+        for (var i = 1; i <= z.length - 1; i++) {
+          A.push(z[i]);
+          if (A.length === lim) return A;
+        }
+        q = p = e;
+      }
+    }
+    A.push(S.slice(p));
+    return A;
+  }];
 });
 
 /***/ }),
@@ -9025,12 +8817,14 @@ var enumKeys = __webpack_require__(/*! ./_enum-keys */ "./node_modules/core-js/m
 var isArray = __webpack_require__(/*! ./_is-array */ "./node_modules/core-js/modules/_is-array.js");
 var anObject = __webpack_require__(/*! ./_an-object */ "./node_modules/core-js/modules/_an-object.js");
 var isObject = __webpack_require__(/*! ./_is-object */ "./node_modules/core-js/modules/_is-object.js");
+var toObject = __webpack_require__(/*! ./_to-object */ "./node_modules/core-js/modules/_to-object.js");
 var toIObject = __webpack_require__(/*! ./_to-iobject */ "./node_modules/core-js/modules/_to-iobject.js");
 var toPrimitive = __webpack_require__(/*! ./_to-primitive */ "./node_modules/core-js/modules/_to-primitive.js");
 var createDesc = __webpack_require__(/*! ./_property-desc */ "./node_modules/core-js/modules/_property-desc.js");
 var _create = __webpack_require__(/*! ./_object-create */ "./node_modules/core-js/modules/_object-create.js");
 var gOPNExt = __webpack_require__(/*! ./_object-gopn-ext */ "./node_modules/core-js/modules/_object-gopn-ext.js");
 var $GOPD = __webpack_require__(/*! ./_object-gopd */ "./node_modules/core-js/modules/_object-gopd.js");
+var $GOPS = __webpack_require__(/*! ./_object-gops */ "./node_modules/core-js/modules/_object-gops.js");
 var $DP = __webpack_require__(/*! ./_object-dp */ "./node_modules/core-js/modules/_object-dp.js");
 var $keys = __webpack_require__(/*! ./_object-keys */ "./node_modules/core-js/modules/_object-keys.js");
 var gOPD = $GOPD.f;
@@ -9047,7 +8841,7 @@ var SymbolRegistry = shared('symbol-registry');
 var AllSymbols = shared('symbols');
 var OPSymbols = shared('op-symbols');
 var ObjectProto = Object[PROTOTYPE];
-var USE_NATIVE = typeof $Symbol == 'function';
+var USE_NATIVE = typeof $Symbol == 'function' && !!$GOPS.f;
 var QObject = global.QObject;
 // Don't use setters in Qt Script, https://github.com/zloirock/core-js/issues/173
 var setter = !QObject || !QObject[PROTOTYPE] || !QObject[PROTOTYPE].findChild;
@@ -9160,7 +8954,7 @@ if (!USE_NATIVE) {
   $DP.f = $defineProperty;
   __webpack_require__(/*! ./_object-gopn */ "./node_modules/core-js/modules/_object-gopn.js").f = gOPNExt.f = $getOwnPropertyNames;
   __webpack_require__(/*! ./_object-pie */ "./node_modules/core-js/modules/_object-pie.js").f = $propertyIsEnumerable;
-  __webpack_require__(/*! ./_object-gops */ "./node_modules/core-js/modules/_object-gops.js").f = $getOwnPropertySymbols;
+  $GOPS.f = $getOwnPropertySymbols;
 
   if (DESCRIPTORS && !__webpack_require__(/*! ./_library */ "./node_modules/core-js/modules/_library.js")) {
     redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
@@ -9212,6 +9006,18 @@ $export($export.S + $export.F * !USE_NATIVE, 'Object', {
   getOwnPropertyNames: $getOwnPropertyNames,
   // 19.1.2.8 Object.getOwnPropertySymbols(O)
   getOwnPropertySymbols: $getOwnPropertySymbols
+});
+
+// Chrome 38 and 39 `Object.getOwnPropertySymbols` fails on primitives
+// https://bugs.chromium.org/p/v8/issues/detail?id=3443
+var FAILS_ON_PRIMITIVES = $fails(function () {
+  $GOPS.f(1);
+});
+
+$export($export.S + $export.F * FAILS_ON_PRIMITIVES, 'Object', {
+  getOwnPropertySymbols: function getOwnPropertySymbols(it) {
+    return $GOPS.f(toObject(it));
+  }
 });
 
 // 24.3.2 JSON.stringify(value [, replacer [, space]])
@@ -9497,19 +9303,20 @@ __webpack_require__(/*! ./_typed-array */ "./node_modules/core-js/modules/_typed
 "use strict";
 
 
+var global = __webpack_require__(/*! ./_global */ "./node_modules/core-js/modules/_global.js");
 var each = __webpack_require__(/*! ./_array-methods */ "./node_modules/core-js/modules/_array-methods.js")(0);
 var redefine = __webpack_require__(/*! ./_redefine */ "./node_modules/core-js/modules/_redefine.js");
 var meta = __webpack_require__(/*! ./_meta */ "./node_modules/core-js/modules/_meta.js");
 var assign = __webpack_require__(/*! ./_object-assign */ "./node_modules/core-js/modules/_object-assign.js");
 var weak = __webpack_require__(/*! ./_collection-weak */ "./node_modules/core-js/modules/_collection-weak.js");
 var isObject = __webpack_require__(/*! ./_is-object */ "./node_modules/core-js/modules/_is-object.js");
-var fails = __webpack_require__(/*! ./_fails */ "./node_modules/core-js/modules/_fails.js");
 var validate = __webpack_require__(/*! ./_validate-collection */ "./node_modules/core-js/modules/_validate-collection.js");
+var NATIVE_WEAK_MAP = __webpack_require__(/*! ./_validate-collection */ "./node_modules/core-js/modules/_validate-collection.js");
+var IS_IE11 = !global.ActiveXObject && 'ActiveXObject' in global;
 var WEAK_MAP = 'WeakMap';
 var getWeak = meta.getWeak;
 var isExtensible = Object.isExtensible;
 var uncaughtFrozenStore = weak.ufstore;
-var tmp = {};
 var InternalMap;
 
 var wrapper = function wrapper(get) {
@@ -9537,9 +9344,7 @@ var methods = {
 var $WeakMap = module.exports = __webpack_require__(/*! ./_collection */ "./node_modules/core-js/modules/_collection.js")(WEAK_MAP, wrapper, methods, weak, true, true);
 
 // IE11 WeakMap frozen keys fix
-if (fails(function () {
-  return new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7;
-})) {
+if (NATIVE_WEAK_MAP && IS_IE11) {
   InternalMap = weak.getConstructor(wrapper, WEAK_MAP);
   assign(InternalMap.prototype, methods);
   meta.NEED = true;
@@ -10807,8 +10612,13 @@ $export($export.P + $export.R, 'Set', { toJSON: __webpack_require__(/*! ./_colle
 
 var $export = __webpack_require__(/*! ./_export */ "./node_modules/core-js/modules/_export.js");
 var $at = __webpack_require__(/*! ./_string-at */ "./node_modules/core-js/modules/_string-at.js")(true);
+var $fails = __webpack_require__(/*! ./_fails */ "./node_modules/core-js/modules/_fails.js");
 
-$export($export.P, 'String', {
+var FORCED = $fails(function () {
+  return '𠮷'.at(0) !== '𠮷';
+});
+
+$export($export.P + $export.F * FORCED, 'String', {
   at: function at(pos) {
     return $at(this, pos);
   }
@@ -10874,7 +10684,9 @@ var $pad = __webpack_require__(/*! ./_string-pad */ "./node_modules/core-js/modu
 var userAgent = __webpack_require__(/*! ./_user-agent */ "./node_modules/core-js/modules/_user-agent.js");
 
 // https://github.com/zloirock/core-js/issues/280
-$export($export.P + $export.F * /Version\/10\.\d+(\.\d+)? Safari\//.test(userAgent), 'String', {
+var WEBKIT_BUG = /Version\/10\.\d+(\.\d+)?( Mobile\/\w+)? Safari\//.test(userAgent);
+
+$export($export.P + $export.F * WEBKIT_BUG, 'String', {
   padEnd: function padEnd(maxLength /* , fillString = ' ' */) {
     return $pad(this, maxLength, arguments.length > 1 ? arguments[1] : undefined, false);
   }
@@ -10898,7 +10710,9 @@ var $pad = __webpack_require__(/*! ./_string-pad */ "./node_modules/core-js/modu
 var userAgent = __webpack_require__(/*! ./_user-agent */ "./node_modules/core-js/modules/_user-agent.js");
 
 // https://github.com/zloirock/core-js/issues/280
-$export($export.P + $export.F * /Version\/10\.\d+(\.\d+)? Safari\//.test(userAgent), 'String', {
+var WEBKIT_BUG = /Version\/10\.\d+(\.\d+)?( Mobile\/\w+)? Safari\//.test(userAgent);
+
+$export($export.P + $export.F * WEBKIT_BUG, 'String', {
   padStart: function padStart(maxLength /* , fillString = ' ' */) {
     return $pad(this, maxLength, arguments.length > 1 ? arguments[1] : undefined, true);
   }
@@ -11285,6 +11099,7 @@ __webpack_require__(/*! ./modules/es6.array.find-index */ "./node_modules/core-j
 __webpack_require__(/*! ./modules/es6.array.species */ "./node_modules/core-js/modules/es6.array.species.js");
 __webpack_require__(/*! ./modules/es6.array.iterator */ "./node_modules/core-js/modules/es6.array.iterator.js");
 __webpack_require__(/*! ./modules/es6.regexp.constructor */ "./node_modules/core-js/modules/es6.regexp.constructor.js");
+__webpack_require__(/*! ./modules/es6.regexp.exec */ "./node_modules/core-js/modules/es6.regexp.exec.js");
 __webpack_require__(/*! ./modules/es6.regexp.to-string */ "./node_modules/core-js/modules/es6.regexp.to-string.js");
 __webpack_require__(/*! ./modules/es6.regexp.flags */ "./node_modules/core-js/modules/es6.regexp.flags.js");
 __webpack_require__(/*! ./modules/es6.regexp.match */ "./node_modules/core-js/modules/es6.regexp.match.js");
@@ -11384,6 +11199,724 @@ module.exports = __webpack_require__(/*! ./modules/_core */ "./node_modules/core
 
 /***/ }),
 
+/***/ "./node_modules/regenerator-runtime/runtime.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/regenerator-runtime/runtime.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global, module) {
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/**
+ * Copyright (c) 2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
+ * additional grant of patent rights can be found in the PATENTS file in
+ * the same directory.
+ */
+
+!function (global) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  var inModule = ( false ? undefined : _typeof(module)) === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+      // If regeneratorRuntime is defined globally and we're in a module,
+      // make the exports object identical to regeneratorRuntime.
+      module.exports = runtime;
+    }
+    // Don't bother evaluating the rest of this file if the runtime was
+    // already defined globally.
+    return;
+  }
+
+  // Define the runtime globally (as expected by generated code) as either
+  // module.exports (if we're in a module) or a new, empty object.
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  runtime.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] = GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function (method) {
+      prototype[method] = function (arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  runtime.isGeneratorFunction = function (genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor ? ctor === GeneratorFunction ||
+    // For the native GeneratorFunction constructor, the best we can
+    // do is to check its .name property.
+    (ctor.displayName || ctor.name) === "GeneratorFunction" : false;
+  };
+
+  runtime.mark = function (genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  runtime.awrap = function (arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value && (typeof value === "undefined" ? "undefined" : _typeof(value)) === "object" && hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function (value) {
+            invoke("next", value, resolve, reject);
+          }, function (err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function (unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration. If the Promise is rejected, however, the
+          // result for this iteration will be rejected with the same
+          // reason. Note that rejections of yielded Promises are not
+          // thrown back into the generator function, as is the case
+          // when an awaited Promise is rejected. This difference in
+          // behavior between yield and await is important, because it
+          // allows the consumer to decide what to do with the yielded
+          // rejection (swallow it and continue, manually .throw it back
+          // into the generator, abandon iteration, whatever). With
+          // await, by contrast, there is no opportunity to examine the
+          // rejection reason outside the generator function, so the
+          // only option is to throw it from the await expression, and
+          // let the generator function handle the exception.
+          result.value = unwrapped;
+          resolve(result);
+        }, reject);
+      }
+    }
+
+    if (_typeof(global.process) === "object" && global.process.domain) {
+      invoke = global.process.domain.bind(invoke);
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function (resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+      // If enqueue has been called before, then we want to wait until
+      // all previous Promises have been resolved before calling invoke,
+      // so that results are always delivered in the correct order. If
+      // enqueue has not been called before, then it is important to
+      // call invoke immediately, without waiting on a callback to fire,
+      // so that the async generator function has the opportunity to do
+      // any necessary setup in a predictable way. This predictability
+      // is why the Promise constructor synchronously invokes its
+      // executor callback, and why async functions synchronously
+      // execute code before the first await. Since we implement simple
+      // async functions in terms of async generators, it is especially
+      // important to get this right, even though it requires care.
+      previousPromise ? previousPromise.then(callInvokeWithMethodAndArg,
+      // Avoid propagating failures to Promises returned by later
+      // invocations of the iterator.
+      callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  runtime.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function (innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList));
+
+    return runtime.isGeneratorFunction(outerFn) ? iter // If outerFn is a generator, return the full iterator.
+    : iter.next().then(function (result) {
+      return result.done ? result.value : iter.next();
+    });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done ? GenStateCompleted : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        if (delegate.iterator.return) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError("The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (!info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function () {
+    return this;
+  };
+
+  Gp.toString = function () {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  runtime.keys = function (object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1,
+            next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function reset(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" && hasOwn.call(this, name) && !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function stop() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function dispatchException(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !!caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function abrupt(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry && (type === "break" || type === "continue") && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function complete(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" || record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function finish(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function _catch(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function delegateYield(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+}(
+// Among the various tricks for obtaining a reference to the global
+// object, this seems to be the most reliable technique that does not
+// use indirect eval (which violates Content Security Policy).
+(typeof global === "undefined" ? "undefined" : _typeof(global)) === "object" ? global : (typeof window === "undefined" ? "undefined" : _typeof(window)) === "object" ? window : (typeof self === "undefined" ? "undefined" : _typeof(self)) === "object" ? self : undefined);
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js"), __webpack_require__(/*! ./../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/global.js":
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
@@ -11405,7 +11938,7 @@ g = function () {
 
 try {
 	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1, eval)("this");
+	g = g || new Function("return this")();
 } catch (e) {
 	// This works if the window reference is available
 	if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") g = window;
@@ -11465,167 +11998,151 @@ module.exports = function (module) {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var BufferLoader = function () {
-  /**
-  * context {object} Audio context
-  * soundsUrls {array} List of objects contening name and urls of sounds
-  */
-  function BufferLoader(context) {
-    _classCallCheck(this, BufferLoader);
-
-    this.context = context;
-    this.buffers = {};
-  }
-
-  /**
-  * Load a sound from url
-  */
-
-
-  _createClass(BufferLoader, [{
-    key: "load",
-    value: function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(name, url) {
-        var request, response, buffer, audioData;
-        return regeneratorRuntime.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                // Prepare request
-                request = new Request(url);
-
-                // return promise once request is complete
-
-                _context.next = 3;
-                return fetch(request);
-
-              case 3:
-                response = _context.sent;
-                _context.next = 6;
-                return response.arrayBuffer();
-
-              case 6:
-                buffer = _context.sent;
-                _context.next = 9;
-                return this.context.decodeAudioData(buffer);
-
-              case 9:
-                audioData = _context.sent;
-
-                this.buffers[name] = audioData;
-
-                return _context.abrupt("return", audioData);
-
-              case 12:
-              case "end":
-                return _context.stop();
+var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+        return value instanceof P ? value : new P(function (resolve) {
+            resolve(value);
+        });
+    }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            } catch (e) {
+                reject(e);
             }
-          }
-        }, _callee, this);
-      }));
-
-      function load(_x, _x2) {
-        return _ref.apply(this, arguments);
-      }
-
-      return load;
-    }()
-
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) {
+            result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = undefined && undefined.__generator || function (thisArg, body) {
+    var _ = { label: 0, sent: function sent() {
+            if (t[0] & 1) throw t[1];return t[1];
+        }, trys: [], ops: [] },
+        f,
+        y,
+        t,
+        g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function () {
+        return this;
+    }), g;
+    function verb(n) {
+        return function (v) {
+            return step([n, v]);
+        };
+    }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) {
+            try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0:case 1:
+                        t = op;break;
+                    case 4:
+                        _.label++;return { value: op[1], done: false };
+                    case 5:
+                        _.label++;y = op[1];op = [0];continue;
+                    case 7:
+                        op = _.ops.pop();_.trys.pop();continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                            _ = 0;continue;
+                        }
+                        if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                            _.label = op[1];break;
+                        }
+                        if (op[0] === 6 && _.label < t[1]) {
+                            _.label = t[1];t = op;break;
+                        }
+                        if (t && _.label < t[2]) {
+                            _.label = t[2];_.ops.push(op);break;
+                        }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop();continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) {
+                op = [6, e];y = 0;
+            } finally {
+                f = t = 0;
+            }
+        }if (op[0] & 5) throw op[1];return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var BufferLoader = /** @class */function () {
     /**
-    * Load a list of sounds
-    */
-
-  }, {
-    key: "loadAll",
-    value: function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(sounds) {
-        var promises, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, soundUrl;
-
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                promises = [];
-                _iteratorNormalCompletion = true;
-                _didIteratorError = false;
-                _iteratorError = undefined;
-                _context2.prev = 4;
-
-                for (_iterator = sounds[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                  soundUrl = _step.value;
-
-                  promises.push(this.load(soundUrl.name, soundUrl.url));
+     * context {object} Audio context
+     * soundsUrls {array} List of objects contening name and urls of sounds
+     */
+    function BufferLoader(context) {
+        this.context = context;
+        this.buffers = {};
+    }
+    /**
+     * Load a sound from url
+     */
+    BufferLoader.prototype.load = function (name, url) {
+        return __awaiter(this, void 0, void 0, function () {
+            var request, response, buffer, audioData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        request = new Request(url);
+                        return [4 /*yield*/, fetch(request)];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.arrayBuffer()];
+                    case 2:
+                        buffer = _a.sent();
+                        return [4 /*yield*/, this.context.decodeAudioData(buffer)];
+                    case 3:
+                        audioData = _a.sent();
+                        this.buffers[name] = audioData;
+                        return [2 /*return*/, audioData];
                 }
-
-                // Return buffers in an object
-                _context2.next = 12;
-                break;
-
-              case 8:
-                _context2.prev = 8;
-                _context2.t0 = _context2["catch"](4);
-                _didIteratorError = true;
-                _iteratorError = _context2.t0;
-
-              case 12:
-                _context2.prev = 12;
-                _context2.prev = 13;
-
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                  _iterator.return();
+            });
+        });
+    };
+    /**
+     * Load a list of sounds
+     */
+    BufferLoader.prototype.loadAll = function (sounds) {
+        return __awaiter(this, void 0, void 0, function () {
+            var promises, _i, sounds_1, soundUrl;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        promises = [];
+                        for (_i = 0, sounds_1 = sounds; _i < sounds_1.length; _i++) {
+                            soundUrl = sounds_1[_i];
+                            promises.push(this.load(soundUrl.name, soundUrl.url));
+                        }
+                        // Return buffers in an object
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 1:
+                        // Return buffers in an object
+                        _a.sent();
+                        return [2 /*return*/, this.buffers];
                 }
-
-              case 15:
-                _context2.prev = 15;
-
-                if (!_didIteratorError) {
-                  _context2.next = 18;
-                  break;
-                }
-
-                throw _iteratorError;
-
-              case 18:
-                return _context2.finish(15);
-
-              case 19:
-                return _context2.finish(12);
-
-              case 20:
-                _context2.next = 22;
-                return Promise.all(promises);
-
-              case 22:
-                return _context2.abrupt("return", this.buffers);
-
-              case 23:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2, this, [[4, 8, 12, 20], [13,, 15, 19]]);
-      }));
-
-      function loadAll(_x3) {
-        return _ref2.apply(this, arguments);
-      }
-
-      return loadAll;
-    }()
-  }]);
-
-  return BufferLoader;
+            });
+        });
+    };
+    return BufferLoader;
 }();
-
 exports.default = BufferLoader;
 
 /***/ }),
@@ -11641,86 +12158,49 @@ exports.default = BufferLoader;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 /**
-* Utilitary to emit event and subscribe to them
-*/
-var EventEmitter = function () {
-  function EventEmitter() {
-    _classCallCheck(this, EventEmitter);
-
-    this.listeners = {};
-  }
-
-  _createClass(EventEmitter, [{
-    key: "subscribe",
-    value: function subscribe(event, callback) {
-      this.listeners[event] = this.listeners[event] || [];
-      this.listeners[event].push({
-        callback: callback
-      });
+ * Utilitary to emit event and subscribe to them
+ */
+var EventEmitter = /** @class */function () {
+    function EventEmitter() {
+        this.listeners = {};
     }
-  }, {
-    key: "unsubscribe",
-    value: function unsubscribe(event, callback) {
-      if (this.listeners[event]) {
-        var index = this.listeners[event].findIndex(function (listener) {
-          return callback === listener.callback;
+    EventEmitter.prototype.subscribe = function (event, callback) {
+        this.listeners[event] = this.listeners[event] || [];
+        this.listeners[event].push({
+            callback: callback
         });
-        if (index > -1) {
-          this.listeners[event].splice(index, 1);
-        }
-      }
-    }
-  }, {
-    key: "emit",
-    value: function emit(event) {
-      if (this.listeners[event]) {
-        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-          args[_key - 1] = arguments[_key];
-        }
-
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.listeners[event][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var listener = _step.value;
-
-            try {
-              listener.callback.apply(listener, args);
-            } catch (e) {
-              console.error(e);
+    };
+    EventEmitter.prototype.unsubscribe = function (event, callback) {
+        if (this.listeners[event]) {
+            var index = this.listeners[event].findIndex(function (listener) {
+                return callback === listener.callback;
+            });
+            if (index > -1) {
+                this.listeners[event].splice(index, 1);
             }
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
         }
-      }
-    }
-  }]);
-
-  return EventEmitter;
+    };
+    EventEmitter.prototype.emit = function (event) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        if (this.listeners[event]) {
+            for (var _a = 0, _b = this.listeners[event]; _a < _b.length; _a++) {
+                var listener = _b[_a];
+                try {
+                    listener.callback.apply(listener, args);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    };
+    return EventEmitter;
 }();
-
 exports.default = EventEmitter;
 
 /***/ }),
@@ -11736,18 +12216,12 @@ exports.default = EventEmitter;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 var MARGIN = 0.000001;
 function areEquals(a, b) {
-  return Math.abs(a - b) < MARGIN;
+    return Math.abs(a - b) < MARGIN;
 }
-
 /**
  * Count beats, and give the time of next beat occurence
  * @param {number} bpm
@@ -11756,134 +12230,97 @@ function areEquals(a, b) {
  * @property {float} beatLength - Length of a beat in seconds
  * @property {AudioContext} context
  */
-
-var Metronome = function () {
-  function Metronome(bpm, context, eventEmitter) {
-    _classCallCheck(this, Metronome);
-
-    this.context = context;
-    this.eventEmitter = eventEmitter;
-
-    this.beatLength = 60 / bpm;
-    this._clock = this._clock.bind(this);
-  }
-
-  _createClass(Metronome, [{
-    key: 'start',
-    value: function start(startTime) {
-      this.startTime = startTime;
-      this.nextBeat = this.beatLength;
-
-      // Emit the first beat
-      this._schedule();
-      // Start the loop
-      this.loopInterval = setInterval(this._clock, 50);
+var Metronome = /** @class */function () {
+    function Metronome(bpm, context, eventEmitter) {
+        this.context = context;
+        this.eventEmitter = eventEmitter;
+        this.nextBeat = 0;
+        this.startTime = 0;
+        this.beatLength = 60 / bpm;
+        this._clock = this._clock.bind(this);
     }
-
-    /*
-    * Loop checking time each frame
-    * The metronom is always one beat ahead, and calculate the time of the upcoming beat
-    */
-
-  }, {
-    key: '_clock',
-    value: function _clock() {
-      // Get current time (relative to start time)
-      var currentTime = this.context.currentTime - this.startTime;
-      // When next beat is reached, update its value
-      if (currentTime >= this.nextBeat || areEquals(currentTime, this.nextBeat)) {
-        this.nextBeat += this.beatLength;
+    Metronome.prototype.start = function (startTime) {
+        this.startTime = startTime;
+        this.nextBeat = this.beatLength;
+        // Emit the first beat
         this._schedule();
-      }
-    }
-
+        // Start the loop
+        this.loopInterval = setInterval(this._clock, 50);
+    };
+    /*
+     * Loop checking time each frame
+     * The metronom is always one beat ahead, and calculate the time of the upcoming beat
+     */
+    Metronome.prototype._clock = function () {
+        // Get current time (relative to start time)
+        var currentTime = this.context.currentTime - this.startTime;
+        // When next beat is reached, update its value
+        if (currentTime >= this.nextBeat || areEquals(currentTime, this.nextBeat)) {
+            this.nextBeat += this.beatLength;
+            this._schedule();
+        }
+    };
     /* Emit beat event, and give the global time of next beat */
-
-  }, {
-    key: '_schedule',
-    value: function _schedule() {
-      this.eventEmitter.emit('beat', this.startTime + this.nextBeat);
-    }
-
+    Metronome.prototype._schedule = function () {
+        this.eventEmitter.emit('beat', this.startTime + this.nextBeat);
+    };
     /**
      * Public method use to obtain global next beat time
      * @returns {float} time in seconds of the beat
      */
-
-  }, {
-    key: 'getNextBeatTime',
-    value: function getNextBeatTime() {
-      this._fixBeat();
-      return this.startTime + this.nextBeat;
-    }
-
+    Metronome.prototype.getNextBeatTime = function () {
+        this._fixBeat();
+        return this.startTime + this.nextBeat;
+    };
     /**
      * Public method use to obtain global nth next beat time
      * @param {number} beats - Number of beats
      * @returns {float} time in seconds of the beat
      */
-
-  }, {
-    key: 'getNextNthBeatTime',
-    value: function getNextNthBeatTime(beats) {
-      this._fixBeat();
-      return this.startTime + this.nextBeat + (beats - 1) * this.beatLength;
-    }
-
+    Metronome.prototype.getNextNthBeatTime = function (beats) {
+        this._fixBeat();
+        return this.startTime + this.nextBeat + (beats - 1) * this.beatLength;
+    };
     /**
      * Get the offset in seconds of the given time relatively to the closest beat before it
      * @param {float} time - time in seconds from an audio context
      * @returns {float} time since last beat
      */
-
-  }, {
-    key: 'getOffset',
-    value: function getOffset(time) {
-      var offset = (time - this.startTime) % this.beatLength;
-      return areEquals(this.beatLength, offset) ? 0 : offset;
-    }
-
+    Metronome.prototype.getOffset = function (time) {
+        var offset = (time - this.startTime) % this.beatLength;
+        return areEquals(this.beatLength, offset) ? 0 : offset;
+    };
     /**
-     * Gets the position of the given time in an absolute measure of n beats
+     * Gets the position of the given time in an absolute bar of n beats
      * @param {float} time
-     * @param {number} measureSize - Number of beats in a measure
+     * @param {number} barSize - Number of beats in a bar
      * @returns {number} position (from 0 to n - 1)
      */
-
-  }, {
-    key: 'getBeatPosition',
-    value: function getBeatPosition(time, measureSize) {
-      var measureLength = this.beatLength * measureSize;
-      var measurePosition = (time - this.startTime) % measureLength;
-      if (areEquals(measureLength - measurePosition)) return 0;
-      var position = Math.floor(measurePosition / this.beatLength);
-      return !areEquals(this.beatLength, Math.abs(measurePosition - position * this.beatLength)) ? position : (position + 1) % measureSize;
-    }
-  }, {
-    key: 'stop',
-    value: function stop() {
-      clearInterval(this.loopInterval);
-    }
-
+    Metronome.prototype.getBeatPosition = function (time, barSize) {
+        var barLength = this.beatLength * barSize;
+        var barPosition = (time - this.startTime) % barLength;
+        if (areEquals(barLength, barPosition)) return 0;
+        var position = Math.floor(barPosition / this.beatLength);
+        return !areEquals(this.beatLength, Math.abs(barPosition - position * this.beatLength)) ? position : (position + 1) % barSize;
+    };
+    Metronome.prototype.stop = function () {
+        if (this.loopInterval) {
+            clearInterval(this.loopInterval);
+        }
+    };
     /*
-    * If the getter methods are called just on a beat, check if the next beat value is still valid
-    * This is to avoid giving a next beat value that is actually in the past
-    */
-
-  }, {
-    key: '_fixBeat',
-    value: function _fixBeat() {
-      var currentTime = this.context.currentTime - this.startTime;
-      if (currentTime >= this.nextBeat || areEquals(this.nextBeat, currentTime)) {
-        this.nextBeat += this.beatLength;
-        this._schedule();
-      }
-    }
-  }]);
-
-  return Metronome;
+     * If the getter methods are called just on a beat, check if the next beat value is still valid
+     * This is to avoid giving a next beat value that is actually in the past
+     */
+    Metronome.prototype._fixBeat = function () {
+        var currentTime = this.context.currentTime - this.startTime;
+        if (currentTime >= this.nextBeat || areEquals(this.nextBeat, currentTime)) {
+            this.nextBeat += this.beatLength;
+            this._schedule();
+        }
+    };
+    return Metronome;
 }();
-
 exports.default = Metronome;
 
 /***/ }),
@@ -11899,253 +12336,245 @@ exports.default = Metronome;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _bufferLoader = __webpack_require__(/*! ./buffer-loader */ "./src/buffer-loader.js");
 
 var _bufferLoader2 = _interopRequireDefault(_bufferLoader);
 
-var _soundLoop = __webpack_require__(/*! ./sound-loop */ "./src/sound-loop.js");
+var _eventEmitter = __webpack_require__(/*! ./event-emitter */ "./src/event-emitter.js");
 
-var _soundLoop2 = _interopRequireDefault(_soundLoop);
+var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
 var _metronome = __webpack_require__(/*! ./metronome */ "./src/metronome.js");
 
 var _metronome2 = _interopRequireDefault(_metronome);
 
-var _eventEmitter = __webpack_require__(/*! ./event-emitter */ "./src/event-emitter.js");
+var _soundLoop = __webpack_require__(/*! ./sound-loop */ "./src/sound-loop.js");
 
-var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
+var _soundLoop2 = _interopRequireDefault(_soundLoop);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var __assign = undefined && undefined.__assign || function () {
+    __assign = Object.assign || function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) {
+                if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+        return value instanceof P ? value : new P(function (resolve) {
+            resolve(value);
+        });
+    }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) {
+            result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = undefined && undefined.__generator || function (thisArg, body) {
+    var _ = { label: 0, sent: function sent() {
+            if (t[0] & 1) throw t[1];return t[1];
+        }, trys: [], ops: [] },
+        f,
+        y,
+        t,
+        g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function () {
+        return this;
+    }), g;
+    function verb(n) {
+        return function (v) {
+            return step([n, v]);
+        };
+    }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) {
+            try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0:case 1:
+                        t = op;break;
+                    case 4:
+                        _.label++;return { value: op[1], done: false };
+                    case 5:
+                        _.label++;y = op[1];op = [0];continue;
+                    case 7:
+                        op = _.ops.pop();_.trys.pop();continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                            _ = 0;continue;
+                        }
+                        if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                            _.label = op[1];break;
+                        }
+                        if (op[0] === 6 && _.label < t[1]) {
+                            _.label = t[1];t = op;break;
+                        }
+                        if (t && _.label < t[2]) {
+                            _.label = t[2];_.ops.push(op);break;
+                        }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop();continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) {
+                op = [6, e];y = 0;
+            } finally {
+                f = t = 0;
+            }
+        }if (op[0] & 5) throw op[1];return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 
 /**
-* Manage sounds and activate them as players
-* @param {number} bpm - Beats per minute
-* @param {AudioContext} context
-* @property {AudioContext} context - Audio context
-* @property {GainNode} master - Gain connected to context's destination
-* @property {Metronome} metronome
-* @property {boolean} started
-* @property {boolean} paused - True when orchestre has been suspended
-*/
-var Orchestre = function () {
-  function Orchestre(bpm, context) {
-    _classCallCheck(this, Orchestre);
-
-    this.players = {};
-    this.context = context || new (window.AudioContext || window.webkitAudioContext)();
-    this.eventEmitter = new _eventEmitter2.default();
-    this.metronome = new _metronome2.default(bpm, this.context, this.eventEmitter);
-    this.loader = new _bufferLoader2.default(this.context);
-
-    // Master volume
-    this.master = this.context.createGain();
-    this.master.connect(this.context.destination);
-    this.master.gain.setValueAtTime(1, 0);
-
-    // Events
-    this.subscribers = [];
-    this.subId = -1;
-    this._updateEvents = this._updateEvents.bind(this);
-
-    this.started = false;
-    this.paused = false;
-  }
-
-  /*
-   * At each beat, call eventual subscribers
-   * @param {float} time - Time in seconds of the beat
-   */
-
-
-  _createClass(Orchestre, [{
-    key: '_updateEvents',
-    value: function _updateEvents(time) {
-      if (this.subscribers.length > 0) {
-        var toRemove = [];
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.subscribers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var sub = _step.value;
-
-            // Decrease the number of beat to wait
-            sub.wait -= 1;
-            if (sub.wait <= 0) {
-              // Call subscriber function
-              try {
-                sub.callback(time);
-              } catch (err) {
-                throw new err();
-              } finally {
-                if (sub.repeat)
-                  // Repeat
-                  sub.wait = sub.length;else toRemove.push(this.subscribers.indexOf(sub));
-              }
-            }
-          }
-          // Remove called subscribers
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
-
-        try {
-          for (var _iterator2 = toRemove[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var i = _step2.value;
-
-            this.subscribers.splice(i, 1);
-          }
-        } catch (err) {
-          _didIteratorError2 = true;
-          _iteratorError2 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-              _iterator2.return();
-            }
-          } finally {
-            if (_didIteratorError2) {
-              throw _iteratorError2;
-            }
-          }
-        }
-      }
+ * Manage sounds and activate them as players
+ * @param {number} bpm - Beats per minute
+ * @param {AudioContext} context
+ * @property {AudioContext} context - Audio context
+ * @property {GainNode} master - Gain connected to context's destination
+ * @property {Metronome} metronome
+ * @property {boolean} started
+ * @property {boolean} paused - True when orchestre has been suspended
+ */
+var Orchestre = /** @class */function () {
+    function Orchestre(bpm, context) {
+        this.bpm = bpm;
+        this.players = {};
+        this.context = context || new (window.AudioContext || window.webkitAudioContext)();
+        this.eventEmitter = new _eventEmitter2.default();
+        this.metronome = new _metronome2.default(this.bpm, this.context, this.eventEmitter);
+        this.loader = new _bufferLoader2.default(this.context);
+        // Master volume
+        this.master = this.context.createGain();
+        this.master.connect(this.context.destination);
+        this.master.gain.setValueAtTime(1, 0);
+        // Events
+        this.subscribers = [];
+        this.subId = -1;
+        this._updateEvents = this._updateEvents.bind(this);
+        this.started = false;
+        this.paused = false;
     }
-
+    /*
+     * At each beat, call eventual subscribers
+     * @param {float} time - Time in seconds of the beat
+     */
+    Orchestre.prototype._updateEvents = function (time) {
+        if (this.subscribers.length > 0) {
+            var toRemove_1 = [];
+            for (var _i = 0, _a = this.subscribers; _i < _a.length; _i++) {
+                var sub = _a[_i];
+                // Decrease the number of beat to wait
+                sub.wait -= 1;
+                if (sub.wait <= 0) {
+                    // Call subscriber function
+                    try {
+                        sub.callback(time);
+                    } catch (err) {
+                        throw err;
+                    } finally {
+                        if (sub.repeat)
+                            // Repeat
+                            sub.wait = sub.length;else toRemove_1.push(sub.id);
+                    }
+                }
+            }
+            // Remove called subscribers
+            this.subscribers = this.subscribers.filter(function (sub) {
+                return !toRemove_1.includes(sub.id);
+            });
+        }
+    };
     /**
      * Start metronome
      * @param {string[]} [players=[]] - names of players to start immediately
      */
-
-  }, {
-    key: 'start',
-    value: function start() {
-      var players = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
-      if (this.started) throw new Error('Orchestre is already started');
-      this.context.resume();
-      this.metronome.start(this.context.currentTime);
-
-      this.eventEmitter.subscribe('beat', this._updateEvents);
-      this.started = true;
-      this.paused = false;
-
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
-
-      try {
-        for (var _iterator3 = players[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var player = _step3.value;
-
-          this.play(player, { now: true });
+    Orchestre.prototype.start = function (players) {
+        if (players === void 0) {
+            players = [];
         }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
-          }
-        } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
-          }
+        if (this.started) throw new Error('Orchestre is already started');
+        this.context.resume();
+        this.metronome.start(this.context.currentTime);
+        this.eventEmitter.subscribe('beat', this._updateEvents);
+        this.started = true;
+        this.paused = false;
+        for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
+            var player = players_1[_i];
+            this.play(player, { now: true });
         }
-      }
-    }
-
+    };
     /**
-    * Immediately stop all the instruments, then stop the metronome
-    */
-
-  }, {
-    key: 'fullStop',
-    value: function fullStop() {
-      if (!this.started) throw new Error('Orchestre has not been started');
-      for (var player in this.players) {
-        if (this.players.hasOwnProperty(player)) this.players[player].soundLoop.stop(this.context.currentTime);
-      }
-      this.eventEmitter.unsubscribe('beat', this._updateEvents);
-      this.metronome.stop();
-      this.started = false;
-      this.paused = false;
-    }
-
-    /**
-    * Prepare sounds
-    * @param {object[]} players - Players configuration
-    * @param {string} players[].name - Player's identifier
-    * @param {string} players[].url - URL of the sound file
-    * @param {number} players[].length - Number of beats that the sound contains
-    * @param {boolean} [players[].absolute=false] - Indicates that the player is aligned absolutely in the song
-    * @param {AudioNode} [players[].destination] - Audio node to connect the player to
-    * @returns {Promise} Promise that resolves once all player has been loaded
-    */
-
-  }, {
-    key: 'addPlayers',
-    value: function addPlayers(players) {
-      var _this = this;
-
-      // Load sounds files
-      return this.loader.loadAll(players).then(function (buffers) {
-        // Store sounds into players
-        var _iteratorNormalCompletion4 = true;
-        var _didIteratorError4 = false;
-        var _iteratorError4 = undefined;
-
-        try {
-          for (var _iterator4 = players[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var sound = _step4.value;
-
-            if (!buffers[sound.name]) return;
-
-            var player = Object.assign({}, sound);
-            player.soundLoop = new _soundLoop2.default(_this.context, buffers[sound.name], _this.eventEmitter, player.length, player.absolute, player.destination || _this.master);
-            _this.players[sound.name] = player;
-          }
-        } catch (err) {
-          _didIteratorError4 = true;
-          _iteratorError4 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion4 && _iterator4.return) {
-              _iterator4.return();
-            }
-          } finally {
-            if (_didIteratorError4) {
-              throw _iteratorError4;
-            }
-          }
+     * Immediately stop all the instruments, then stop the metronome
+     */
+    Orchestre.prototype.fullStop = function () {
+        if (!this.started) throw new Error('Orchestre has not been started');
+        for (var player in this.players) {
+            if (this.players.hasOwnProperty(player)) this.players[player].soundLoop.stop(this.context.currentTime);
         }
-      });
-    }
-
+        this.eventEmitter.unsubscribe('beat', this._updateEvents);
+        this.metronome.stop();
+        this.started = false;
+        this.paused = false;
+    };
+    /**
+     * Prepare sounds
+     * @param {object[]} players - Players configuration
+     * @param {string} players[].name - Player's identifier
+     * @param {string} players[].url - URL of the sound file
+     * @param {number} players[].length - Number of beats that the sound contains
+     * @param {boolean} [players[].absolute=false] - Indicates that the player is aligned absolutely in the song
+     * @param {AudioNode} [players[].destination] - Audio node to connect the player to
+     * @returns {Promise} Promise that resolves once all player has been loaded
+     */
+    Orchestre.prototype.addPlayers = function (players) {
+        return __awaiter(this, void 0, void 0, function () {
+            var buffers, _i, players_2, sound, player;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        return [4 /*yield*/, this.loader.loadAll(players)];
+                    case 1:
+                        buffers = _a.sent();
+                        // Store sounds into players
+                        for (_i = 0, players_2 = players; _i < players_2.length; _i++) {
+                            sound = players_2[_i];
+                            if (!buffers[sound.name]) return [2 /*return*/];
+                            player = __assign(__assign({}, sound), { soundLoop: new _soundLoop2.default(this.context, buffers[sound.name], this.eventEmitter, sound.length, !!sound.absolute, sound.destination || this.master), playing: false });
+                            this.players[sound.name] = player;
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     /**
      * Prepare a single sound
      * @param {string} name - Player's identifier
@@ -12155,48 +12584,36 @@ var Orchestre = function () {
      * @param {AudioNode} [destination] - Audio node to connect the player to
      * @returns {Promise} Promise that resolves once the player is loaded
      */
-
-  }, {
-    key: 'addPlayer',
-    value: function addPlayer(name, url, length) {
-      var _this2 = this;
-
-      var absolute = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      var destination = arguments[4];
-
-      return this.loader.load(name, url).then(function (buffer) {
-        _this2.players[name] = {
-          name: name,
-          url: url,
-          length: length,
-          absolute: absolute,
-          soundLoop: new _soundLoop2.default(_this2.context, buffer, _this2.eventEmitter, length, absolute, destination || _this2.master)
-        };
-      });
-    }
-
+    Orchestre.prototype.addPlayer = function (name, url, length, absolute, destination) {
+        var _this = this;
+        if (absolute === void 0) {
+            absolute = false;
+        }
+        return this.loader.load(name, url).then(function (buffer) {
+            _this.players[name] = {
+                name: name,
+                url: url,
+                length: length,
+                absolute: absolute,
+                soundLoop: new _soundLoop2.default(_this.context, buffer, _this.eventEmitter, length, absolute, destination || _this.master),
+                playing: false
+            };
+        });
+    };
     /** Connect a player to an audio node
      * @param {string} name
      * @param {AudioNode} destination
      */
-
-  }, {
-    key: 'connect',
-    value: function connect(name, destination) {
-      this.players[name].soundLoop.connect(destination);
-    }
-
+    Orchestre.prototype.connect = function (name, destination) {
+        this.players[name].soundLoop.connect(destination);
+    };
     /** Disconnect a player from all its destination or one audio node
      * @param {string} name
      * @param {AudioNode} destination
      */
-
-  }, {
-    key: 'disconnect',
-    value: function disconnect(name, destination) {
-      this.players[name].soundLoop.disconnect(destination);
-    }
-
+    Orchestre.prototype.disconnect = function (name, destination) {
+        this.players[name].soundLoop.disconnect(destination);
+    };
     /**
      * Toggle a sound state between play and stop
      * @param {string} name - Player identifier
@@ -12205,76 +12622,61 @@ var Orchestre = function () {
      * @param {boolean} [options.now] - If true, sound will start / stop immediately. Otherwise, it waits for next beat.
      * @param {boolean} [options.once] - Play sound only once, then stop
      */
-
-  }, {
-    key: 'toggle',
-    value: function toggle(name) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      if (!this.started) throw new Error('Orchestre has not been started');
-      var player = this.players[name];
-      if (!player) throw new Error('Player ' + name + ' does not exist');
-
-      if (!player.soundLoop.playing) {
+    Orchestre.prototype.toggle = function (name, options) {
+        if (options === void 0) {
+            options = {};
+        }
+        if (!this.started) throw new Error('Orchestre has not been started');
+        var player = this.players[name];
+        if (!player) throw new Error("Player ".concat(name, " does not exist"));
+        if (!player.soundLoop.playing) {
+            player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
+        } else {
+            player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
+        }
+        // Return the state of the instrument
+        return player.playing;
+    };
+    /**
+     * Start a player
+     * @param {string} name - Player identifier
+     * @param {object} [options={}]
+     * @param {float} [options.fade] - Time constant for fade in
+     * @param {boolean} [options.now] - If true, sound will start immediately. Otherwise, it waits for next beat.
+     * @param {boolean} [options.once] - Play sound only once, then stop
+     */
+    Orchestre.prototype.play = function (name, options) {
+        if (options === void 0) {
+            options = {};
+        }
+        if (!this.started) throw new Error('Orchestre has not been started');
+        var player = this.players[name];
+        if (!player) throw new Error("play: player ".concat(name, " does not exist"));
         player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
-      } else {
+    };
+    /**
+     * Stop a player
+     * @param {string} name - LAYER identifier
+     * @param {object} [options={}]
+     * @param {float} [options.fade] - Time constant for fade out
+     * @param {boolean} [options.now] - If true, sound will stop immediately. Otherwise, it waits for next beat.
+     */
+    Orchestre.prototype.stop = function (name, options) {
+        if (options === void 0) {
+            options = {};
+        }
+        if (!this.started) throw new Error('Orchestre has not been started');
+        var player = this.players[name];
+        if (!player) throw new Error("stop: player ".concat(name, " does not exist"));
         player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
-      }
-
-      // Return the state of the instrument
-      return player.playing;
-    }
-
-    /**
-    * Start a player
-    * @param {string} name - Player identifier
-    * @param {object} [options={}]
-    * @param {float} [options.fade] - Time constant for fade in
-    * @param {boolean} [options.now] - If true, sound will start immediately. Otherwise, it waits for next beat.
-    * @param {boolean} [options.once] - Play sound only once, then stop
-    */
-
-  }, {
-    key: 'play',
-    value: function play(name) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      if (!this.started) throw new Error('Orchestre has not been started');
-      var player = this.players[name];
-      if (!player) throw new Error('play: player ' + name + ' does not exist');
-      player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
-    }
-
-    /**
-    * Stop a player
-    * @param {string} name - LAYER identifier
-    * @param {object} [options={}]
-    * @param {float} [options.fade] - Time constant for fade out
-    * @param {boolean} [options.now] - If true, sound will stop immediately. Otherwise, it waits for next beat.
-    */
-
-  }, {
-    key: 'stop',
-    value: function stop(name) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      if (!this.started) throw new Error('Orchestre has not been started');
-      var player = this.players[name];
-      if (!player) throw new Error('stop: player ' + name + ' does not exist');
-      player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
-    }
-
+    };
     /** Check if a player is active
      * @param {string} name
      * @returns {boolean}
      */
-
-  }, {
-    key: 'isPlaying',
-    value: function isPlaying(name) {
-      return this.players[name].soundLoop.playing;
-    }
-
+    Orchestre.prototype.isPlaying = function (name) {
+        return this.players[name].soundLoop.playing;
+    };
     /**
      * Schedule an action (play, stop, or toggle) for a player on an incoming beat
      * @param {string} name - Player identifier
@@ -12283,124 +12685,127 @@ var Orchestre = function () {
      * @param {object} [options={}]
      * @param {float} [options.fade] - Time constant for fade in or fade out
      * @param {boolean} [options.once] - Play sound only once, then stop
-     * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next measure of n beat)
-     * @param {number} [options.offset] - Use with absolute to set a position in the measure
+     * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next bar of n beat)
+     * @param {number} [options.offset] - Use with absolute to set a position in the bar
      */
-
-  }, {
-    key: 'schedule',
-    value: function schedule(name, beats) {
-      var action = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'toggle';
-      var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-
-      if (!this.started) throw new Error('Orchestre has not been started');
-      var player = this.players[name];
-      if (!player) throw new Error('schedule: player ' + name + ' does not exist');
-      if (beats <= 0) throw new Error('schedule: beats must be a positive number');
-
-      var beatsToWait = beats - (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) + (options.offset || 0);
-      var eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
-      if (action === 'play' || action === 'toggle' && !player.soundLoop.playing) {
-        player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
-      } else if (action === 'stop' || action === 'toggle' && player.soundLoop.playing) {
-        player.soundLoop.stop(eventTime, this.metronome, options.fade || 0);
-      } else {
-        throw new Error('schedule: action ' + action + ' is not recognized (must be within [\'play\', \'stop\', \'toggle\'])');
-      }
-    }
-
+    Orchestre.prototype.schedule = function (name, beats, action, options) {
+        if (action === void 0) {
+            action = 'toggle';
+        }
+        if (options === void 0) {
+            options = {};
+        }
+        if (!this.started) throw new Error('Orchestre has not been started');
+        var player = this.players[name];
+        if (!player) throw new Error("schedule: player ".concat(name, " does not exist"));
+        if (beats <= 0) throw new Error("schedule: beats must be a positive number");
+        var beatsToWait = beats - (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) + (options.offset || 0);
+        var eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
+        if (action === 'play' || action === 'toggle' && !player.soundLoop.playing) {
+            player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
+        } else if (action === 'stop' || action === 'toggle' && player.soundLoop.playing) {
+            player.soundLoop.stop(eventTime, options.fade || 0);
+        } else {
+            throw new Error("schedule: action ".concat(action, " is not recognized (must be within ['play', 'stop', 'toggle'])"));
+        }
+    };
     /**
-     * Wait a number of beats before calling a function
+     * Wait for a number of beats
+     * @param {number} [beats=1] - number of beats to wait
+     * @param {objects} [options={}]
+     * @param {boolean} [options.absolute] - Callback will be called on the next absolute nth beat (next bar of n beats)
+     * @param {number} [options.offset] - Use with absolute to set a position in the bar
+     * @returns {Promise<number>} Resolves on the scheduled beat with its position in seconds
+     */
+    Orchestre.prototype.wait = function (beats, options) {
+        var _this = this;
+        if (beats === void 0) {
+            beats = 1;
+        }
+        if (options === void 0) {
+            options = {};
+        }
+        this.subId++;
+        return new Promise(function (resolve) {
+            _this.subscribers.push({
+                id: _this.subId,
+                callback: resolve,
+                length: beats,
+                repeat: false,
+                wait: beats - (options.absolute ? _this.metronome.getBeatPosition(_this.context.currentTime, beats) : 0) + (options.offset || 0)
+            });
+        });
+    };
+    /**
+     * Call a function every n beats
      * @param {Orchestre~beatCallback} callback - Function to call
      * @param {number} [beats=1] - number of beats to wait
      * @param {objects} [options={}]
-     * @param {boolean} [options.repeat] - Callback will be called every n beats
-     * @param {boolean} [options.absolute] - Callback will be called on the next absolute nth beat (next measure of n beats)
-     * @param {number} [options.offset] - Use with absolute to set a position in the measure
+     * @param {boolean} [options.absolute] - Callback will be called on absolute nth beat (bar of n beats)
+     * @param {number} [options.offset] - Use with absolute to set a position in the bar
      * @returns {number} Listener's id
      */
-
-  }, {
-    key: 'onBeat',
-    value: function onBeat(callback) {
-      var beats = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      this.subId++;
-      this.subscribers.push({
-        id: this.subId,
-        callback: callback,
-        length: beats,
-        repeat: options.repeat,
-        wait: beats - (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) + (options.offset || 0)
-      });
-
-      // Return id
-      return this.subId;
-    }
-
+    Orchestre.prototype.addListener = function (callback, beats, options) {
+        if (beats === void 0) {
+            beats = 1;
+        }
+        if (options === void 0) {
+            options = {};
+        }
+        this.subId++;
+        this.subscribers.push({
+            id: this.subId,
+            callback: callback,
+            length: beats,
+            repeat: true,
+            wait: beats - (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) + (options.offset || 0)
+        });
+        return this.subId;
+    };
     /**
      * Remove an existing listener
      * @param {number} id - Listener's id
      * @returns {boolean} true if found
      */
-
-  }, {
-    key: 'removeListener',
-    value: function removeListener(id) {
-      var subIndex = this.subscribers.findIndex(function (sub) {
-        return sub.id === id;
-      });
-      if (subIndex !== -1) {
-        this.subscribers.splice(subIndex, 1);
-      }
-      return subIndex !== -1;
-    }
-
+    Orchestre.prototype.removeListener = function (id) {
+        var subIndex = this.subscribers.findIndex(function (sub) {
+            return sub.id === id;
+        });
+        if (subIndex !== -1) {
+            this.subscribers.splice(subIndex, 1);
+        }
+        return subIndex !== -1;
+    };
     /**
      * Suspend metronome and players
      * @return {Promise} resolves with void
      */
-
-  }, {
-    key: 'suspend',
-    value: function suspend() {
-      this.paused = true;
-      return this.context.suspend();
-    }
+    Orchestre.prototype.suspend = function () {
+        this.paused = true;
+        return this.context.suspend();
+    };
     /**
      * Resume metronome and players if they have been suspended
      * @return {Promise} resolves with void
      */
-
-  }, {
-    key: 'resume',
-    value: function resume() {
-      this.paused = false;
-      return this.context.resume();
-    }
-
+    Orchestre.prototype.resume = function () {
+        this.paused = false;
+        return this.context.resume();
+    };
     /**
      * Change volume of the orchestra
      * @param {float} value - 0 is mute, 1 is default. Set in between to lower, higher to increase.
      */
-
-  }, {
-    key: 'setVolume',
-    value: function setVolume(value) {
-      this.master.gain.setValueAtTime(value, this.context.currentTime);
-    }
-  }]);
-
-  return Orchestre;
+    Orchestre.prototype.setVolume = function (value) {
+        this.master.gain.setValueAtTime(value, this.context.currentTime);
+    };
+    return Orchestre;
 }();
-
 /**
-* Callback function called on beat event
-* @callback Orchestre~beatCallback
-* @param {float} nextBeat - Time of the next coming beat in seconds
-*/
-
+ * Callback function called on beat event
+ * @callback Orchestre~beatCallback
+ * @param {float} nextBeat - Time of the next coming beat in seconds
+ */
 exports.default = Orchestre;
 
 /***/ }),
@@ -12416,167 +12821,143 @@ exports.default = Orchestre;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 /**
-* Sound loop that stays in sync with the beats
-*/
-var SoundLoop = function () {
-  function SoundLoop(context, buffer, eventEmitter, nbBeats) {
-    var absolute = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-    var destination = arguments[5];
-
-    _classCallCheck(this, SoundLoop);
-
-    this.context = context;
-    this.buffer = buffer;
-    this.eventEmitter = eventEmitter;
-    this.nbBeats = nbBeats;
-    this.absolute = absolute;
-    this.context = context;
-
-    this.stopped = true;
-    this.stopQueue = 0;
-
-    this._beatSchedule = this._beatSchedule.bind(this);
-
-    this.gainNode = context.createGain();
-    this.gainNode.connect(destination || context.destination);
-    this.gainNode.gain.setValueAtTime(0, 0);
-  }
-
-  /** Play the sound from the beginning */
-
-
-  _createClass(SoundLoop, [{
-    key: '_loop',
-    value: function _loop(startTime) {
-      var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      var once = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-      if (this.source && !this.stopped) {
-        // Clean current source by making a very fast fade out (avoid a pop sound)
-        this.source.stop(startTime + 0.1);
-        var fadeGain = this.context.createGain();
-        fadeGain.connect(this.gainNode);
-        this.source.disconnect(this.gainNode);
-        this.source.connect(fadeGain);
-        fadeGain.gain.setValueAtTime(1, this.context.currentTime);
-        fadeGain.gain.setTargetAtTime(0, startTime, 0.01);
-      }
-      // Create a new source node
-      this.source = this.context.createBufferSource();
-      this.source.loop = !once;
-      this.source.buffer = this.buffer;
-      this.source.connect(this.gainNode);
-      this.source.start(startTime, offset);
+ * Sound loop that stays in sync with the beats
+ */
+var SoundLoop = /** @class */function () {
+    function SoundLoop(context, buffer, eventEmitter, nbBeats, absolute, destination) {
+        if (absolute === void 0) {
+            absolute = false;
+        }
+        this.context = context;
+        this.buffer = buffer;
+        this.eventEmitter = eventEmitter;
+        this.nbBeats = nbBeats;
+        this.absolute = absolute;
+        this.nextMeasure = -1;
+        this.playing = false;
+        this.startTime = 0;
+        this.stopTime = 0;
+        this.stopped = true;
+        this.subscribed = false;
+        this.disposedSources = [];
+        this.stopped = true;
+        this.stopQueue = 0;
+        this._beatSchedule = this._beatSchedule.bind(this);
+        this.gainNode = context.createGain();
+        this.gainNode.connect(destination || context.destination);
+        this.gainNode.gain.setValueAtTime(0, 0);
     }
-
+    /** Play the sound from the beginning */
+    SoundLoop.prototype._loop = function (startTime, offset) {
+        var _this = this;
+        if (offset === void 0) {
+            offset = 0;
+        }
+        if (this.source) {
+            // Keep playing and add to disposed sources list
+            this.disposedSources.push(this.source);
+        }
+        // Create a new source node
+        var source = this.context.createBufferSource();
+        source.loop = false;
+        source.buffer = this.buffer;
+        source.connect(this.gainNode);
+        source.start(startTime, offset);
+        // Disconnect and remove the source once it stops
+        source.addEventListener('ended', function () {
+            source.disconnect(_this.gainNode);
+            var disposedIdx = _this.disposedSources.indexOf(source);
+            if (disposedIdx > -1) {
+                _this.disposedSources.splice(disposedIdx, 1);
+            }
+        });
+        this.source = source;
+    };
     /** Start the loop */
-
-  }, {
-    key: 'start',
-    value: function start(startTime, metronome) {
-      var fadeIn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-      var once = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
-      if (this.stopped) {
-        this.startTime = startTime;
-        this.stopped = once || false;
-        // Absolute loop, start at nth beat
-        if (this.absolute) {
-          var offset = metronome.getOffset(startTime);
-          var beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
-
-          this._loop(startTime, beatPos * metronome.beatLength + offset, once);
-          this.nextMeasure = this.nbBeats - beatPos;
+    SoundLoop.prototype.start = function (startTime, metronome, fadeIn, once) {
+        if (fadeIn === void 0) {
+            fadeIn = 0;
         }
-        // Relative loop, starts at first beat
-        else {
-            this._loop(startTime, metronome.getOffset(startTime), once);
+        if (once === void 0) {
+            once = false;
+        }
+        if (this.stopped) {
+            this.startTime = startTime;
+            this.stopped = once || false;
+            // Absolute loop, start at nth beat
+            if (this.absolute) {
+                var offset = metronome.getOffset(startTime);
+                var beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
+                this._loop(startTime, beatPos * metronome.beatLength + offset);
+                this.nextMeasure = this.nbBeats - beatPos;
+            }
+            // Relative loop, starts at first beat
+            else {
+                    this._loop(startTime, metronome.getOffset(startTime));
+                    this.nextMeasure = this.nbBeats;
+                }
+            // If called immediately, we must ensure the next loop
+            if (startTime <= this.context.currentTime && !once) {
+                this._beatSchedule(metronome.getNextBeatTime());
+            }
+        }
+        // Fading
+        this.gainNode.gain.setTargetAtTime(1, startTime, fadeIn || 0);
+        // Subscribe to beat events
+        if (!this.subscribed && !once) {
+            this.eventEmitter.subscribe('beat', this._beatSchedule);
+            this.subscribed = true;
+        }
+        this.playing = !once;
+    };
+    SoundLoop.prototype._beatSchedule = function (nextBeat) {
+        // Decrease beats remaining, unless we're at the very first beat
+        this.nextMeasure = nextBeat > this.startTime && Math.abs(nextBeat - this.startTime) > 0.0001 ? this.nextMeasure - 1 : this.nextMeasure;
+        // Restart the loop
+        if (this.nextMeasure <= 0 && !this.stopped) {
+            this._loop(nextBeat);
             this.nextMeasure = this.nbBeats;
-          }
-
-        // If called immediately, we must ensure the next loop
-        if (startTime <= this.context.currentTime && !once) {
-          this._beatSchedule(metronome.getNextBeatTime());
         }
-      }
-
-      // Fading
-      this.gainNode.gain.setTargetAtTime(1, startTime, fadeIn || 0);
-
-      // Subscribe to beat events
-      if (!this.subscribed && !once) {
-        this.eventEmitter.subscribe('beat', this._beatSchedule);
-        this.subscribed = true;
-      }
-
-      this.playing = !once;
-    }
-  }, {
-    key: '_beatSchedule',
-    value: function _beatSchedule(nextBeat) {
-      // Decrease beats remaining, unless we're at the very first beat
-      this.nextMeasure = nextBeat > this.startTime && Math.abs(nextBeat - this.startTime) > 0.0001 ? this.nextMeasure - 1 : this.nextMeasure;
-
-      // Restart the loop
-      if (this.nextMeasure <= 0 && !this.stopped) {
-        this._loop(nextBeat);
-        this.nextMeasure = this.nbBeats;
-      }
-    }
-  }, {
-    key: '_fadeOut',
-    value: function _fadeOut(stopTime) {
-      var _this = this;
-
-      var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-      this.gainNode.gain.setTargetAtTime(0, stopTime, length);
-      this.playing = false;
-      this.stopQueue += 1;
-
-      setTimeout(function () {
-        _this.stopQueue -= 1;
-        if (!_this.playing && _this.stopQueue <= 0 && !_this.stopped) {
-          _this.source.stop(_this.stopTime);
-          _this.stopped = true;
-          _this.eventEmitter.unsubscribe('beat', _this._beatSchedule);
-          _this.subscribed = false;
+    };
+    SoundLoop.prototype._fadeOut = function (stopTime, length) {
+        var _this = this;
+        if (length === void 0) {
+            length = 0;
         }
-      }, (stopTime - this.context.currentTime) * 1000 + length * 5000);
-    }
-
+        this.gainNode.gain.setTargetAtTime(0, stopTime, length);
+        this.playing = false;
+        this.stopQueue += 1;
+        setTimeout(function () {
+            _this.stopQueue -= 1;
+            if (_this.source && !_this.playing && _this.stopQueue <= 0 && !_this.stopped) {
+                _this.disposedSources.push(_this.source);
+                _this.disposedSources.forEach(function (source) {
+                    return source.stop(_this.stopTime);
+                });
+                _this.stopped = true;
+                _this.eventEmitter.unsubscribe('beat', _this._beatSchedule);
+                _this.subscribed = false;
+            }
+        }, (stopTime - this.context.currentTime) * 1000 + length * 5000);
+    };
     /** Schedule a stop */
-
-  }, {
-    key: 'stop',
-    value: function stop(stopTime) {
-      var fadeOut = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-      this._fadeOut(stopTime, fadeOut);
-    }
-  }, {
-    key: 'connect',
-    value: function connect(destination) {
-      this.gainNode.connect(destination);
-    }
-  }, {
-    key: 'disconnect',
-    value: function disconnect(destination) {
-      this.gainNode.disconnect(destination);
-    }
-  }]);
-
-  return SoundLoop;
+    SoundLoop.prototype.stop = function (stopTime, fadeOut) {
+        if (fadeOut === void 0) {
+            fadeOut = 0;
+        }
+        this._fadeOut(stopTime, fadeOut);
+    };
+    SoundLoop.prototype.connect = function (destination) {
+        this.gainNode.connect(destination);
+    };
+    SoundLoop.prototype.disconnect = function (destination) {
+        this.gainNode.disconnect(destination);
+    };
+    return SoundLoop;
 }();
-
 exports.default = SoundLoop;
 
 /***/ }),
