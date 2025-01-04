@@ -40,6 +40,11 @@ const players = [{
   url: './assets/doremi.ogg',
   length: 12,
   absolute: false
+}, {
+  name: 'shamisen',
+  url: './assets/shamisen.ogg',
+  length: 8,
+  absolute: false
 }];
 
 let orchestre;
@@ -47,9 +52,9 @@ let volume = 1;
 let listenerId = -1;
 
 try {
-   orchestre = new Orchestre(120);
+  orchestre = new Orchestre(120);
 }
-catch(err) {
+catch (err) {
   window.addEventListener('load', () => {
     document.getElementById('error').className = '';
     document.getElementById('startButton').className = 'hidden';
@@ -58,17 +63,17 @@ catch(err) {
   }, false);
 }
 
-window.start = function() {
+window.start = function () {
   document.getElementById('startButton').className = 'hidden';
   document.getElementById('loading').className = '';
-    document.getElementsByTagName('footer')[0].className = 'down';
+  document.getElementsByTagName('footer')[0].className = 'down';
   orchestre.addPlayers(players).then(() => {
     orchestre.start(['drum']);
     document.getElementById('loading').className = 'hidden';
     document.getElementById('demo').className = '';
     document.getElementById('control').className = '';
     document.getElementsByTagName('footer')[0].className = '';
-    listenerId = orchestre.onBeat(beat, 2, {repeat: true})
+    listenerId = orchestre.addListener(beat, 2)
   }).catch((err) => {
     document.getElementById('loading').className = 'hidden';
     document.getElementById('error').className = '';
@@ -78,35 +83,35 @@ window.start = function() {
   });
 }
 
-window.bass = function() {
+window.bass = function () {
   orchestre.toggle('bass', {
     fade: 0.01
   });
   document.getElementById('bass-btn').className = orchestre.isPlaying('bass') ? 'active' : '';
   document.getElementById('bass-btn').setAttribute('aria-pressed', orchestre.isPlaying('bass'));
 };
-window.piano = function() {
+window.piano = function () {
   orchestre.toggle('piano', {
     fade: 0.01
   });
   document.getElementById('piano-btn').className = orchestre.isPlaying('piano') ? 'active' : '';
   document.getElementById('piano-btn').setAttribute('aria-pressed', orchestre.isPlaying('piano'));
 };
-window.melody = function() {
+window.melody = function () {
   orchestre.toggle('melody', {
     fade: 0.02
   });
   document.getElementById('melody-btn').className = orchestre.isPlaying('melody') ? 'active' : '';
   document.getElementById('melody-btn').setAttribute('aria-pressed', orchestre.isPlaying('melody'));
 };
-window.organ = function() {
+window.organ = function () {
   orchestre.toggle('organ', {
     fade: 0.02
   });
   document.getElementById('organ-btn').className = orchestre.isPlaying('organ') ? 'active' : '';
   document.getElementById('organ-btn').setAttribute('aria-pressed', orchestre.isPlaying('organ'));
 };
-window.synth = function() {
+window.synth = function () {
   orchestre.toggle('synth', {
     fade: 1.2,
     now: true
@@ -114,7 +119,7 @@ window.synth = function() {
   document.getElementById('synth-btn').className = orchestre.isPlaying('synth') ? 'active' : '';
   document.getElementById('synth-btn').setAttribute('aria-pressed', orchestre.isPlaying('synth'));
 };
-window.jingle = function() {
+window.jingle = async function () {
   orchestre.toggle('jingle', {
     once: true
   });
@@ -122,29 +127,36 @@ window.jingle = function() {
   var jingleBtn = document.getElementById('jingle-btn');
   jingleBtn.className = 'disabled';
   jingleBtn.setAttribute('disabled', true);
-  orchestre.onBeat(() => {
-    jingleBtn.className = '';
-    jingleBtn.removeAttribute('disabled');
-  }, 4);
+  await orchestre.wait(4)
+  jingleBtn.className = '';
+  jingleBtn.removeAttribute('disabled');
 };
-window.count = function() {
+window.shamisen = async function () {
+  orchestre.schedule("shamisen", 8, "toggle", { absolute: true });
+  document.getElementById('shamisen-btn').className = orchestre.isPlaying('shamisen') ? 'active' : '';
+  document.getElementById('shamisen-btn').setAttribute('aria-pressed', orchestre.isPlaying('shamisen'));
+
+  var scheduler = document.getElementById("scheduler");
+  scheduler.className = "trigger";
+  await orchestre.wait(8, { absolute: true });
+  scheduler.className = "";
+}
+window.count = async function () {
   orchestre.toggle('doremi', {
     once: true
   });
   var countBtn = document.getElementById('count-btn');
   countBtn.className = 'disabled';
   countBtn.setAttribute('disabled', true);
-  orchestre.onBeat(() => {
-    countBtn.className = '';
-    countBtn.removeAttribute('disabled');
+  await orchestre.wait(8)
+  countBtn.className = '';
+  countBtn.removeAttribute('disabled');
 
-    var eightElem = document.getElementById('eight');
-    eightElem.className = 'trigger';
-    setTimeout(() => {
-      eightElem.className = '';
-    }, 1500);
-
-  }, 8);
+  var eightElem = document.getElementById('eight');
+  eightElem.className = 'trigger';
+  setTimeout(() => {
+    eightElem.className = '';
+  }, 1500);
 };
 
 function beat() {
@@ -154,7 +166,7 @@ function beat() {
   beatText.textContent = beatText.textContent === 'on' ? 'off' : 'on';
 }
 
-window.animationStop = function() {
+window.animationStop = function () {
   var animBtn = document.getElementById('animation-stop');
   if (listenerId !== -1) {
     orchestre.removeListener(listenerId);
@@ -162,26 +174,26 @@ window.animationStop = function() {
     animBtn.textContent = 'Start the animation';
   }
   else {
-    listenerId = orchestre.onBeat(beat, 2, {repeat: true})
+    listenerId = orchestre.addListener(beat, 2)
     animBtn.textContent = 'Stop the animation';
   }
 }
 
-window.pause = function() {
+window.pause = function () {
   const icon = document.getElementById('pause-icon');
   if (orchestre.paused) {
     orchestre.resume();
-    icon.setAttribute('src','./assets/pause.svg');
-    icon.setAttribute('alt','Pause');
+    icon.setAttribute('src', './assets/pause.svg');
+    icon.setAttribute('alt', 'Pause');
   }
   else {
     orchestre.suspend();
-    icon.setAttribute('src','./assets/play.svg');
-    icon.setAttribute('alt','Play');
+    icon.setAttribute('src', './assets/play.svg');
+    icon.setAttribute('alt', 'Play');
   }
 }
 
-window.changeVolume = function(positive) {
+window.changeVolume = function (positive) {
   volume = volume + (positive ? 0.1 : -0.1);
   if (volume <= 0) {
     volume = 0;
@@ -199,7 +211,7 @@ window.changeVolume = function(positive) {
       document.getElementById(btnId).className = '';
     }
   }
-  
+
   orchestre.setVolume(volume);
 
 }

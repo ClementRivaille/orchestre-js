@@ -88,7 +88,7 @@ orchestre.toggle('bass');
         <h2>Options</h2>
         <p>Orchestre-JS comes with several options to use players in different ways.</p>
 
-        <div class="players">
+        <div class="players left">
           <div>
             <p>Play or stop immediately with a fade in and fade out</p>
             <button onclick="synth()" id="synth-btn" aria-pressed="false">Synth</button>
@@ -96,6 +96,17 @@ orchestre.toggle('bass');
           <div>
             <p>Play only once</p>
             <button onclick="jingle()" id="jingle-btn">Jingle</button>
+          </div>
+        </div>
+        <div class="players left">
+          <div>
+            <p>Schedule player on next 2 bars</p>
+            <div id="scheduler">
+              <button onclick="shamisen()" id="shamisen-btn">Shamisen</button>
+              <div class="scheduled">
+                (Scheduled…)
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -110,6 +121,9 @@ orchestre.toggle('synth', {
 orchestre.play('jingle', {
   once: true
 });
+</pre>
+        <pre>
+orchestre.schedule("shamisen", 8, "toggle", { absolute: true })
 </pre>
       </div>
 

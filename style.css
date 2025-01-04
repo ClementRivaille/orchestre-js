@@ -191,6 +191,10 @@ pre {
   justify-content: center;
 }
 
+.players.left {
+  justify-content: flex-start;
+}
+
 .players > div {
   text-align: center;
   margin: 0 2rem; 
@@ -261,6 +265,25 @@ button#animation-stop:hover, button#animation-stop:focus {
   animation-duration: 1.5s;
   -webkit-animation-name: eight;
   -webkit-animation-duration: 1.5s;
+}
+
+#scheduler {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+}
+
+#scheduler button {
+  flex: 1;
+}
+
+#scheduler .scheduled {
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+#scheduler.trigger .scheduled {
+  opacity: 1;
 }
 
 footer {
