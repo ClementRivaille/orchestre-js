@@ -11,7 +11,7 @@ body {
 }
 
 header {
-  background: #e05656;
+  background: #5a0430;
   color: white;
   text-align: center;
   padding: 1rem;
@@ -26,7 +26,11 @@ header {
 
 h1 {
   font-size: 2.5rem;
-  margin-top: 0;
+  margin: 0;
+}
+
+header p {
+  margin-top: 0.3rem;
 }
 
 header button {
