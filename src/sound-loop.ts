@@ -14,6 +14,7 @@ class SoundLoop {
   private stopTime: number = 0;
   private stopped: boolean = true;
   private subscribed: boolean = false;
+  private disposedSources: AudioBufferSourceNode[] = [];
 
   constructor(
     private context: AudioContext,
@@ -34,23 +35,28 @@ class SoundLoop {
   }
 
   /** Play the sound from the beginning */
-  private _loop(startTime: number, offset = 0, once = false) {
-    if (this.source && !this.stopped) {
-      // Clean current source by making a very fast fade out (avoid a pop sound)
-      this.source.stop(startTime + 0.1);
-      const fadeGain = this.context.createGain();
-      fadeGain.connect(this.gainNode);
-      this.source.disconnect(this.gainNode);
-      this.source.connect(fadeGain);
-      fadeGain.gain.setValueAtTime(1, this.context.currentTime);
-      fadeGain.gain.setTargetAtTime(0, startTime, 0.01);
+  private _loop(startTime: number, offset = 0) {
+    if (this.source) {
+      // Keep playing and add to disposed sources list
+      this.disposedSources.push(this.source);
     }
     // Create a new source node
-    this.source = this.context.createBufferSource();
-    this.source.loop = !once;
-    this.source.buffer = this.buffer;
-    this.source.connect(this.gainNode);
-    this.source.start(startTime, offset);
+    const source = this.context.createBufferSource();
+    source.loop = false;
+    source.buffer = this.buffer;
+    source.connect(this.gainNode);
+    source.start(startTime, offset);
+
+    // Disconnect and remove the source once it stops
+    source.addEventListener('ended', () => {
+      source.disconnect(this.gainNode);
+      const disposedIdx = this.disposedSources.indexOf(source);
+      if (disposedIdx > -1) {
+        this.disposedSources.splice(disposedIdx, 1);
+      }
+    });
+
+    this.source = source;
   }
 
   /** Start the loop */
@@ -63,12 +69,12 @@ class SoundLoop {
         const offset = metronome.getOffset(startTime);
         const beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
 
-        this._loop(startTime, beatPos * metronome.beatLength + offset, once);
+        this._loop(startTime, beatPos * metronome.beatLength + offset);
         this.nextMeasure = this.nbBeats - beatPos;
       }
       // Relative loop, starts at first beat
       else {
-        this._loop(startTime, metronome.getOffset(startTime), once);
+        this._loop(startTime, metronome.getOffset(startTime));
         this.nextMeasure = this.nbBeats;
       }
 
@@ -117,7 +123,8 @@ class SoundLoop {
         this.stopQueue <= 0 &&
         !this.stopped
       ) {
-        this.source.stop(this.stopTime);
+        this.disposedSources.push(this.source);
+        this.disposedSources.forEach((source) => source.stop(this.stopTime));
         this.stopped = true;
         this.eventEmitter.unsubscribe('beat', this._beatSchedule);
         this.subscribed = false;

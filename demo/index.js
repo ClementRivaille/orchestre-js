@@ -40,6 +40,11 @@ const players = [{
   url: './assets/doremi.ogg',
   length: 12,
   absolute: false
+}, {
+  name: 'koto',
+  url: './assets/koto.ogg',
+  length: 8,
+  absolute: true
 }];
 
 const orchestre = new Orchestre(120);
@@ -50,6 +55,7 @@ orchestre.addPlayers(players).then(() => {
   document.getElementById('control').className = '';
   eventId = orchestre.addListener(beat, 2, { repeat: true })
 });
+
 
 window.bass = function () {
   orchestre.toggle('bass', {
@@ -82,6 +88,12 @@ window.jingle = function () {
     once: true
   });
 };
+window.koto = () => {
+  orchestre.toggle("koto", {
+    fade: 0.05
+  });
+}
+
 window.count = async function () {
   orchestre.play('doremi', {
     once: true
