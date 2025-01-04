@@ -28,28 +28,34 @@ Manage sounds and activate them as players
 | started   | <code>boolean</code>                 |                                         |
 | paused    | <code>boolean</code>                 | True when orchestre has been suspended  |
 
-- [Orchestre](#Orchestre)
-  - [new Orchestre(bpm, context)](#new_Orchestre_new)
-  - _instance_
-    - [.start([players])](#Orchestre+start)
-    - [.fullStop()](#Orchestre+fullStop)
-    - [.addPlayers(players)](#Orchestre+addPlayers) ⇒ <code>Promise</code>
-    - [.addPlayer(name, url, length, [absolute], [destination])](#Orchestre+addPlayer) ⇒ <code>Promise</code>
-    - [.connect(name, destination)](#Orchestre+connect)
-    - [.disconnect(name, destination)](#Orchestre+disconnect)
-    - [.toggle(name, [options])](#Orchestre+toggle)
-    - [.play(name, [options])](#Orchestre+play)
-    - [.stop(name, [options])](#Orchestre+stop)
-    - [.isPlaying(name)](#Orchestre+isPlaying) ⇒ <code>boolean</code>
-    - [.schedule(name, beats, [action], [options])](#Orchestre+schedule)
-    - [.wait([beats], [options])](#Orchestre+wait) ⇒ <code>Promise</code>
-    - [.addListener(callback, [beats], [options])](#Orchestre+addListener) ⇒ <code>number</code>
-    - [.removeListener(id)](#Orchestre+removeListener) ⇒ <code>boolean</code>
-    - [.suspend()](#Orchestre+suspend) ⇒ <code>Promise</code>
-    - [.resume()](#Orchestre+resume) ⇒ <code>Promise</code>
-    - [.setVolume(value)](#Orchestre+setVolume)
-  - _inner_
-    - [~beatCallback](#Orchestre..beatCallback) : <code>function</code>
+- [API](#api)
+  - [Classes](#classes)
+  - [Orchestre](#orchestre)
+    - [new Orchestre(bpm, context)](#new-orchestrebpm-context)
+    - [orchestre.start(\[players\])](#orchestrestartplayers)
+    - [orchestre.fullStop()](#orchestrefullstop)
+    - [orchestre.addPlayers(players) ⇒ Promise](#orchestreaddplayersplayers--promise)
+    - [orchestre.addPlayer(name, url, length, \[absolute\], \[destination\]) ⇒ Promise](#orchestreaddplayername-url-length-absolute-destination--promise)
+    - [orchestre.connect(name, destination)](#orchestreconnectname-destination)
+    - [orchestre.disconnect(name, destination)](#orchestredisconnectname-destination)
+    - [orchestre.toggle(name, \[options\])](#orchestretogglename-options)
+    - [orchestre.play(name, \[options\])](#orchestreplayname-options)
+    - [orchestre.stop(name, \[options\])](#orchestrestopname-options)
+    - [orchestre.isPlaying(name) ⇒ boolean](#orchestreisplayingname--boolean)
+    - [orchestre.schedule(name, beats, \[action\], \[options\])](#orchestreschedulename-beats-action-options)
+    - [orchestre.wait(\[beats\], \[options\]) ⇒ number](#orchestrewaitbeats-options--number)
+    - [orchestre.addListener(callback, \[beats\], \[options\]) ⇒ number](#orchestreaddlistenercallback-beats-options--number)
+    - [orchestre.removeListener(id) ⇒ boolean](#orchestreremovelistenerid--boolean)
+    - [orchestre.suspend() ⇒ Promise](#orchestresuspend--promise)
+    - [orchestre.resume() ⇒ Promise](#orchestreresume--promise)
+    - [orchestre.setVolume(value)](#orchestresetvolumevalue)
+    - [Orchestre~beatCallback : function](#orchestrebeatcallback--function)
+  - [Metronome](#metronome)
+    - [new Metronome(bpm, context, eventEmitter)](#new-metronomebpm-context-eventemitter)
+    - [metronome.getNextBeatTime() ⇒ float](#metronomegetnextbeattime--float)
+    - [metronome.getNextNthBeatTime(beats) ⇒ float](#metronomegetnextnthbeattimebeats--float)
+    - [metronome.getOffset(time) ⇒ float](#metronomegetoffsettime--float)
+    - [metronome.getBeatPosition(time, barSize) ⇒ number](#metronomegetbeatpositiontime-barsize--number)
 
 <a name="new_Orchestre_new"></a>
 
@@ -308,7 +314,7 @@ Callback function called on beat event
 
 ## Metronome
 
-Count beats, and give the time of next beat occurence
+Count beats, and give the time of next beat occurrence
 
 **Kind**: global class  
 **Properties**

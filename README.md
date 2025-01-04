@@ -4,7 +4,7 @@ Audio tool to create adaptive and interactive music.
 
 [View demo](https://clementrivaille.github.io/orchestre-js/)
 
-Orchestre-JS is an audio library for managing dynamic music, by playing vertical or horizontal layers. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, transitionning through verses, or call events on beats. Orchestre-JS aims to provides a simple way to create dynamic soundtracks for your web games or applications.
+Orchestre-JS is an audio library for managing dynamic music, by playing vertical or horizontal layers. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, transitioning through verses, or call events on beats. Orchestre-JS aims to provides a simple way to create dynamic soundtracks for your web games or applications.
 
 If you want to see the library in action, you can check out those games: [Echoes Traveler](https://itooh.itch.io/echoes-traveler), [Blood Not Allowed](https://itooh.itch.io/blood-not-allowed) (made with Twine), and [Step Out](https://itooh.itch.io/step-out).
 If you use Orchestre-JS in your creations, I would be really glad to see them! Feel free to show them to me.
@@ -123,9 +123,9 @@ And to stop them:
 orchestra.stop('guitar');
 ```
 
-Players will start and stop on the next beat, and automatically stay in rhythm, acording to their type (relative or absolute). It's as simple as that!
+Players will start and stop on the next beat, and automatically stay in rhythm, according to their type (relative or absolute). It's as simple as that!
 
-You don't have to wory if your player is already playing or not. If you call `play` when a player is already active, or stop when it isn't, nothing will happen. Thus you can use `play` and `stop` to make sure the player is in the right state.
+You don't have to worry if your player is already playing or not. If you call `play` when a player is already active, or stop when it isn't, nothing will happen. Thus you can use `play` and `stop` to make sure the player is in the right state.
 
 You can also call the function `toggle`, that just changes the player position between play and stop.
 
@@ -223,7 +223,7 @@ const orchestra = new Orchestre(120, context);
 
 You can also access the audio context from the `context` property of the orchestra.
 
-Players are by default connected to the orchestra's master gain (`orchestre.master`), which is connected to the context's destination. You can change that with the `destination` parameter.
+Players are by default connected to the orchestra's master gain (`orchestre.master`), which is connected to the context's destination. But if you want to connect them to your own node (for example to add a reverb effect), you can change that with the `destination` parameter.
 
 ```javascript
 await orchestra.addPlayer(
@@ -254,6 +254,11 @@ orchestra.disconnect('bass'); // Will disconnect from every nodes
 
 _Warning_: If a player is not connected to master, it is no longer affected by the `setVolume` method. The best practice is to connect your final node to `orchestre.master` so that it can be affected by the orchestra's volume.
 
+```javascript
+orchestra.connect('bass', myAudioNode);
+myAudioNode.connect(orchestra.master);
+```
+
 ### Metronome
 
 Orchestre-JS orchestra uses a metronome to sync all tracks. In most use cases, you don't need to interact with it. You can still access it from the `metronome` property of a created Orchestre.
@@ -273,7 +278,7 @@ For the simple tasks though (such as counting the position in a bar), I would ad
 
 [API Documentation](doc/api.md)
 
-## Known issues
+## Troubleshooting
 
-- **My .wav files won't play on Firefox:** Apparently several browsers have still troubles reading the _.wav_ format. From what I've read, it has to be treated differently. Until it is fixed, my best suggestion is to use _.ogg_ files.
-- **There is a _pop_ sound at the beginning of a loop:** First, check in an external tool if your sound loops properly, and if it has the correct BPM. This might be the case though. This issue comes from the fact that Orchestre-JS doesn't exactly loop the files: it plays them back at the right time to ensure that they all stay in rhythm. There is a bit more complexity behind that, so that most of the sounds loop correctly. But for some, such as sustained notes, it can make a slight noise between each loop. If you encounter this issue, the only solution is to hide it. Either add a percussion at the beginning of the loop, or make it lighter at the end and beginning to reduce the _pop_.
+- **My players loop too early / too late**: Make sure that the BPM you provided to your Orchestre matches your song's one, and that you wrote the correct number of beats in your loop in the player's *length*. For example, 4 bars in 4/4 will have a length of 16. Orchestre will use these values to loop your tracks, and ignore their actual length. This allows not only to keep them synchronized to the rhythm, but also to make them overlap if they have reverb or delay at the end.
+- **My audio files don't play:** Make sure that you wrote the correct folder and name in the *url* property of the player, and that this file is accessible. You can check its download in your browser's devtools. If you see another error in the console, refer to the Web Audio API documentation. Some browser might not accept all formats! You should be safe with .ogg, .wav or .mp3 though.
