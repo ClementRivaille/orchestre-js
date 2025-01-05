@@ -132,7 +132,7 @@ window.jingle = async function () {
   jingleBtn.removeAttribute('disabled');
 };
 window.shamisen = async function () {
-  orchestre.schedule("shamisen", 8, "toggle", { absolute: true });
+  orchestre.schedule("shamisen", 8, "toggle", { absolute: true, keep: true });
   document.getElementById('shamisen-btn').className = orchestre.isPlaying('shamisen') ? 'active' : '';
   document.getElementById('shamisen-btn').setAttribute('aria-pressed', orchestre.isPlaying('shamisen'));
 
