@@ -8,7 +8,8 @@
   "scripts": {
     "start": "ENV=development webpack-dev-server",
     "prebuild": "rm -rf dist/*",
-    "build": "tsc && webpack"
+    "build": "tsc && webpack",
+    "docs": "jsdoc2md --files ./src/*.ts --configure ./doc/jsdoc2md.json > ./doc/api.md"
   },
   "keywords": [
     "web audio api",
@@ -29,6 +30,10 @@
   "homepage": "https://github.com/ClementRivaille/orchestre-js",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.26.4",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.4",
@@ -37,13 +42,14 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "eslint": "^4.19.1",
-    "jsdoc-to-markdown": "^4.0.1",
+    "jsdoc-babel": "^0.5.0",
+    "jsdoc-to-markdown": "^9.1.1",
     "rimraf": "^3.0.2",
     "ts-loader": "^8.0.4",
     "ts-migrate": "^0.1.4",
+    "typescript": "^5.7.2",
     "webpack": "^4.7.0",
     "webpack-cli": "^3.0.1",
     "webpack-dev-server": "^3.1.4"
-  },
-  "dependencies": {}
+  }
 }

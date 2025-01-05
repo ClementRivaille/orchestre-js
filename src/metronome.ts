@@ -6,7 +6,7 @@ function areEquals(a: number, b: number): boolean {
 }
 
 /**
- * Count beats, and give the time of next beat occurence
+ * Count beats, and give the time of next beat occurrence
  * @param {number} bpm
  * @param {AudioContext} context - audio context
  * @param {EventEmitter} eventEmitter - Internal class used to propagate events

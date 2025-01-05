@@ -140,6 +140,7 @@ orchestra.toggle('guitar');
 - **fade** _(float)_: time constant in seconds for a fade in or fade out. The length of fading is approximately equal to 1.6 times your constant. See [setTargetAtTime](https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime) for more details.
 - **now** _(bool)_: if true, sound will start / stop immediately instead of waiting for next beat. This is better used with fading.
 - **once** _(bool)_: for _play_ only. Play sound only once (instead of a loop), then stop.
+- **keep** _(bool)_: for _stop_ only. Keep playing the sound until its completion then stop looping.
 
 Finally, you can schedule an action on a player several beats in advance with the following method:
 
@@ -282,5 +283,5 @@ For the simple tasks though (such as counting the position in a bar), I would ad
 
 ## Troubleshooting
 
-- **My players loop too early / too late**: Make sure that the BPM you provided to your Orchestre matches your song's one, and that you wrote the correct number of beats in your loop in the player's *length*. For example, 4 bars in 4/4 will have a length of 16. Orchestre will use these values to loop your tracks, and ignore their actual length. This allows not only to keep them synchronized to the rhythm, but also to make them overlap if they have reverb or delay at the end.
-- **My audio files don't play:** Make sure that you wrote the correct folder and name in the *url* property of the player, and that this file is accessible. You can check its download in your browser's devtools. If you see another error in the console, refer to the Web Audio API documentation. Some browser might not accept all formats! You should be safe with .ogg, .wav or .mp3 though.
+- **My players loop too early / too late**: Make sure that the BPM you provided to your Orchestre matches your song's one, and that you wrote the correct number of beats in your loop in the player's _length_. For example, 4 bars in 4/4 will have a length of 16. Orchestre will use these values to loop your tracks, and ignore their actual length. This allows not only to keep them synchronized to the rhythm, but also to make them overlap if they have reverb or delay at the end.
+- **My audio files don't play:** Make sure that you wrote the correct folder and name in the _url_ property of the player, and that this file is accessible. You can check its download in your browser's devtools. If you see another error in the console, refer to the Web Audio API documentation. Some browser might not accept all formats! You should be safe with .ogg, .wav or .mp3 though.

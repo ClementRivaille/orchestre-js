@@ -4,29 +4,27 @@
 
 <dl>
 <dt><a href="#Orchestre">Orchestre</a></dt>
-<dd><p>Manage sounds and activate them as players</p>
-</dd>
+<dd><p>Manage sounds and activate them as players</p></dd>
 <dt><a href="#Metronome">Metronome</a></dt>
-<dd><p>Count beats, and give the time of next beat occurence</p>
-</dd>
+<dd><p>Count beats, and give the time of next beat occurrence</p></dd>
 </dl>
 
 <a name="Orchestre"></a>
 
 ## Orchestre
 
-Manage sounds and activate them as players
+<p>Manage sounds and activate them as players</p>
 
 **Kind**: global class  
 **Properties**
 
-| Name      | Type                                 | Description                             |
-| --------- | ------------------------------------ | --------------------------------------- |
-| context   | <code>AudioContext</code>            | Audio context                           |
-| master    | <code>GainNode</code>                | Gain connected to context's destination |
-| metronome | [<code>Metronome</code>](#Metronome) |                                         |
-| started   | <code>boolean</code>                 |                                         |
-| paused    | <code>boolean</code>                 | True when orchestre has been suspended  |
+| Name      | Type                                 | Description                                    |
+| --------- | ------------------------------------ | ---------------------------------------------- |
+| context   | <code>AudioContext</code>            | <p>Audio context</p>                           |
+| master    | <code>GainNode</code>                | <p>Gain connected to context's destination</p> |
+| metronome | [<code>Metronome</code>](#Metronome) |                                                |
+| started   | <code>boolean</code>                 |                                                |
+| paused    | <code>boolean</code>                 | <p>True when orchestre has been suspended</p>  |
 
 - [API](#api)
   - [Classes](#classes)
@@ -43,7 +41,7 @@ Manage sounds and activate them as players
     - [orchestre.stop(name, \[options\])](#orchestrestopname-options)
     - [orchestre.isPlaying(name) ⇒ boolean](#orchestreisplayingname--boolean)
     - [orchestre.schedule(name, beats, \[action\], \[options\])](#orchestreschedulename-beats-action-options)
-    - [orchestre.wait(\[beats\], \[options\]) ⇒ number](#orchestrewaitbeats-options--number)
+    - [orchestre.wait(\[beats\], \[options\]) ⇒ Promise.\<number\>](#orchestrewaitbeats-options--promisenumber)
     - [orchestre.addListener(callback, \[beats\], \[options\]) ⇒ number](#orchestreaddlistenercallback-beats-options--number)
     - [orchestre.removeListener(id) ⇒ boolean](#orchestreremovelistenerid--boolean)
     - [orchestre.suspend() ⇒ Promise](#orchestresuspend--promise)
@@ -61,70 +59,70 @@ Manage sounds and activate them as players
 
 ### new Orchestre(bpm, context)
 
-| Param   | Type                      | Description      |
-| ------- | ------------------------- | ---------------- |
-| bpm     | <code>number</code>       | Beats per minute |
-| context | <code>AudioContext</code> |                  |
+| Param   | Type                      | Description             |
+| ------- | ------------------------- | ----------------------- |
+| bpm     | <code>number</code>       | <p>Beats per minute</p> |
+| context | <code>AudioContext</code> |                         |
 
 <a name="Orchestre+start"></a>
 
 ### orchestre.start([players])
 
-Start metronome
+<p>Start metronome</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
-| Param     | Type                              | Default         | Description                           |
-| --------- | --------------------------------- | --------------- | ------------------------------------- |
-| [players] | <code>Array.&lt;string&gt;</code> | <code>[]</code> | names of players to start immediately |
+| Param     | Type                              | Default         | Description                                  |
+| --------- | --------------------------------- | --------------- | -------------------------------------------- |
+| [players] | <code>Array.&lt;string&gt;</code> | <code>[]</code> | <p>names of players to start immediately</p> |
 
 <a name="Orchestre+fullStop"></a>
 
 ### orchestre.fullStop()
 
-Immediately stop all the instruments, then stop the metronome
+<p>Immediately stop all the instruments, then stop the metronome</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 <a name="Orchestre+addPlayers"></a>
 
 ### orchestre.addPlayers(players) ⇒ <code>Promise</code>
 
-Prepare sounds
+<p>Prepare sounds</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
-**Returns**: <code>Promise</code> - Promise that resolves once all player has been loaded
+**Returns**: <code>Promise</code> - <p>Promise that resolves once all player has been loaded</p>
 
-| Param                   | Type                              | Default            | Description                                                 |
-| ----------------------- | --------------------------------- | ------------------ | ----------------------------------------------------------- |
-| players                 | <code>Array.&lt;object&gt;</code> |                    | Players configuration                                       |
-| players[].name          | <code>string</code>               |                    | Player's identifier                                         |
-| players[].url           | <code>string</code>               |                    | URL of the sound file                                       |
-| players[].length        | <code>number</code>               |                    | Number of beats that the sound contains                     |
-| [players[].absolute]    | <code>boolean</code>              | <code>false</code> | Indicates that the player is aligned absolutely in the song |
-| [players[].destination] | <code>AudioNode</code>            |                    | Audio node to connect the player to                         |
+| Param                   | Type                              | Default            | Description                                                        |
+| ----------------------- | --------------------------------- | ------------------ | ------------------------------------------------------------------ |
+| players                 | <code>Array.&lt;object&gt;</code> |                    | <p>Players configuration</p>                                       |
+| players[].name          | <code>string</code>               |                    | <p>Player's identifier</p>                                         |
+| players[].url           | <code>string</code>               |                    | <p>URL of the sound file</p>                                       |
+| players[].length        | <code>number</code>               |                    | <p>Number of beats that the sound contains</p>                     |
+| [players[].absolute]    | <code>boolean</code>              | <code>false</code> | <p>Indicates that the player is aligned absolutely in the song</p> |
+| [players[].destination] | <code>AudioNode</code>            |                    | <p>Audio node to connect the player to</p>                         |
 
 <a name="Orchestre+addPlayer"></a>
 
 ### orchestre.addPlayer(name, url, length, [absolute], [destination]) ⇒ <code>Promise</code>
 
-Prepare a single sound
+<p>Prepare a single sound</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
-**Returns**: <code>Promise</code> - Promise that resolves once the player is loaded
+**Returns**: <code>Promise</code> - <p>Promise that resolves once the player is loaded</p>
 
-| Param         | Type                   | Default            | Description                                                 |
-| ------------- | ---------------------- | ------------------ | ----------------------------------------------------------- |
-| name          | <code>string</code>    |                    | Player's identifier                                         |
-| url           | <code>string</code>    |                    | URL of the sound file                                       |
-| length        | <code>number</code>    |                    | Number of beats that the sound contains                     |
-| [absolute]    | <code>boolean</code>   | <code>false</code> | Indicates that the player is aligned absolutely in the song |
-| [destination] | <code>AudioNode</code> |                    | Audio node to connect the player to                         |
+| Param         | Type                   | Default            | Description                                                        |
+| ------------- | ---------------------- | ------------------ | ------------------------------------------------------------------ |
+| name          | <code>string</code>    |                    | <p>Player's identifier</p>                                         |
+| url           | <code>string</code>    |                    | <p>URL of the sound file</p>                                       |
+| length        | <code>number</code>    |                    | <p>Number of beats that the sound contains</p>                     |
+| [absolute]    | <code>boolean</code>   | <code>false</code> | <p>Indicates that the player is aligned absolutely in the song</p> |
+| [destination] | <code>AudioNode</code> |                    | <p>Audio node to connect the player to</p>                         |
 
 <a name="Orchestre+connect"></a>
 
 ### orchestre.connect(name, destination)
 
-Connect a player to an audio node
+<p>Connect a player to an audio node</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
@@ -137,7 +135,7 @@ Connect a player to an audio node
 
 ### orchestre.disconnect(name, destination)
 
-Disconnect a player from all its destination or one audio node
+<p>Disconnect a player from all its destination or one audio node</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
@@ -150,54 +148,56 @@ Disconnect a player from all its destination or one audio node
 
 ### orchestre.toggle(name, [options])
 
-Toggle a sound state between play and stop
+<p>Toggle a sound state between play and stop</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
-| Param          | Type                 | Default         | Description                                                                      |
-| -------------- | -------------------- | --------------- | -------------------------------------------------------------------------------- |
-| name           | <code>string</code>  |                 | Player identifier                                                                |
-| [options]      | <code>object</code>  | <code>{}</code> |                                                                                  |
-| [options.fade] | <code>float</code>   |                 | Time constant for fade in or fade out                                            |
-| [options.now]  | <code>boolean</code> |                 | If true, sound will start / stop immediately. Otherwise, it waits for next beat. |
-| [options.once] | <code>boolean</code> |                 | Play sound only once, then stop                                                  |
+| Param          | Type                 | Default         | Description                                                                             |
+| -------------- | -------------------- | --------------- | --------------------------------------------------------------------------------------- |
+| name           | <code>string</code>  |                 | <p>Player identifier</p>                                                                |
+| [options]      | <code>object</code>  | <code>{}</code> |                                                                                         |
+| [options.fade] | <code>float</code>   |                 | <p>Time constant for fade in or fade out</p>                                            |
+| [options.now]  | <code>boolean</code> |                 | <p>If true, sound will start / stop immediately. Otherwise, it waits for next beat.</p> |
+| [options.once] | <code>boolean</code> |                 | <p>Play sound only once, then stop</p>                                                  |
+| [options.keep] | <code>boolean</code> |                 | <p>On stop, keep track playing until its end</p>                                        |
 
 <a name="Orchestre+play"></a>
 
 ### orchestre.play(name, [options])
 
-Start a player
+<p>Start a player</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
-| Param          | Type                 | Default         | Description                                                               |
-| -------------- | -------------------- | --------------- | ------------------------------------------------------------------------- |
-| name           | <code>string</code>  |                 | Player identifier                                                         |
-| [options]      | <code>object</code>  | <code>{}</code> |                                                                           |
-| [options.fade] | <code>float</code>   |                 | Time constant for fade in                                                 |
-| [options.now]  | <code>boolean</code> |                 | If true, sound will start immediately. Otherwise, it waits for next beat. |
-| [options.once] | <code>boolean</code> |                 | Play sound only once, then stop                                           |
+| Param          | Type                 | Default         | Description                                                                      |
+| -------------- | -------------------- | --------------- | -------------------------------------------------------------------------------- |
+| name           | <code>string</code>  |                 | <p>Player identifier</p>                                                         |
+| [options]      | <code>object</code>  | <code>{}</code> |                                                                                  |
+| [options.fade] | <code>float</code>   |                 | <p>Time constant for fade in</p>                                                 |
+| [options.now]  | <code>boolean</code> |                 | <p>If true, sound will start immediately. Otherwise, it waits for next beat.</p> |
+| [options.once] | <code>boolean</code> |                 | <p>Play sound only once, then stop</p>                                           |
 
 <a name="Orchestre+stop"></a>
 
 ### orchestre.stop(name, [options])
 
-Stop a player
+<p>Stop a player</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
-| Param          | Type                 | Default         | Description                                                              |
-| -------------- | -------------------- | --------------- | ------------------------------------------------------------------------ |
-| name           | <code>string</code>  |                 | LAYER identifier                                                         |
-| [options]      | <code>object</code>  | <code>{}</code> |                                                                          |
-| [options.fade] | <code>float</code>   |                 | Time constant for fade out                                               |
-| [options.now]  | <code>boolean</code> |                 | If true, sound will stop immediately. Otherwise, it waits for next beat. |
+| Param          | Type                 | Default         | Description                                                                     |
+| -------------- | -------------------- | --------------- | ------------------------------------------------------------------------------- |
+| name           | <code>string</code>  |                 | <p>LAYER identifier</p>                                                         |
+| [options]      | <code>object</code>  | <code>{}</code> |                                                                                 |
+| [options.fade] | <code>float</code>   |                 | <p>Time constant for fade out</p>                                               |
+| [options.now]  | <code>boolean</code> |                 | <p>If true, sound will stop immediately. Otherwise, it waits for next beat.</p> |
+| [options.keep] | <code>boolean</code> |                 | <p>Keep track playing until its end</p>                                         |
 
 <a name="Orchestre+isPlaying"></a>
 
 ### orchestre.isPlaying(name) ⇒ <code>boolean</code>
 
-Check if a player is active
+<p>Check if a player is active</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
@@ -209,120 +209,121 @@ Check if a player is active
 
 ### orchestre.schedule(name, beats, [action], [options])
 
-Schedule an action (play, stop, or toggle) for a player on an incoming beat
+<p>Schedule an action (play, stop, or toggle) for a player on an incoming beat</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
-| Param              | Type                 | Default                                     | Description                                                                 |
-| ------------------ | -------------------- | ------------------------------------------- | --------------------------------------------------------------------------- |
-| name               | <code>string</code>  |                                             | Player identifier                                                           |
-| beats              | <code>number</code>  |                                             | Number of beat to wait before action                                        |
-| [action]           | <code>string</code>  | <code>&quot;&#x27;toggle&#x27;&quot;</code> | Either 'play', 'stop' or 'toggle'                                           |
-| [options]          | <code>object</code>  | <code>{}</code>                             |                                                                             |
-| [options.fade]     | <code>float</code>   |                                             | Time constant for fade in or fade out                                       |
-| [options.once]     | <code>boolean</code> |                                             | Play sound only once, then stop                                             |
-| [options.absolute] | <code>boolean</code> |                                             | Action will be performed on the next absolute nth beat (next bar of n beat) |
-| [options.offset]   | <code>number</code>  |                                             | Use with absolute to set a position in the bar                              |
+| Param              | Type                 | Default                                     | Description                                                                        |
+| ------------------ | -------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------- |
+| name               | <code>string</code>  |                                             | <p>Player identifier</p>                                                           |
+| beats              | <code>number</code>  |                                             | <p>Number of beat to wait before action</p>                                        |
+| [action]           | <code>string</code>  | <code>&quot;&#x27;toggle&#x27;&quot;</code> | <p>Either 'play', 'stop' or 'toggle'</p>                                           |
+| [options]          | <code>object</code>  | <code>{}</code>                             |                                                                                    |
+| [options.fade]     | <code>float</code>   |                                             | <p>Time constant for fade in or fade out</p>                                       |
+| [options.keep]     | <code>boolean</code> |                                             | <p>On stop, keep track playing until its end</p>                                   |
+| [options.once]     | <code>boolean</code> |                                             | <p>Play sound only once, then stop</p>                                             |
+| [options.absolute] | <code>boolean</code> |                                             | <p>Action will be performed on the next absolute nth beat (next bar of n beat)</p> |
+| [options.offset]   | <code>number</code>  |                                             | <p>Use with absolute to set a position in the bar</p>                              |
 
 <a name="Orchestre+wait"></a>
 
-### orchestre.wait([beats], [options]) ⇒ <code>number</code>
+### orchestre.wait([beats], [options]) ⇒ <code>Promise.&lt;number&gt;</code>
 
-Wait for a number of beats
+<p>Wait for a number of beats</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
-**Returns**: <code>Promise</code> - Resolves on the scheduled beat with its position in seconds
+**Returns**: <code>Promise.&lt;number&gt;</code> - <p>Resolves on the scheduled beat with its position in seconds</p>
 
-| Param              | Type                 | Default         | Description                                                                 |
-| ------------------ | -------------------- | --------------- | --------------------------------------------------------------------------- |
-| [beats]            | <code>number</code>  | <code>1</code>  | number of beats to wait                                                     |
-| [options]          | <code>objects</code> | <code>{}</code> |                                                                             |
-| [options.absolute] | <code>boolean</code> |                 | Callback will be called on the next absolute nth beat (next bar of n beats) |
-| [options.offset]   | <code>number</code>  |                 | Use with absolute to set a position in the bar                              |
+| Param              | Type                 | Default         | Description                                                                        |
+| ------------------ | -------------------- | --------------- | ---------------------------------------------------------------------------------- |
+| [beats]            | <code>number</code>  | <code>1</code>  | <p>number of beats to wait</p>                                                     |
+| [options]          | <code>objects</code> | <code>{}</code> |                                                                                    |
+| [options.absolute] | <code>boolean</code> |                 | <p>Callback will be called on the next absolute nth beat (next bar of n beats)</p> |
+| [options.offset]   | <code>number</code>  |                 | <p>Use with absolute to set a position in the bar</p>                              |
 
 <a name="Orchestre+addListener"></a>
 
 ### orchestre.addListener(callback, [beats], [options]) ⇒ <code>number</code>
 
-Call a function every n beats
+<p>Call a function every n beats</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
-**Returns**: <code>number</code> - Listener's id
+**Returns**: <code>number</code> - <p>Listener's id</p>
 
-| Param              | Type                                                  | Default         | Description                                                   |
-| ------------------ | ----------------------------------------------------- | --------------- | ------------------------------------------------------------- |
-| callback           | [<code>beatCallback</code>](#Orchestre..beatCallback) |                 | Function to call                                              |
-| [beats]            | <code>number</code>                                   | <code>1</code>  | number of beats to wait                                       |
-| [options]          | <code>objects</code>                                  | <code>{}</code> |                                                               |
-| [options.absolute] | <code>boolean</code>                                  |                 | Callback will be called on absolute nth beat (bar of n beats) |
-| [options.offset]   | <code>number</code>                                   |                 | Use with absolute to set a position in the bar                |
+| Param              | Type                                                  | Default         | Description                                                          |
+| ------------------ | ----------------------------------------------------- | --------------- | -------------------------------------------------------------------- |
+| callback           | [<code>beatCallback</code>](#Orchestre..beatCallback) |                 | <p>Function to call</p>                                              |
+| [beats]            | <code>number</code>                                   | <code>1</code>  | <p>number of beats to wait</p>                                       |
+| [options]          | <code>objects</code>                                  | <code>{}</code> |                                                                      |
+| [options.absolute] | <code>boolean</code>                                  |                 | <p>Callback will be called on absolute nth beat (bar of n beats)</p> |
+| [options.offset]   | <code>number</code>                                   |                 | <p>Use with absolute to set a position in the bar</p>                |
 
 <a name="Orchestre+removeListener"></a>
 
 ### orchestre.removeListener(id) ⇒ <code>boolean</code>
 
-Remove an existing listener
+<p>Remove an existing listener</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
-**Returns**: <code>boolean</code> - true if found
+**Returns**: <code>boolean</code> - <p>true if found</p>
 
-| Param | Type                | Description   |
-| ----- | ------------------- | ------------- |
-| id    | <code>number</code> | Listener's id |
+| Param | Type                | Description          |
+| ----- | ------------------- | -------------------- |
+| id    | <code>number</code> | <p>Listener's id</p> |
 
 <a name="Orchestre+suspend"></a>
 
 ### orchestre.suspend() ⇒ <code>Promise</code>
 
-Suspend metronome and players
+<p>Suspend metronome and players</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
-**Returns**: <code>Promise</code> - resolves with void  
+**Returns**: <code>Promise</code> - <p>resolves with void</p>  
 <a name="Orchestre+resume"></a>
 
 ### orchestre.resume() ⇒ <code>Promise</code>
 
-Resume metronome and players if they have been suspended
+<p>Resume metronome and players if they have been suspended</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
-**Returns**: <code>Promise</code> - resolves with void  
+**Returns**: <code>Promise</code> - <p>resolves with void</p>  
 <a name="Orchestre+setVolume"></a>
 
 ### orchestre.setVolume(value)
 
-Change volume of the orchestra
+<p>Change volume of the orchestra</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)
 
-| Param | Type               | Description                                                           |
-| ----- | ------------------ | --------------------------------------------------------------------- |
-| value | <code>float</code> | 0 is mute, 1 is default. Set in between to lower, higher to increase. |
+| Param | Type               | Description                                                                  |
+| ----- | ------------------ | ---------------------------------------------------------------------------- |
+| value | <code>float</code> | <p>0 is mute, 1 is default. Set in between to lower, higher to increase.</p> |
 
 <a name="Orchestre..beatCallback"></a>
 
 ### Orchestre~beatCallback : <code>function</code>
 
-Callback function called on beat event
+<p>Callback function called on beat event</p>
 
 **Kind**: inner typedef of [<code>Orchestre</code>](#Orchestre)
 
-| Param    | Type               | Description                             |
-| -------- | ------------------ | --------------------------------------- |
-| nextBeat | <code>float</code> | Time of the next coming beat in seconds |
+| Param    | Type               | Description                                    |
+| -------- | ------------------ | ---------------------------------------------- |
+| nextBeat | <code>float</code> | <p>Time of the next coming beat in seconds</p> |
 
 <a name="Metronome"></a>
 
 ## Metronome
 
-Count beats, and give the time of next beat occurrence
+<p>Count beats, and give the time of next beat occurrence</p>
 
 **Kind**: global class  
 **Properties**
 
-| Name       | Type                      | Description                 |
-| ---------- | ------------------------- | --------------------------- |
-| beatLength | <code>float</code>        | Length of a beat in seconds |
-| context    | <code>AudioContext</code> |                             |
+| Name       | Type                      | Description                        |
+| ---------- | ------------------------- | ---------------------------------- |
+| beatLength | <code>float</code>        | <p>Length of a beat in seconds</p> |
+| context    | <code>AudioContext</code> |                                    |
 
 - [Metronome](#Metronome)
   - [new Metronome(bpm, context, eventEmitter)](#new_Metronome_new)
@@ -335,56 +336,56 @@ Count beats, and give the time of next beat occurrence
 
 ### new Metronome(bpm, context, eventEmitter)
 
-| Param        | Type                      | Description                             |
-| ------------ | ------------------------- | --------------------------------------- |
-| bpm          | <code>number</code>       |                                         |
-| context      | <code>AudioContext</code> | audio context                           |
-| eventEmitter | <code>EventEmitter</code> | Internal class used to propagate events |
+| Param        | Type                                       | Description                                    |
+| ------------ | ------------------------------------------ | ---------------------------------------------- |
+| bpm          | <code>number</code>                        |                                                |
+| context      | <code>AudioContext</code>                  | <p>audio context</p>                           |
+| eventEmitter | [<code>EventEmitter</code>](#EventEmitter) | <p>Internal class used to propagate events</p> |
 
 <a name="Metronome+getNextBeatTime"></a>
 
 ### metronome.getNextBeatTime() ⇒ <code>float</code>
 
-Public method use to obtain global next beat time
+<p>Public method use to obtain global next beat time</p>
 
 **Kind**: instance method of [<code>Metronome</code>](#Metronome)  
-**Returns**: <code>float</code> - time in seconds of the beat  
+**Returns**: <code>float</code> - <p>time in seconds of the beat</p>  
 <a name="Metronome+getNextNthBeatTime"></a>
 
 ### metronome.getNextNthBeatTime(beats) ⇒ <code>float</code>
 
-Public method use to obtain global nth next beat time
+<p>Public method use to obtain global nth next beat time</p>
 
 **Kind**: instance method of [<code>Metronome</code>](#Metronome)  
-**Returns**: <code>float</code> - time in seconds of the beat
+**Returns**: <code>float</code> - <p>time in seconds of the beat</p>
 
-| Param | Type                | Description     |
-| ----- | ------------------- | --------------- |
-| beats | <code>number</code> | Number of beats |
+| Param | Type                | Description            |
+| ----- | ------------------- | ---------------------- |
+| beats | <code>number</code> | <p>Number of beats</p> |
 
 <a name="Metronome+getOffset"></a>
 
 ### metronome.getOffset(time) ⇒ <code>float</code>
 
-Get the offset in seconds of the given time relatively to the closest beat before it
+<p>Get the offset in seconds of the given time relatively to the closest beat before it</p>
 
 **Kind**: instance method of [<code>Metronome</code>](#Metronome)  
-**Returns**: <code>float</code> - time since last beat
+**Returns**: <code>float</code> - <p>time since last beat</p>
 
-| Param | Type               | Description                           |
-| ----- | ------------------ | ------------------------------------- |
-| time  | <code>float</code> | time in seconds from an audio context |
+| Param | Type               | Description                                  |
+| ----- | ------------------ | -------------------------------------------- |
+| time  | <code>float</code> | <p>time in seconds from an audio context</p> |
 
 <a name="Metronome+getBeatPosition"></a>
 
 ### metronome.getBeatPosition(time, barSize) ⇒ <code>number</code>
 
-Gets the position of the given time in an absolute bar of n beats
+<p>Gets the position of the given time in an absolute bar of n beats</p>
 
 **Kind**: instance method of [<code>Metronome</code>](#Metronome)  
-**Returns**: <code>number</code> - position (from 0 to n - 1)
+**Returns**: <code>number</code> - <p>position (from 0 to n - 1)</p>
 
-| Param   | Type                | Description              |
-| ------- | ------------------- | ------------------------ |
-| time    | <code>float</code>  |                          |
-| barSize | <code>number</code> | Number of beats in a bar |
+| Param   | Type                | Description                     |
+| ------- | ------------------- | ------------------------------- |
+| time    | <code>float</code>  |                                 |
+| barSize | <code>number</code> | <p>Number of beats in a bar</p> |
