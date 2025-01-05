@@ -250,15 +250,15 @@ window.jingle = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function
     }
   }, _callee, this);
 }));
-window.shamisen = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+window.playShamisen = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
   var scheduler;
   return regeneratorRuntime.wrap(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          orchestre.schedule("shamisen", 8, "toggle", { absolute: true });
-          document.getElementById('shamisen-btn').className = orchestre.isPlaying('shamisen') ? 'active' : '';
-          document.getElementById('shamisen-btn').setAttribute('aria-pressed', orchestre.isPlaying('shamisen'));
+          orchestre.schedule("shamisen", 8, "play", { absolute: true, keep: true });
+          document.getElementById('play-shamisen-btn').className = 'disabled';
+          document.getElementById('play-shamisen-btn').setAttribute("disabled", true);
 
           scheduler = document.getElementById("scheduler");
 
@@ -268,19 +268,46 @@ window.shamisen = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(functi
 
         case 7:
           scheduler.className = "";
+          document.getElementById('stop-shamisen-btn').className = '';
+          document.getElementById('stop-shamisen-btn').removeAttribute("disabled");
+          document.getElementById('play-shamisen-btn').setAttribute('aria-pressed', true);
 
-        case 8:
+        case 11:
         case 'end':
           return _context2.stop();
       }
     }
   }, _callee2, this);
 }));
-window.count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-  var countBtn, eightElem;
+window.stopShamisen = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
   return regeneratorRuntime.wrap(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
+        case 0:
+          orchestre.stop("shamisen", { keep: true });
+          document.getElementById('stop-shamisen-btn').className = 'disabled';
+          document.getElementById('stop-shamisen-btn').setAttribute("disabled", true);
+
+          _context3.next = 5;
+          return orchestre.wait(8, { absolute: true });
+
+        case 5:
+          document.getElementById('play-shamisen-btn').className = '';
+          document.getElementById('play-shamisen-btn').removeAttribute("disabled");
+          document.getElementById('play-shamisen-btn').setAttribute('aria-pressed', false);
+
+        case 8:
+        case 'end':
+          return _context3.stop();
+      }
+    }
+  }, _callee3, this);
+}));
+window.count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+  var countBtn, eightElem;
+  return regeneratorRuntime.wrap(function _callee4$(_context4) {
+    while (1) {
+      switch (_context4.prev = _context4.next) {
         case 0:
           orchestre.toggle('doremi', {
             once: true
@@ -289,7 +316,7 @@ window.count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function 
 
           countBtn.className = 'disabled';
           countBtn.setAttribute('disabled', true);
-          _context3.next = 6;
+          _context4.next = 6;
           return orchestre.wait(8);
 
         case 6:
@@ -305,10 +332,10 @@ window.count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function 
 
         case 11:
         case 'end':
-          return _context3.stop();
+          return _context4.stop();
       }
     }
-  }, _callee3, this);
+  }, _callee4, this);
 }));
 
 function beat() {
@@ -12621,6 +12648,7 @@ var Orchestre = /** @class */function () {
      * @param {float} [options.fade] - Time constant for fade in or fade out
      * @param {boolean} [options.now] - If true, sound will start / stop immediately. Otherwise, it waits for next beat.
      * @param {boolean} [options.once] - Play sound only once, then stop
+     * @param {boolean} [options.keep] - On stop, keep track playing until its end
      */
     Orchestre.prototype.toggle = function (name, options) {
         if (options === void 0) {
@@ -12632,7 +12660,7 @@ var Orchestre = /** @class */function () {
         if (!player.soundLoop.playing) {
             player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
         } else {
-            player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
+            player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0, options.keep);
         }
         // Return the state of the instrument
         return player.playing;
@@ -12660,6 +12688,7 @@ var Orchestre = /** @class */function () {
      * @param {object} [options={}]
      * @param {float} [options.fade] - Time constant for fade out
      * @param {boolean} [options.now] - If true, sound will stop immediately. Otherwise, it waits for next beat.
+     * @param {boolean} [options.keep] - Keep track playing until its end
      */
     Orchestre.prototype.stop = function (name, options) {
         if (options === void 0) {
@@ -12668,7 +12697,7 @@ var Orchestre = /** @class */function () {
         if (!this.started) throw new Error('Orchestre has not been started');
         var player = this.players[name];
         if (!player) throw new Error("stop: player ".concat(name, " does not exist"));
-        player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0);
+        player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0, options.keep);
     };
     /** Check if a player is active
      * @param {string} name
@@ -12684,6 +12713,7 @@ var Orchestre = /** @class */function () {
      * @param {string} [action='toggle'] - Either 'play', 'stop' or 'toggle'
      * @param {object} [options={}]
      * @param {float} [options.fade] - Time constant for fade in or fade out
+     * @param {boolean} [options.keep] - On stop, keep track playing until its end
      * @param {boolean} [options.once] - Play sound only once, then stop
      * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next bar of n beat)
      * @param {number} [options.offset] - Use with absolute to set a position in the bar
@@ -12704,7 +12734,7 @@ var Orchestre = /** @class */function () {
         if (action === 'play' || action === 'toggle' && !player.soundLoop.playing) {
             player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
         } else if (action === 'stop' || action === 'toggle' && player.soundLoop.playing) {
-            player.soundLoop.stop(eventTime, options.fade || 0);
+            player.soundLoop.stop(eventTime, options.fade || 0, options.keep);
         } else {
             throw new Error("schedule: action ".concat(action, " is not recognized (must be within ['play', 'stop', 'toggle'])"));
         }
@@ -12923,32 +12953,49 @@ var SoundLoop = /** @class */function () {
         }
     };
     SoundLoop.prototype._fadeOut = function (stopTime, length) {
-        var _this = this;
         if (length === void 0) {
             length = 0;
         }
         this.gainNode.gain.setTargetAtTime(0, stopTime, length);
-        this.playing = false;
-        this.stopQueue += 1;
-        setTimeout(function () {
-            _this.stopQueue -= 1;
-            if (_this.source && !_this.playing && _this.stopQueue <= 0 && !_this.stopped) {
-                _this.disposedSources.push(_this.source);
-                _this.disposedSources.forEach(function (source) {
-                    return source.stop(_this.stopTime);
-                });
-                _this.stopped = true;
-                _this.eventEmitter.unsubscribe('beat', _this._beatSchedule);
-                _this.subscribed = false;
-            }
-        }, (stopTime - this.context.currentTime) * 1000 + length * 5000);
+    };
+    /** End loop */
+    SoundLoop.prototype._disable = function (keep) {
+        var _this = this;
+        if (keep === void 0) {
+            keep = false;
+        }
+        if (this.source) {
+            this.disposedSources.push(this.source);
+        }
+        if (!keep) {
+            this.disposedSources.forEach(function (source) {
+                return source.stop(_this.stopTime);
+            });
+        }
+        this.stopped = true;
+        this.eventEmitter.unsubscribe('beat', this._beatSchedule);
+        this.subscribed = false;
     };
     /** Schedule a stop */
-    SoundLoop.prototype.stop = function (stopTime, fadeOut) {
+    SoundLoop.prototype.stop = function (stopTime, fadeOut, keep) {
+        var _this = this;
         if (fadeOut === void 0) {
             fadeOut = 0;
         }
-        this._fadeOut(stopTime, fadeOut);
+        if (keep === void 0) {
+            keep = false;
+        }
+        this.playing = false;
+        this.stopQueue += 1;
+        if (fadeOut > 0) {
+            this._fadeOut(stopTime, fadeOut);
+        }
+        setTimeout(function () {
+            _this.stopQueue -= 1;
+            if (!_this.playing && _this.stopQueue <= 0 && !_this.stopped) {
+                _this._disable(keep);
+            }
+        }, (stopTime - this.context.currentTime) * 1000 + fadeOut * 5000);
     };
     SoundLoop.prototype.connect = function (destination) {
         this.gainNode.connect(destination);

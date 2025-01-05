@@ -9,6 +9,9 @@ html {
 body {
   min-height: 100%;
 }
+:root {
+  font-size: 12px;
+}
 
 header {
   background: #5a0430;
@@ -17,8 +20,8 @@ header {
   padding: 1rem;
   font-size: 1.2rem;
 
-  border-bottom-right-radius: 50%;
-  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 25%;
+  border-bottom-left-radius: 25%;
 
   margin-bottom: 2rem;
   min-height: 10.5rem;
@@ -143,10 +146,21 @@ button.disabled {
 }
 
 @media screen and (min-width: 800px) {
+  :root {
+    font-size: 16px;
+  }
   #demo {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-auto-flow: dense;
+  }
+  header {
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+  }
+  #beat {
+    height: 6rem !important;
+    min-width: 12rem !important;
   }
 }
 
@@ -191,16 +205,41 @@ pre {
   justify-content: center;
 }
 
-.players.left {
-  justify-content: flex-start;
-}
-
 .players > div {
   text-align: center;
   margin: 0 2rem; 
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+#options-players {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-items: stretch;
+  align-items: start;
+  column-gap: 2rem;
+}
+
+#options-players .player {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+}
+
+#scheduler span {
+  opacity: 0;
+  transition: opacity 0.6s;
+  font-size: 0.8em;
+}
+#scheduler.trigger span {
+  opacity: 1;
+}
+
+.shamisen button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 #beat {
@@ -211,8 +250,8 @@ pre {
   padding: 1rem 1rem;
   border-radius: 2rem;
   color: white;
-  height: 6rem;
-  min-width: 12rem;
+  height: 3rem;
+  min-width: 8rem;
   margin-top: 0.1rem;
 }
 #beat > div {
@@ -265,25 +304,6 @@ button#animation-stop:hover, button#animation-stop:focus {
   animation-duration: 1.5s;
   -webkit-animation-name: eight;
   -webkit-animation-duration: 1.5s;
-}
-
-#scheduler {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px;
-}
-
-#scheduler button {
-  flex: 1;
-}
-
-#scheduler .scheduled {
-  opacity: 0;
-  transition: opacity 0.6s;
-}
-#scheduler.trigger .scheduled {
-  opacity: 1;
 }
 
 footer {

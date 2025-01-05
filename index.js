@@ -131,15 +131,28 @@ window.jingle = async function () {
   jingleBtn.className = '';
   jingleBtn.removeAttribute('disabled');
 };
-window.shamisen = async function () {
-  orchestre.schedule("shamisen", 8, "toggle", { absolute: true, keep: true });
-  document.getElementById('shamisen-btn').className = orchestre.isPlaying('shamisen') ? 'active' : '';
-  document.getElementById('shamisen-btn').setAttribute('aria-pressed', orchestre.isPlaying('shamisen'));
+window.playShamisen = async function () {
+  orchestre.schedule("shamisen", 8, "play", { absolute: true, keep: true });
+  document.getElementById('play-shamisen-btn').className = 'disabled';
+  document.getElementById('play-shamisen-btn').setAttribute("disabled", true);
 
   var scheduler = document.getElementById("scheduler");
   scheduler.className = "trigger";
   await orchestre.wait(8, { absolute: true });
   scheduler.className = "";
+  document.getElementById('stop-shamisen-btn').className = '';
+  document.getElementById('stop-shamisen-btn').removeAttribute("disabled");
+  document.getElementById('play-shamisen-btn').setAttribute('aria-pressed', true);
+}
+window.stopShamisen = async function () {
+  orchestre.stop("shamisen", { keep: true });
+  document.getElementById('stop-shamisen-btn').className = 'disabled';
+  document.getElementById('stop-shamisen-btn').setAttribute("disabled", true);
+
+  await orchestre.wait(8, { absolute: true });
+  document.getElementById('play-shamisen-btn').className = '';
+  document.getElementById('play-shamisen-btn').removeAttribute("disabled");
+  document.getElementById('play-shamisen-btn').setAttribute('aria-pressed', false);
 }
 window.count = async function () {
   orchestre.toggle('doremi', {

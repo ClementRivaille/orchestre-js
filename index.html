@@ -4,6 +4,8 @@
 <head>
   <script src="./bundle.js"></script>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="./assets/icon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Orchestre JS</title>
 </head>
 
@@ -36,7 +38,7 @@
       <div class="text" id="init">
         <h2>Initialization</h2>
         Initialize an orchestra by providing your song's BPM, then start adding players. Each player represents a
-        musical layer. It needs a name, an audio file, and a length in beat.
+        musical layer that will play in loop. It needs a name, an audio file, and a length in beat.
       </div>
       <div class="code">
         <pre>
@@ -86,27 +88,27 @@ orchestre.toggle('bass');
 
       <div class="text" id="options">
         <h2>Options</h2>
-        <p>Orchestre-JS comes with several options to use players in different ways.</p>
+        <p>Orchestre-JS comes with several options to trigger audio layers in different ways.</p>
 
-        <div class="players left">
-          <div>
+        <div id="options-players">
+          <div class="player">
             <p>Play or stop immediately with a fade in and fade out</p>
             <button onclick="synth()" id="synth-btn" aria-pressed="false">Synth</button>
           </div>
-          <div>
+          <div class="player">
             <p>Play only once</p>
             <button onclick="jingle()" id="jingle-btn">Jingle</button>
           </div>
-        </div>
-        <div class="players left">
-          <div>
+          <div class="player shamisen">
             <p>Schedule player on next 2 bars</p>
+            <button onclick="playShamisen()" id="play-shamisen-btn">Play Shamisen</button>
             <div id="scheduler">
-              <button onclick="shamisen()" id="shamisen-btn">Shamisen</button>
-              <div class="scheduled">
-                (Scheduled…)
-              </div>
+              <span>(Scheduled…)</span>
             </div>
+          </div>
+          <div class="player shamisen">
+            <p>Stop loop but let the track end</p>
+            <button onclick="stopShamisen()" id="stop-shamisen-btn" disabled class="disabled">Stop Shamisen</button>
           </div>
         </div>
       </div>
@@ -123,11 +125,15 @@ orchestre.play('jingle', {
 });
 </pre>
         <pre>
-orchestre.schedule("shamisen", 8, "toggle", {
+orchestre.schedule("shamisen", 8, "play", {
   absolute: true,
-  keep: true
 });
 </pre>
+        <pre>
+orchestre.stop("shamisen", {
+  keep: true,
+});
+  </pre>
       </div>
 
       <div class="text" id="events">
