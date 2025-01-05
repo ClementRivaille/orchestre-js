@@ -90,7 +90,7 @@ window.jingle = function () {
 };
 window.koto = () => {
   orchestre.toggle("koto", {
-    fade: 0.05
+    keep: true
   });
 }
 

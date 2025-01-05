@@ -1,7 +1,7 @@
 {
   "name": "orchestre-js",
-  "version": "2.0.3",
-  "description": "Audio tool to easily create dynamic music",
+  "version": "2.1.0",
+  "description": "Audio tool to create dynamic music",
   "main": "dist/Orchestre.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",

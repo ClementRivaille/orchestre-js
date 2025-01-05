@@ -16,6 +16,7 @@ export interface PlayerOptions {
   fade?: number;
   now?: boolean;
   once?: boolean;
+  keep?: boolean;
 }
 
 export interface EventOptions {
@@ -23,10 +24,7 @@ export interface EventOptions {
   offset?: number;
 }
 
-export interface PlayerEventOptions extends EventOptions {
-  fade?: number;
-  once?: boolean;
-}
+export type PlayerEventOptions = EventOptions & Omit<PlayerOptions, 'now'>;
 
 /**
  * Manage sounds and activate them as players
@@ -227,6 +225,7 @@ class Orchestre {
    * @param {float} [options.fade] - Time constant for fade in or fade out
    * @param {boolean} [options.now] - If true, sound will start / stop immediately. Otherwise, it waits for next beat.
    * @param {boolean} [options.once] - Play sound only once, then stop
+   * @param {boolean} [options.keep] - On stop, keep track playing until its end
    */
   toggle(name: string, options: PlayerOptions = {}): boolean {
     if (!this.started) throw new Error('Orchestre has not been started');
@@ -247,7 +246,8 @@ class Orchestre {
         options.now
           ? this.context.currentTime
           : this.metronome.getNextBeatTime(),
-        options.fade || 0
+        options.fade || 0,
+        options.keep
       );
     }
 
@@ -281,6 +281,7 @@ class Orchestre {
    * @param {object} [options={}]
    * @param {float} [options.fade] - Time constant for fade out
    * @param {boolean} [options.now] - If true, sound will stop immediately. Otherwise, it waits for next beat.
+   * @param {boolean} [options.keep] - Keep track playing until its end
    */
   stop(name: string, options: PlayerOptions = {}) {
     if (!this.started) throw new Error('Orchestre has not been started');
@@ -288,7 +289,8 @@ class Orchestre {
     if (!player) throw new Error(`stop: player ${name} does not exist`);
     player.soundLoop.stop(
       options.now ? this.context.currentTime : this.metronome.getNextBeatTime(),
-      options.fade || 0
+      options.fade || 0,
+      options.keep
     );
   }
 
@@ -307,6 +309,7 @@ class Orchestre {
    * @param {string} [action='toggle'] - Either 'play', 'stop' or 'toggle'
    * @param {object} [options={}]
    * @param {float} [options.fade] - Time constant for fade in or fade out
+   * @param {boolean} [options.keep] - On stop, keep track playing until its end
    * @param {boolean} [options.once] - Play sound only once, then stop
    * @param {boolean} [options.absolute] - Action will be performed on the next absolute nth beat (next bar of n beat)
    * @param {number} [options.offset] - Use with absolute to set a position in the bar
@@ -344,7 +347,7 @@ class Orchestre {
       action === 'stop' ||
       (action === 'toggle' && player.soundLoop.playing)
     ) {
-      player.soundLoop.stop(eventTime, options.fade || 0);
+      player.soundLoop.stop(eventTime, options.fade || 0, options.keep);
     } else {
       throw new Error(
         `schedule: action ${action} is not recognized (must be within ['play', 'stop', 'toggle'])`

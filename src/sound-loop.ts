@@ -112,29 +112,36 @@ class SoundLoop {
 
   private _fadeOut(stopTime: number, length = 0) {
     this.gainNode.gain.setTargetAtTime(0, stopTime, length);
-    this.playing = false;
-    this.stopQueue += 1;
+  }
 
-    setTimeout(() => {
-      this.stopQueue -= 1;
-      if (
-        this.source &&
-        !this.playing &&
-        this.stopQueue <= 0 &&
-        !this.stopped
-      ) {
-        this.disposedSources.push(this.source);
-        this.disposedSources.forEach((source) => source.stop(this.stopTime));
-        this.stopped = true;
-        this.eventEmitter.unsubscribe('beat', this._beatSchedule);
-        this.subscribed = false;
-      }
-    }, (stopTime - this.context.currentTime) * 1000 + length * 5000);
+  /** End loop */
+  private _disable(keep = false) {
+    if (this.source) {
+      this.disposedSources.push(this.source);
+    }
+    if (!keep) {
+      this.disposedSources.forEach((source) => source.stop(this.stopTime));
+    }
+    this.stopped = true;
+    this.eventEmitter.unsubscribe('beat', this._beatSchedule);
+    this.subscribed = false;
   }
 
   /** Schedule a stop */
-  stop(stopTime: number, fadeOut = 0) {
-    this._fadeOut(stopTime, fadeOut);
+  stop(stopTime: number, fadeOut = 0, keep = false) {
+    this.playing = false;
+    this.stopQueue += 1;
+
+    if (fadeOut > 0) {
+      this._fadeOut(stopTime, fadeOut);
+    }
+
+    setTimeout(() => {
+      this.stopQueue -= 1;
+      if (!this.playing && this.stopQueue <= 0 && !this.stopped) {
+        this._disable(keep);
+      }
+    }, (stopTime - this.context.currentTime) * 1000 + fadeOut * 5000);
   }
 
   connect(destination: AudioNode) {
