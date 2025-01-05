@@ -6,7 +6,9 @@ Audio tool to create adaptive and interactive music.
 
 [View demo](https://clementrivaille.github.io/orchestre-js/)
 
-Orchestre-JS is an audio library for managing dynamic music, by playing vertical or horizontal layers. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, transitioning through verses, or call events on beats. Orchestre-JS aims to provides a simple way to create dynamic soundtracks for your web games or applications.
+Orchestre-JS is an audio library for managing music loops with several layers. It can be used to dynamically add and remove instruments in a song, play sounds in rhythm, transitioning through verses, or call events on beats. Orchestre-JS aims to provides a simple way to create dynamic soundtracks for your web games or applications.
+
+Orchestre-JS has no external dependencies and uses only the native Web Audio API. It should be compatible with most modern browsers. You can also plug it to custom audio applications (see the [Web Audio API](#using-the-web-audio-api) section).
 
 If you want to see the library in action, you can check out those games: [Echoes Traveler](https://itooh.itch.io/echoes-traveler), [Blood Not Allowed](https://itooh.itch.io/blood-not-allowed) (made with Twine), and [Step Out](https://itooh.itch.io/step-out).
 If you use Orchestre-JS in your creations, I would be really glad to see them! Feel free to show them to me.
