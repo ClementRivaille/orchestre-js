@@ -139,7 +139,7 @@ class SoundLoop {
     }
 
     // Cancel the next loop if already scheduled with keep
-    if (keep && this.metronome.getBeatPosition(stopTime, this.nbBeats) === 0) {
+    if (keep && this.getBeatPosition(stopTime) === 0) {
       const timeBeforeBeat = stopTime - this.metronome.beatLength / 2;
       const timeToWait = Math.max(0, timeBeforeBeat - this.context.currentTime);
       setTimeout(() => {
@@ -149,12 +149,22 @@ class SoundLoop {
       }, timeToWait * 1000);
     }
 
+    // Disable loop on the final beat
+    let deltaStop = stopTime - this.context.currentTime;
+    if (keep) {
+      const remainingBeats = Math.max(0, (this.nextMeasure % this.nbBeats) - 1);
+      const nbBeatsToWait = Math.ceil(deltaStop / this.metronome.beatLength);
+      const extraLoops = Math.floor(nbBeatsToWait / this.nbBeats);
+      deltaStop =
+        (remainingBeats + this.nbBeats * extraLoops) *
+        this.metronome.beatLength;
+    }
     setTimeout(() => {
       this.stopQueue -= 1;
       if (!this.playing && this.stopQueue <= 0 && !this.stopped) {
         this._disable(keep);
       }
-    }, (stopTime - this.context.currentTime) * 1000 + fadeOut * 5000);
+    }, deltaStop * 1000 + fadeOut * 5000);
   }
 
   connect(destination: AudioNode) {
@@ -163,6 +173,17 @@ class SoundLoop {
 
   disconnect(destination: AudioNode) {
     this.gainNode.disconnect(destination);
+  }
+
+  /**
+   * Return the beat position in the loop relatively to when it started
+   */
+  private getBeatPosition(time: number) {
+    const absolutePosition = this.metronome.getBeatPosition(time, this.nbBeats);
+    if (this.absolute) return absolutePosition;
+
+    const offset = this.metronome.getBeatPosition(this.startTime, this.nbBeats);
+    return (this.nbBeats + absolutePosition - offset) % this.nbBeats;
   }
 }
 
