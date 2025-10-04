@@ -46,7 +46,7 @@ class Orchestre {
   private players: { [key: string]: Player };
   public started: boolean;
   private subId: number;
-  private subscribers: Subscription[];
+  private subscribers: Record<number, Subscription> = {};
   constructor(private bpm: number, context?: AudioContext) {
     this.players = {};
     this.context =
@@ -62,7 +62,7 @@ class Orchestre {
     this.master.gain.setValueAtTime(1, 0);
 
     // Events
-    this.subscribers = [];
+    this.subscribers = {};
     this.subId = -1;
     this._updateEvents = this._updateEvents.bind(this);
 
@@ -75,9 +75,8 @@ class Orchestre {
    * @param {float} time - Time in seconds of the beat
    */
   private _updateEvents(time: number) {
-    if (this.subscribers.length > 0) {
-      const toRemove: number[] = [];
-      for (const sub of this.subscribers) {
+    if (Object.keys(this.subscribers).length > 0) {
+      for (const sub of Object.values(this.subscribers)) {
         // Decrease the number of beat to wait
         sub.wait -= 1;
         if (sub.wait <= 0) {
@@ -90,14 +89,10 @@ class Orchestre {
             if (sub.repeat)
               // Repeat
               sub.wait = sub.length;
-            else toRemove.push(sub.id);
+            else delete this.subscribers[sub.id];
           }
         }
       }
-      // Remove called subscribers
-      this.subscribers = this.subscribers.filter(
-        (sub) => !toRemove.includes(sub.id)
-      );
     }
   }
 
@@ -366,7 +361,7 @@ class Orchestre {
   wait(beats = 1, options: EventOptions = {}): Promise<number> {
     this.subId++;
     return new Promise((resolve) => {
-      this.subscribers.push({
+      this.subscribers[this.subId] = {
         id: this.subId,
         callback: resolve,
         length: beats,
@@ -377,7 +372,7 @@ class Orchestre {
             ? this.metronome.getBeatPosition(this.context.currentTime, beats)
             : 0) +
           (options.offset || 0),
-      });
+      };
     });
   }
 
@@ -396,7 +391,7 @@ class Orchestre {
     options: EventOptions = {}
   ): number {
     this.subId++;
-    this.subscribers.push({
+    this.subscribers[this.subId] = {
       id: this.subId,
       callback,
       length: beats,
@@ -407,7 +402,7 @@ class Orchestre {
           ? this.metronome.getBeatPosition(this.context.currentTime, beats)
           : 0) +
         (options.offset || 0),
-    });
+    };
     return this.subId;
   }
 
@@ -417,11 +412,11 @@ class Orchestre {
    * @returns {boolean} true if found
    */
   removeListener(id: number): boolean {
-    const subIndex = this.subscribers.findIndex((sub) => sub.id === id);
-    if (subIndex !== -1) {
-      this.subscribers.splice(subIndex, 1);
+    const hasIndex = this.subscribers.hasOwnProperty(id);
+    if (hasIndex) {
+      delete this.subscribers[id];
     }
-    return subIndex !== -1;
+    return hasIndex;
   }
 
   /**
