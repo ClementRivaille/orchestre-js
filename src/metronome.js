@@ -3,7 +3,7 @@ function areEquals(a, b) {
     return Math.abs(a - b) < MARGIN;
 }
 /**
- * Count beats, and give the time of next beat occurence
+ * Count beats, and give the time of next beat occurrence
  * @param {number} bpm
  * @param {AudioContext} context - audio context
  * @param {EventEmitter} eventEmitter - Internal class used to propagate events
