@@ -11,13 +11,13 @@ class SoundLoop {
   private source: AudioBufferSourceNode | undefined;
   private startTime: number = 0;
   private stopQueue: number;
-  private stopTime: number = 0;
   private stopped: boolean = true;
   private subscribed: boolean = false;
   private disposedSources: AudioBufferSourceNode[] = [];
 
   constructor(
     private context: AudioContext,
+    private metronome: Metronome,
     private buffer: AudioBuffer,
     private eventEmitter: EventEmitter,
     private nbBeats: number,
@@ -60,27 +60,27 @@ class SoundLoop {
   }
 
   /** Start the loop */
-  start(startTime: number, metronome: Metronome, fadeIn = 0, once = false) {
+  start(startTime: number, fadeIn = 0, once = false) {
     if (this.stopped) {
       this.startTime = startTime;
       this.stopped = once || false;
       // Absolute loop, start at nth beat
       if (this.absolute) {
-        const offset = metronome.getOffset(startTime);
-        const beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
+        const offset = this.metronome.getOffset(startTime);
+        const beatPos = this.metronome.getBeatPosition(startTime, this.nbBeats);
 
-        this._loop(startTime, beatPos * metronome.beatLength + offset);
+        this._loop(startTime, beatPos * this.metronome.beatLength + offset);
         this.nextMeasure = this.nbBeats - beatPos;
       }
       // Relative loop, starts at first beat
       else {
-        this._loop(startTime, metronome.getOffset(startTime));
+        this._loop(startTime, this.metronome.getOffset(startTime));
         this.nextMeasure = this.nbBeats;
       }
 
       // If called immediately, we must ensure the next loop
       if (startTime <= this.context.currentTime && !once) {
-        this._beatSchedule(metronome.getNextBeatTime());
+        this._beatSchedule(this.metronome.getNextBeatTime());
       }
     }
 
@@ -120,7 +120,9 @@ class SoundLoop {
       this.disposedSources.push(this.source);
     }
     if (!keep) {
-      this.disposedSources.forEach((source) => source.stop(this.stopTime));
+      this.disposedSources.forEach((source) =>
+        source.stop(this.context.currentTime)
+      );
     }
     this.stopped = true;
     this.eventEmitter.unsubscribe('beat', this._beatSchedule);
@@ -134,6 +136,17 @@ class SoundLoop {
 
     if (fadeOut > 0) {
       this._fadeOut(stopTime, fadeOut);
+    }
+
+    // Cancel the next loop if already scheduled with keep
+    if (keep && this.metronome.getBeatPosition(stopTime, this.nbBeats) === 0) {
+      const timeBeforeBeat = stopTime - this.metronome.beatLength / 2;
+      const timeToWait = Math.max(0, timeBeforeBeat - this.context.currentTime);
+      setTimeout(() => {
+        if (!this.playing && this.stopQueue <= 1) {
+          this.source?.stop(stopTime);
+        }
+      }, timeToWait * 1000);
     }
 
     setTimeout(() => {

@@ -150,6 +150,7 @@ class Orchestre {
         ...sound,
         soundLoop: new SoundLoop(
           this.context,
+          this.metronome,
           buffers[sound.name],
           this.eventEmitter,
           sound.length,
@@ -186,6 +187,7 @@ class Orchestre {
         absolute,
         soundLoop: new SoundLoop(
           this.context,
+          this.metronome,
           buffer,
           this.eventEmitter,
           length,
@@ -232,7 +234,6 @@ class Orchestre {
         options.now
           ? this.context.currentTime
           : this.metronome.getNextBeatTime(),
-        this.metronome,
         options.fade || 0,
         options.once
       );
@@ -264,7 +265,6 @@ class Orchestre {
     if (!player) throw new Error(`play: player ${name} does not exist`);
     player.soundLoop.start(
       options.now ? this.context.currentTime : this.metronome.getNextBeatTime(),
-      this.metronome,
       options.fade || 0,
       options.once
     );
@@ -332,12 +332,7 @@ class Orchestre {
       action === 'play' ||
       (action === 'toggle' && !player.soundLoop.playing)
     ) {
-      player.soundLoop.start(
-        eventTime,
-        this.metronome,
-        options.fade || 0,
-        options.once
-      );
+      player.soundLoop.start(eventTime, options.fade || 0, options.once);
     } else if (
       action === 'stop' ||
       (action === 'toggle' && player.soundLoop.playing)

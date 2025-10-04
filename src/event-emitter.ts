@@ -12,7 +12,7 @@ class EventEmitter {
   subscribe(event: string, callback: Function) {
     this.listeners[event] = this.listeners[event] || [];
     this.listeners[event].push({
-      callback: callback
+      callback: callback,
     });
   }
 
@@ -29,7 +29,7 @@ class EventEmitter {
 
   emit(event: string, ...args: any[]) {
     if (this.listeners[event]) {
-      for (let listener of this.listeners[event]) {
+      for (let listener of [...this.listeners[event]]) {
         try {
           listener.callback(...args);
         } catch (e) {
