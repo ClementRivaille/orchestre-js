@@ -12187,6 +12187,15 @@ exports.default = BufferLoader;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+var __spreadArray = undefined && undefined.__spreadArray || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 /**
  * Utilitary to emit event and subscribe to them
  */
@@ -12216,7 +12225,7 @@ var EventEmitter = /** @class */function () {
             args[_i - 1] = arguments[_i];
         }
         if (this.listeners[event]) {
-            for (var _a = 0, _b = this.listeners[event]; _a < _b.length; _a++) {
+            for (var _a = 0, _b = __spreadArray([], this.listeners[event], true); _a < _b.length; _a++) {
                 var listener = _b[_a];
                 try {
                     listener.callback.apply(listener, args);
@@ -12250,7 +12259,7 @@ function areEquals(a, b) {
     return Math.abs(a - b) < MARGIN;
 }
 /**
- * Count beats, and give the time of next beat occurence
+ * Count beats, and give the time of next beat occurrence
  * @param {number} bpm
  * @param {AudioContext} context - audio context
  * @param {EventEmitter} eventEmitter - Internal class used to propagate events
@@ -12493,6 +12502,7 @@ var __generator = undefined && undefined.__generator || function (thisArg, body)
 var Orchestre = /** @class */function () {
     function Orchestre(bpm, context) {
         this.bpm = bpm;
+        this.subscribers = {};
         this.players = {};
         this.context = context || new (window.AudioContext || window.webkitAudioContext)();
         this.eventEmitter = new _eventEmitter2.default();
@@ -12503,7 +12513,7 @@ var Orchestre = /** @class */function () {
         this.master.connect(this.context.destination);
         this.master.gain.setValueAtTime(1, 0);
         // Events
-        this.subscribers = [];
+        this.subscribers = {};
         this.subId = -1;
         this._updateEvents = this._updateEvents.bind(this);
         this.started = false;
@@ -12514,9 +12524,8 @@ var Orchestre = /** @class */function () {
      * @param {float} time - Time in seconds of the beat
      */
     Orchestre.prototype._updateEvents = function (time) {
-        if (this.subscribers.length > 0) {
-            var toRemove_1 = [];
-            for (var _i = 0, _a = this.subscribers; _i < _a.length; _i++) {
+        if (Object.keys(this.subscribers).length > 0) {
+            for (var _i = 0, _a = Object.values(this.subscribers); _i < _a.length; _i++) {
                 var sub = _a[_i];
                 // Decrease the number of beat to wait
                 sub.wait -= 1;
@@ -12529,14 +12538,10 @@ var Orchestre = /** @class */function () {
                     } finally {
                         if (sub.repeat)
                             // Repeat
-                            sub.wait = sub.length;else toRemove_1.push(sub.id);
+                            sub.wait = sub.length;else delete this.subscribers[sub.id];
                     }
                 }
             }
-            // Remove called subscribers
-            this.subscribers = this.subscribers.filter(function (sub) {
-                return !toRemove_1.includes(sub.id);
-            });
         }
     };
     /**
@@ -12594,7 +12599,7 @@ var Orchestre = /** @class */function () {
                         for (_i = 0, players_2 = players; _i < players_2.length; _i++) {
                             sound = players_2[_i];
                             if (!buffers[sound.name]) return [2 /*return*/];
-                            player = __assign(__assign({}, sound), { soundLoop: new _soundLoop2.default(this.context, buffers[sound.name], this.eventEmitter, sound.length, !!sound.absolute, sound.destination || this.master), playing: false });
+                            player = __assign(__assign({}, sound), { soundLoop: new _soundLoop2.default(this.context, this.metronome, buffers[sound.name], this.eventEmitter, sound.length, !!sound.absolute, sound.destination || this.master), playing: false });
                             this.players[sound.name] = player;
                         }
                         return [2 /*return*/];
@@ -12622,7 +12627,7 @@ var Orchestre = /** @class */function () {
                 url: url,
                 length: length,
                 absolute: absolute,
-                soundLoop: new _soundLoop2.default(_this.context, buffer, _this.eventEmitter, length, absolute, destination || _this.master),
+                soundLoop: new _soundLoop2.default(_this.context, _this.metronome, buffer, _this.eventEmitter, length, absolute, destination || _this.master),
                 playing: false
             };
         });
@@ -12658,7 +12663,7 @@ var Orchestre = /** @class */function () {
         var player = this.players[name];
         if (!player) throw new Error("Player ".concat(name, " does not exist"));
         if (!player.soundLoop.playing) {
-            player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
+            player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0, options.once);
         } else {
             player.soundLoop.stop(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0, options.keep);
         }
@@ -12680,7 +12685,7 @@ var Orchestre = /** @class */function () {
         if (!this.started) throw new Error('Orchestre has not been started');
         var player = this.players[name];
         if (!player) throw new Error("play: player ".concat(name, " does not exist"));
-        player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), this.metronome, options.fade || 0, options.once);
+        player.soundLoop.start(options.now ? this.context.currentTime : this.metronome.getNextBeatTime(), options.fade || 0, options.once);
     };
     /**
      * Stop a player
@@ -12732,7 +12737,7 @@ var Orchestre = /** @class */function () {
         var beatsToWait = beats - (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) + (options.offset || 0);
         var eventTime = this.metronome.getNextNthBeatTime(beatsToWait);
         if (action === 'play' || action === 'toggle' && !player.soundLoop.playing) {
-            player.soundLoop.start(eventTime, this.metronome, options.fade || 0, options.once);
+            player.soundLoop.start(eventTime, options.fade || 0, options.once);
         } else if (action === 'stop' || action === 'toggle' && player.soundLoop.playing) {
             player.soundLoop.stop(eventTime, options.fade || 0, options.keep);
         } else {
@@ -12757,13 +12762,13 @@ var Orchestre = /** @class */function () {
         }
         this.subId++;
         return new Promise(function (resolve) {
-            _this.subscribers.push({
+            _this.subscribers[_this.subId] = {
                 id: _this.subId,
                 callback: resolve,
                 length: beats,
                 repeat: false,
                 wait: beats - (options.absolute ? _this.metronome.getBeatPosition(_this.context.currentTime, beats) : 0) + (options.offset || 0)
-            });
+            };
         });
     };
     /**
@@ -12783,13 +12788,13 @@ var Orchestre = /** @class */function () {
             options = {};
         }
         this.subId++;
-        this.subscribers.push({
+        this.subscribers[this.subId] = {
             id: this.subId,
             callback: callback,
             length: beats,
             repeat: true,
             wait: beats - (options.absolute ? this.metronome.getBeatPosition(this.context.currentTime, beats) : 0) + (options.offset || 0)
-        });
+        };
         return this.subId;
     };
     /**
@@ -12798,13 +12803,11 @@ var Orchestre = /** @class */function () {
      * @returns {boolean} true if found
      */
     Orchestre.prototype.removeListener = function (id) {
-        var subIndex = this.subscribers.findIndex(function (sub) {
-            return sub.id === id;
-        });
-        if (subIndex !== -1) {
-            this.subscribers.splice(subIndex, 1);
+        var hasIndex = this.subscribers.hasOwnProperty(id);
+        if (hasIndex) {
+            delete this.subscribers[id];
         }
-        return subIndex !== -1;
+        return hasIndex;
     };
     /**
      * Suspend metronome and players
@@ -12857,11 +12860,12 @@ Object.defineProperty(exports, "__esModule", {
  * Sound loop that stays in sync with the beats
  */
 var SoundLoop = /** @class */function () {
-    function SoundLoop(context, buffer, eventEmitter, nbBeats, absolute, destination) {
+    function SoundLoop(context, metronome, buffer, eventEmitter, nbBeats, absolute, destination) {
         if (absolute === void 0) {
             absolute = false;
         }
         this.context = context;
+        this.metronome = metronome;
         this.buffer = buffer;
         this.eventEmitter = eventEmitter;
         this.nbBeats = nbBeats;
@@ -12869,7 +12873,6 @@ var SoundLoop = /** @class */function () {
         this.nextMeasure = -1;
         this.playing = false;
         this.startTime = 0;
-        this.stopTime = 0;
         this.stopped = true;
         this.subscribed = false;
         this.disposedSources = [];
@@ -12907,7 +12910,7 @@ var SoundLoop = /** @class */function () {
         this.source = source;
     };
     /** Start the loop */
-    SoundLoop.prototype.start = function (startTime, metronome, fadeIn, once) {
+    SoundLoop.prototype.start = function (startTime, fadeIn, once) {
         if (fadeIn === void 0) {
             fadeIn = 0;
         }
@@ -12919,19 +12922,19 @@ var SoundLoop = /** @class */function () {
             this.stopped = once || false;
             // Absolute loop, start at nth beat
             if (this.absolute) {
-                var offset = metronome.getOffset(startTime);
-                var beatPos = metronome.getBeatPosition(startTime, this.nbBeats);
-                this._loop(startTime, beatPos * metronome.beatLength + offset);
+                var offset = this.metronome.getOffset(startTime);
+                var beatPos = this.metronome.getBeatPosition(startTime, this.nbBeats);
+                this._loop(startTime, beatPos * this.metronome.beatLength + offset);
                 this.nextMeasure = this.nbBeats - beatPos;
             }
             // Relative loop, starts at first beat
             else {
-                    this._loop(startTime, metronome.getOffset(startTime));
+                    this._loop(startTime, this.metronome.getOffset(startTime));
                     this.nextMeasure = this.nbBeats;
                 }
             // If called immediately, we must ensure the next loop
             if (startTime <= this.context.currentTime && !once) {
-                this._beatSchedule(metronome.getNextBeatTime());
+                this._beatSchedule(this.metronome.getNextBeatTime());
             }
         }
         // Fading
@@ -12969,7 +12972,7 @@ var SoundLoop = /** @class */function () {
         }
         if (!keep) {
             this.disposedSources.forEach(function (source) {
-                return source.stop(_this.stopTime);
+                return source.stop(_this.context.currentTime);
             });
         }
         this.stopped = true;
@@ -12990,18 +12993,46 @@ var SoundLoop = /** @class */function () {
         if (fadeOut > 0) {
             this._fadeOut(stopTime, fadeOut);
         }
+        // Cancel the next loop if already scheduled with keep
+        if (keep && this.getBeatPosition(stopTime) === 0) {
+            var timeBeforeBeat = stopTime - this.metronome.beatLength / 2;
+            var timeToWait = Math.max(0, timeBeforeBeat - this.context.currentTime);
+            setTimeout(function () {
+                var _a;
+                if (!_this.playing && _this.stopQueue <= 1) {
+                    (_a = _this.source) === null || _a === void 0 ? void 0 : _a.stop(stopTime);
+                }
+            }, timeToWait * 1000);
+        }
+        // Disable loop on the final beat
+        var deltaStop = stopTime - this.context.currentTime;
+        if (keep) {
+            var remainingBeats = Math.max(0, this.nextMeasure % this.nbBeats - 1);
+            var nbBeatsToWait = Math.ceil(deltaStop / this.metronome.beatLength);
+            var extraLoops = Math.floor(nbBeatsToWait / this.nbBeats);
+            deltaStop = (remainingBeats + this.nbBeats * extraLoops) * this.metronome.beatLength;
+        }
         setTimeout(function () {
             _this.stopQueue -= 1;
             if (!_this.playing && _this.stopQueue <= 0 && !_this.stopped) {
                 _this._disable(keep);
             }
-        }, (stopTime - this.context.currentTime) * 1000 + fadeOut * 5000);
+        }, deltaStop * 1000 + fadeOut * 5000);
     };
     SoundLoop.prototype.connect = function (destination) {
         this.gainNode.connect(destination);
     };
     SoundLoop.prototype.disconnect = function (destination) {
         this.gainNode.disconnect(destination);
+    };
+    /**
+     * Return the beat position in the loop relatively to when it started
+     */
+    SoundLoop.prototype.getBeatPosition = function (time) {
+        var absolutePosition = this.metronome.getBeatPosition(time, this.nbBeats);
+        if (this.absolute) return absolutePosition;
+        var offset = this.metronome.getBeatPosition(this.startTime, this.nbBeats);
+        return (this.nbBeats + absolutePosition - offset) % this.nbBeats;
     };
     return SoundLoop;
 }();
