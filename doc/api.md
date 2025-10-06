@@ -53,7 +53,9 @@
     - [metronome.getNextBeatTime() ⇒ float](#metronomegetnextbeattime--float)
     - [metronome.getNextNthBeatTime(beats) ⇒ float](#metronomegetnextnthbeattimebeats--float)
     - [metronome.getOffset(time) ⇒ float](#metronomegetoffsettime--float)
+    - [metronome.getTimeToBeat(beat) ⇒ float](#metronomegettimetobeatbeat--float)
     - [metronome.getBeatPosition(time, barSize) ⇒ number](#metronomegetbeatpositiontime-barsize--number)
+    - [metronome.getBeatsToBar(barSize, bar) ⇒ number](#metronomegetbeatstobarbarsize-bar--number)
 
 <a name="new_Orchestre_new"></a>
 
@@ -330,7 +332,9 @@
   - [.getNextBeatTime()](#Metronome+getNextBeatTime) ⇒ <code>float</code>
   - [.getNextNthBeatTime(beats)](#Metronome+getNextNthBeatTime) ⇒ <code>float</code>
   - [.getOffset(time)](#Metronome+getOffset) ⇒ <code>float</code>
+  - [.getTimeToBeat(beat)](#Metronome+getTimeToBeat) ⇒ <code>float</code>
   - [.getBeatPosition(time, barSize)](#Metronome+getBeatPosition) ⇒ <code>number</code>
+  - [.getBeatsToBar(barSize, bar)](#Metronome+getBeatsToBar) ⇒ <code>number</code>
 
 <a name="new_Metronome_new"></a>
 
@@ -376,11 +380,24 @@
 | ----- | ------------------ | -------------------------------------------- |
 | time  | <code>float</code> | <p>time in seconds from an audio context</p> |
 
+<a name="Metronome+getTimeToBeat"></a>
+
+### metronome.getTimeToBeat(beat) ⇒ <code>float</code>
+
+<p>Return the time remaining before a beat</p>
+
+**Kind**: instance method of [<code>Metronome</code>](#Metronome)  
+**Returns**: <code>float</code> - <p>time in seconds</p>
+
+| Param | Type                | Default        | Description                                 |
+| ----- | ------------------- | -------------- | ------------------------------------------- |
+| beat  | <code>number</code> | <code>1</code> | <p>Number of beats to wait (default: 1)</p> |
+
 <a name="Metronome+getBeatPosition"></a>
 
 ### metronome.getBeatPosition(time, barSize) ⇒ <code>number</code>
 
-<p>Gets the position of the given time in an absolute bar of n beats</p>
+<p>Get the position of the given time in an absolute bar of n beats</p>
 
 **Kind**: instance method of [<code>Metronome</code>](#Metronome)  
 **Returns**: <code>number</code> - <p>position (from 0 to n - 1)</p>
@@ -389,3 +406,20 @@
 | ------- | ------------------- | ------------------------------- |
 | time    | <code>float</code>  |                                 |
 | barSize | <code>number</code> | <p>Number of beats in a bar</p> |
+
+<a name="Metronome+getBeatsToBar"></a>
+
+### metronome.getBeatsToBar(barSize, bar) ⇒ <code>number</code>
+
+<p>Get the number of beats remaining before a bar</p>
+
+**Kind**: instance method of [<code>Metronome</code>](#Metronome)  
+**Returns**: <code>number</code> - <ul>
+
+<li>Beats remaining</li>
+</ul>
+
+| Param   | Type                | Default        | Description                        |
+| ------- | ------------------- | -------------- | ---------------------------------- |
+| barSize | <code>number</code> |                | <p>Bar length</p>                  |
+| bar     | <code>number</code> | <code>1</code> | <p>Number of bars (default: 1)</p> |

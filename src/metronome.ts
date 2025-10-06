@@ -86,7 +86,16 @@ class Metronome {
   }
 
   /**
-   * Gets the position of the given time in an absolute bar of n beats
+   * Return the time remaining before a beat
+   * @param {number} beat - Number of beats to wait (default: 1)
+   * @returns {float} time in seconds
+   */
+  getTimeToBeat(beat: number = 1): number {
+    return this.getNextNthBeatTime(beat) - this.context.currentTime;
+  }
+
+  /**
+   * Get the position of the given time in an absolute bar of n beats
    * @param {float} time
    * @param {number} barSize - Number of beats in a bar
    * @returns {number} position (from 0 to n - 1)
@@ -102,6 +111,21 @@ class Metronome {
     )
       ? position
       : (position + 1) % barSize;
+  }
+
+  /**
+   * Get the number of beats remaining before a bar
+   * @param {number} barSize - Bar length
+   * @param {number} bar - Number of bars (default: 1)
+   * @returns {number} - Beats remaining
+   */
+  getBeatsToBar(barSize: number, bar = 1) {
+    const barBeats = bar * barSize;
+    const beatPosition = this.getBeatPosition(
+      this.context.currentTime,
+      barBeats
+    );
+    return barBeats - beatPosition;
   }
 
   stop() {

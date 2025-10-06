@@ -305,7 +305,9 @@ Here are some metronome's methods you can use :
 - `getNextBeatTime(): float` gives you the time, in second, of the next beat
 - `getNextNthBeatTime(beats: number): float` gives you the time, in second, of the next nth beat
 - `getOffset(time: float): float` gives in seconds the offset of the given time relatively to the closest beat before it
+- `getTimeBeforeBeat(beat: number = 1): float` gives in seconds the time remaining before the next nth beat
 - `getBeatPosition(time: float, barSize: number): number` for absolute bars of _barSize_ beats, gives the position of the given time. For example, for a bar of 4 beat, results may go from 0 (first beat) to 3 (last beat).
+- `getBeatsToBar(barSize: number, bars: number = 1): number` gives the beats remaining before the next nth bar of the given size
 
 For the simple tasks though (such as counting the position in a bar), I would advise not to use these functions and instead use the `addListener` method on the orchestra to manage your own counters.
 
