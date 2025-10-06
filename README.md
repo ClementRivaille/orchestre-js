@@ -60,7 +60,6 @@ Then, you will need to register your song's separate tracks. In Orchestre-JS, th
 - A unique **name** that will identify it
 - The **URL** of the sound file it will play
 - The **length** in beats of the track
-- An **absolute** boolean to tell how to position the player – for most cases you can set it to _true_ ([more explanation here](#player-position))
 
 _Be aware that you need a local server to request files_.
 
@@ -69,7 +68,7 @@ The _length_ is the number of fourth notes in the track. For example, in a 4/4 s
 To add a single player, use:
 
 ```javascript
-await orchestra.addPlayer('bass', './assets/music/bass.ogg', 16, true);
+await orchestra.addPlayer('bass', './assets/music/bass.ogg', 16);
 ```
 
 `addPlayer` returns a promise that resolves once the sound file has been fetched. A player can't be used until it is fully loaded.
@@ -82,13 +81,11 @@ const players = [
     name: 'chords',
     url: './assets/music/chords.ogg',
     length: 16,
-    absolute: true,
   },
   {
     name: 'bass',
     url: './assets/music/bass.ogg',
     length: 16,
-    absolute: true,
   },
   {
     name: 'guitar',
@@ -148,17 +145,34 @@ You now know the basics of Orchestre-JS. But it provides more tools to design a 
 
 ## Features
 
-### <a id="player-position"></a>Player position
+### Absolute & relative player position
 
-What does the **absolute** player's option mean? By default, a player is _relative_, which means that **it will start playing from the beginning when it's called**, no matter where we are in the song. Absolute players, on the other hand, **will calculate their offset relatively from the start of the song**. As if they where already playing silently and their volume has been turned up.
+When adding a player, you can configure its **position** as either _"absolute"_ or _"relative"_. By default, it's _absolute_.
 
-Here is a diagram to better understand what absolute means. Each player here has a length of 4 beats, and are activated at the same time. See how the absolute player starts already in sync with the bar, while the relative one starts on its first beat.
+```javascript
+await orchestra.addPlayer('melody', './assets/music/melody.ogg', 8, 'relative');
+// or
+await orchestra.addPlayers([
+  {
+    name: 'melody',
+    url: './assets/music/melody.ogg',
+    length: 8,
+    position: 'relative',
+  },
+]);
+```
+
+What does this position mean? When you call the `play` method, **an absolute players will start with an offset so that it is always aligned in the song**. It's as if they were already playing silently and they volume has just been turned up. It's probably what you expect for an adaptive song.
+
+**A relative player however will always start from its beginning**, no matter when you're calling `play`. It will still be on beat and in rhythm. But they won't be aligned on global a global sheet: they can play at any beat of any bar (with any length even).
+
+Here is a diagram to better understand how it works. Each player here has a length of 4 beats, and are activated at the same time. See how the absolute player starts already in sync with the bar, while the relative one starts on its first beat.
 
 ![Absolute vs relative diagram](doc/absolute-diagram.png)
 
 Most of the time, you will want **absolute** players. They are guaranteed to stay aligned with each other, as they are playing on the bars of your song.
 
-**Relative** players are useful for _stingers_: small melodic phrases played only once on an event (with the `once` option). But they can also be use for some complex generative compositions.
+**Relative** players are useful for _stingers_: small melodic phrases played only once on an event (with the `once` option). They can also be used for complex generative compositions.
 
 ### <a id="playing-options"></a>Playing options
 
@@ -263,7 +277,7 @@ await orchestra.addPlayer(
   'bass',
   './assets/music/bass.ogg',
   16,
-  true,
+  'absolute',
   myAudioNode
 );
 // Or
