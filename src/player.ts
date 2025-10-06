@@ -1,6 +1,5 @@
 import SoundLoop from './sound-loop';
 
-/** Positioning of a player's track in the song */
 export type PlayerPosition = 'relative' | 'absolute';
 
 export interface PlayerConfiguration {

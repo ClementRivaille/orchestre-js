@@ -4,47 +4,42 @@ const players = [{
   name: 'drum',
   url: './assets/drum.ogg',
   length: 4,
-  absolute: true
 }, {
   name: 'bass',
   url: './assets/bass.ogg',
   length: 16,
-  absolute: true
 }, {
   name: 'piano',
   url: './assets/piano.ogg',
   length: 16,
-  absolute: true
 }, {
   name: 'melody',
   url: './assets/melody.ogg',
   length: 8,
-  absolute: false
+  position: "relative",
 }, {
   name: 'organ',
   url: './assets/organ.ogg',
   length: 7,
-  absolute: false
+  position: "relative",
 }, {
   name: 'synth',
   url: './assets/synth.ogg',
   length: 16,
-  absolute: true
 }, {
   name: 'jingle',
   url: './assets/jingle.ogg',
   length: 4,
-  absolute: false
+  position: "relative",
 }, {
   name: 'doremi',
   url: './assets/doremi.ogg',
   length: 12,
-  absolute: false
+  position: "relative",
 }, {
   name: 'koto',
   url: './assets/koto.ogg',
   length: 8,
-  absolute: true
 }];
 
 const orchestre = new Orchestre(120);

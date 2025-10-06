@@ -27,6 +27,11 @@ export interface EventOptions {
 export type PlayerEventOptions = EventOptions & Omit<PlayerOptions, 'now'>;
 
 /**
+ * Positioning of a player's track in the song
+ * @typedef {"absolute"|"relative"} PlayerPosition
+ */
+
+/**
  * Manage sounds and activate them as players
  * @param {number} bpm - Beats per minute
  * @param {AudioContext} context

@@ -87,7 +87,7 @@ class Metronome {
 
   /**
    * Return the time remaining before a beat
-   * @param {number} beat - Number of beats to wait (default: 1)
+   * @param {number} [beat=1] - Number of beats to wait
    * @returns {float} time in seconds
    */
   getTimeToBeat(beat: number = 1): number {
@@ -116,7 +116,7 @@ class Metronome {
   /**
    * Get the number of beats remaining before a bar
    * @param {number} barSize - Bar length
-   * @param {number} bar - Number of bars (default: 1)
+   * @param {number} [bar=1] - Number of bars
    * @returns {number} - Beats remaining
    */
   getBeatsToBar(barSize: number, bar = 1) {

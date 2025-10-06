@@ -9,6 +9,13 @@
 <dd><p>Count beats, and give the time of next beat occurrence</p></dd>
 </dl>
 
+## Typedefs
+
+<dl>
+<dt><a href="#PlayerPosition">PlayerPosition</a> : <code>&quot;absolute&quot;</code> | <code>&quot;relative&quot;</code></dt>
+<dd><p>Positioning of a player's track in the song</p></dd>
+</dl>
+
 <a name="Orchestre"></a>
 
 ## Orchestre
@@ -28,12 +35,13 @@
 
 - [API](#api)
   - [Classes](#classes)
+  - [Typedefs](#typedefs)
   - [Orchestre](#orchestre)
     - [new Orchestre(bpm, context)](#new-orchestrebpm-context)
     - [orchestre.start(\[players\])](#orchestrestartplayers)
     - [orchestre.fullStop()](#orchestrefullstop)
     - [orchestre.addPlayers(players) ⇒ Promise](#orchestreaddplayersplayers--promise)
-    - [orchestre.addPlayer(name, url, length, \[absolute\], \[destination\]) ⇒ Promise](#orchestreaddplayername-url-length-absolute-destination--promise)
+    - [orchestre.addPlayer(name, url, length, \[position\], \[destination\]) ⇒ Promise](#orchestreaddplayername-url-length-position-destination--promise)
     - [orchestre.connect(name, destination)](#orchestreconnectname-destination)
     - [orchestre.disconnect(name, destination)](#orchestredisconnectname-destination)
     - [orchestre.toggle(name, \[options\])](#orchestretogglename-options)
@@ -53,9 +61,10 @@
     - [metronome.getNextBeatTime() ⇒ float](#metronomegetnextbeattime--float)
     - [metronome.getNextNthBeatTime(beats) ⇒ float](#metronomegetnextnthbeattimebeats--float)
     - [metronome.getOffset(time) ⇒ float](#metronomegetoffsettime--float)
-    - [metronome.getTimeToBeat(beat) ⇒ float](#metronomegettimetobeatbeat--float)
+    - [metronome.getTimeToBeat(\[beat\]) ⇒ float](#metronomegettimetobeatbeat--float)
     - [metronome.getBeatPosition(time, barSize) ⇒ number](#metronomegetbeatpositiontime-barsize--number)
-    - [metronome.getBeatsToBar(barSize, bar) ⇒ number](#metronomegetbeatstobarbarsize-bar--number)
+    - [metronome.getBeatsToBar(barSize, \[bar\]) ⇒ number](#metronomegetbeatstobarbarsize-bar--number)
+  - [PlayerPosition : "absolute" | "relative"](#playerposition--absolute--relative)
 
 <a name="new_Orchestre_new"></a>
 
@@ -94,31 +103,31 @@
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 **Returns**: <code>Promise</code> - <p>Promise that resolves once all player has been loaded</p>
 
-| Param                   | Type                              | Default            | Description                                                        |
-| ----------------------- | --------------------------------- | ------------------ | ------------------------------------------------------------------ |
-| players                 | <code>Array.&lt;object&gt;</code> |                    | <p>Players configuration</p>                                       |
-| players[].name          | <code>string</code>               |                    | <p>Player's identifier</p>                                         |
-| players[].url           | <code>string</code>               |                    | <p>URL of the sound file</p>                                       |
-| players[].length        | <code>number</code>               |                    | <p>Number of beats that the sound contains</p>                     |
-| [players[].absolute]    | <code>boolean</code>              | <code>false</code> | <p>Indicates that the player is aligned absolutely in the song</p> |
-| [players[].destination] | <code>AudioNode</code>            |                    | <p>Audio node to connect the player to</p>                         |
+| Param                   | Type                              | Default                           | Description                                                            |
+| ----------------------- | --------------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
+| players                 | <code>Array.&lt;object&gt;</code> |                                   | <p>Players configuration</p>                                           |
+| players[].name          | <code>string</code>               |                                   | <p>Player's identifier</p>                                             |
+| players[].url           | <code>string</code>               |                                   | <p>URL of the sound file</p>                                           |
+| players[].length        | <code>number</code>               |                                   | <p>Number of beats that the track contains</p>                         |
+| [players[].position]    | <code>PlayerPosition</code>       | <code>&quot;absolute&quot;</code> | <p>Track positioning, &quot;relative&quot; or &quot;absolute&quot;</p> |
+| [players[].destination] | <code>AudioNode</code>            |                                   | <p>Audio node to connect the player to</p>                             |
 
 <a name="Orchestre+addPlayer"></a>
 
-### orchestre.addPlayer(name, url, length, [absolute], [destination]) ⇒ <code>Promise</code>
+### orchestre.addPlayer(name, url, length, [position], [destination]) ⇒ <code>Promise</code>
 
 <p>Prepare a single sound</p>
 
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 **Returns**: <code>Promise</code> - <p>Promise that resolves once the player is loaded</p>
 
-| Param         | Type                   | Default            | Description                                                        |
-| ------------- | ---------------------- | ------------------ | ------------------------------------------------------------------ |
-| name          | <code>string</code>    |                    | <p>Player's identifier</p>                                         |
-| url           | <code>string</code>    |                    | <p>URL of the sound file</p>                                       |
-| length        | <code>number</code>    |                    | <p>Number of beats that the sound contains</p>                     |
-| [absolute]    | <code>boolean</code>   | <code>false</code> | <p>Indicates that the player is aligned absolutely in the song</p> |
-| [destination] | <code>AudioNode</code> |                    | <p>Audio node to connect the player to</p>                         |
+| Param         | Type                        | Default                           | Description                                                            |
+| ------------- | --------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
+| name          | <code>string</code>         |                                   | <p>Player's identifier</p>                                             |
+| url           | <code>string</code>         |                                   | <p>URL of the sound file</p>                                           |
+| length        | <code>number</code>         |                                   | <p>Number of beats that the track contains</p>                         |
+| [position]    | <code>PlayerPosition</code> | <code>&quot;absolute&quot;</code> | <p>Track positioning, &quot;relative&quot; or &quot;absolute&quot;</p> |
+| [destination] | <code>AudioNode</code>      |                                   | <p>Audio node to connect the player to</p>                             |
 
 <a name="Orchestre+connect"></a>
 
@@ -332,9 +341,9 @@
   - [.getNextBeatTime()](#Metronome+getNextBeatTime) ⇒ <code>float</code>
   - [.getNextNthBeatTime(beats)](#Metronome+getNextNthBeatTime) ⇒ <code>float</code>
   - [.getOffset(time)](#Metronome+getOffset) ⇒ <code>float</code>
-  - [.getTimeToBeat(beat)](#Metronome+getTimeToBeat) ⇒ <code>float</code>
+  - [.getTimeToBeat([beat])](#Metronome+getTimeToBeat) ⇒ <code>float</code>
   - [.getBeatPosition(time, barSize)](#Metronome+getBeatPosition) ⇒ <code>number</code>
-  - [.getBeatsToBar(barSize, bar)](#Metronome+getBeatsToBar) ⇒ <code>number</code>
+  - [.getBeatsToBar(barSize, [bar])](#Metronome+getBeatsToBar) ⇒ <code>number</code>
 
 <a name="new_Metronome_new"></a>
 
@@ -382,16 +391,16 @@
 
 <a name="Metronome+getTimeToBeat"></a>
 
-### metronome.getTimeToBeat(beat) ⇒ <code>float</code>
+### metronome.getTimeToBeat([beat]) ⇒ <code>float</code>
 
 <p>Return the time remaining before a beat</p>
 
 **Kind**: instance method of [<code>Metronome</code>](#Metronome)  
 **Returns**: <code>float</code> - <p>time in seconds</p>
 
-| Param | Type                | Default        | Description                                 |
-| ----- | ------------------- | -------------- | ------------------------------------------- |
-| beat  | <code>number</code> | <code>1</code> | <p>Number of beats to wait (default: 1)</p> |
+| Param  | Type                | Default        | Description                    |
+| ------ | ------------------- | -------------- | ------------------------------ |
+| [beat] | <code>number</code> | <code>1</code> | <p>Number of beats to wait</p> |
 
 <a name="Metronome+getBeatPosition"></a>
 
@@ -409,7 +418,7 @@
 
 <a name="Metronome+getBeatsToBar"></a>
 
-### metronome.getBeatsToBar(barSize, bar) ⇒ <code>number</code>
+### metronome.getBeatsToBar(barSize, [bar]) ⇒ <code>number</code>
 
 <p>Get the number of beats remaining before a bar</p>
 
@@ -419,7 +428,15 @@
 <li>Beats remaining</li>
 </ul>
 
-| Param   | Type                | Default        | Description                        |
-| ------- | ------------------- | -------------- | ---------------------------------- |
-| barSize | <code>number</code> |                | <p>Bar length</p>                  |
-| bar     | <code>number</code> | <code>1</code> | <p>Number of bars (default: 1)</p> |
+| Param   | Type                | Default        | Description           |
+| ------- | ------------------- | -------------- | --------------------- |
+| barSize | <code>number</code> |                | <p>Bar length</p>     |
+| [bar]   | <code>number</code> | <code>1</code> | <p>Number of bars</p> |
+
+<a name="PlayerPosition"></a>
+
+## PlayerPosition : <code>&quot;absolute&quot;</code> \| <code>&quot;relative&quot;</code>
+
+<p>Positioning of a player's track in the song</p>
+
+**Kind**: global typedef
