@@ -1,14 +1,18 @@
-import SoundLoop from "./sound-loop";
+import SoundLoop from './sound-loop';
+
+/** Positioning of a player's track in the song */
+export type PlayerPosition = 'relative' | 'absolute';
 
 export interface PlayerConfiguration {
   name: string;
   url: string;
   length: number;
-  absolute?: boolean;
+  position?: PlayerPosition;
   destination?: AudioDestinationNode;
 }
 
 interface Player extends PlayerConfiguration {
+  position: PlayerPosition;
   soundLoop: SoundLoop;
   playing: boolean;
 }

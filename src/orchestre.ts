@@ -1,7 +1,7 @@
 import BufferLoader from './buffer-loader';
 import EventEmitter from './event-emitter';
 import Metronome from './metronome';
-import Player, { PlayerConfiguration } from './player';
+import Player, { PlayerConfiguration, PlayerPosition } from './player';
 import SoundLoop from './sound-loop';
 
 interface Subscription {
@@ -134,8 +134,8 @@ class Orchestre {
    * @param {object[]} players - Players configuration
    * @param {string} players[].name - Player's identifier
    * @param {string} players[].url - URL of the sound file
-   * @param {number} players[].length - Number of beats that the sound contains
-   * @param {boolean} [players[].absolute=false] - Indicates that the player is aligned absolutely in the song
+   * @param {number} players[].length - Number of beats that the track contains
+   * @param {PlayerPosition} [players[].position="absolute"] -Track positioning, "relative" or "absolute"
    * @param {AudioNode} [players[].destination] - Audio node to connect the player to
    * @returns {Promise} Promise that resolves once all player has been loaded
    */
@@ -145,16 +145,18 @@ class Orchestre {
     // Store sounds into players
     for (const sound of players) {
       if (!buffers[sound.name]) return;
+      const position = sound.position ?? 'absolute';
 
       const player: Player = {
         ...sound,
+        position,
         soundLoop: new SoundLoop(
           this.context,
           this.metronome,
           buffers[sound.name],
           this.eventEmitter,
           sound.length,
-          !!sound.absolute,
+          position === 'absolute',
           sound.destination || this.master
         ),
         playing: false,
@@ -167,8 +169,8 @@ class Orchestre {
    * Prepare a single sound
    * @param {string} name - Player's identifier
    * @param {string} url - URL of the sound file
-   * @param {number} length - Number of beats that the sound contains
-   * @param {boolean} [absolute=false] - Indicates that the player is aligned absolutely in the song
+   * @param {number} length - Number of beats that the track contains
+   * @param {PlayerPosition} [position="absolute"] - Track positioning, "relative" or "absolute"
    * @param {AudioNode} [destination] - Audio node to connect the player to
    * @returns {Promise} Promise that resolves once the player is loaded
    */
@@ -176,7 +178,7 @@ class Orchestre {
     name: string,
     url: string,
     length: number,
-    absolute = false,
+    position: PlayerPosition = 'absolute',
     destination?: AudioNode
   ): Promise<void> {
     return this.loader.load(name, url).then((buffer) => {
@@ -184,14 +186,14 @@ class Orchestre {
         name,
         url,
         length,
-        absolute,
+        position,
         soundLoop: new SoundLoop(
           this.context,
           this.metronome,
           buffer,
           this.eventEmitter,
           length,
-          absolute,
+          position === 'absolute',
           destination || this.master
         ),
         playing: false,

@@ -21,7 +21,7 @@ class SoundLoop {
     private buffer: AudioBuffer,
     private eventEmitter: EventEmitter,
     private nbBeats: number,
-    private absolute = false,
+    private absolute: boolean,
     destination?: AudioNode
   ) {
     this.stopped = true;
