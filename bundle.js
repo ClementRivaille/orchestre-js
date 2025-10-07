@@ -107,48 +107,44 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 var players = [{
   name: 'drum',
   url: './assets/drum.ogg',
-  length: 4,
-  absolute: true
+  length: 4
 }, {
   name: 'bass',
   url: './assets/bass.ogg',
-  length: 16,
-  absolute: true
+  length: 16
 }, {
   name: 'piano',
   url: './assets/piano.ogg',
-  length: 16,
-  absolute: true
+  length: 16
 }, {
   name: 'melody',
   url: './assets/melody.ogg',
   length: 8,
-  absolute: false
+  position: "relative"
 }, {
   name: 'organ',
   url: './assets/organ.ogg',
   length: 7,
-  absolute: false
+  position: "relative"
 }, {
   name: 'synth',
   url: './assets/synth.ogg',
-  length: 16,
-  absolute: true
+  length: 16
 }, {
   name: 'jingle',
   url: './assets/jingle.ogg',
   length: 4,
-  absolute: false
+  position: "relative"
 }, {
   name: 'doremi',
   url: './assets/doremi.ogg',
   length: 12,
-  absolute: false
+  position: "relative"
 }, {
   name: 'shamisen',
   url: './assets/shamisen.ogg',
   length: 8,
-  absolute: false
+  position: "relative"
 }];
 
 var orchestre = void 0;
@@ -12327,7 +12323,18 @@ var Metronome = /** @class */function () {
         return areEquals(this.beatLength, offset) ? 0 : offset;
     };
     /**
-     * Gets the position of the given time in an absolute bar of n beats
+     * Return the time remaining before a beat
+     * @param {number} [beat=1] - Number of beats to wait
+     * @returns {float} time in seconds
+     */
+    Metronome.prototype.getTimeToBeat = function (beat) {
+        if (beat === void 0) {
+            beat = 1;
+        }
+        return this.getNextNthBeatTime(beat) - this.context.currentTime;
+    };
+    /**
+     * Get the position of the given time in an absolute bar of n beats
      * @param {float} time
      * @param {number} barSize - Number of beats in a bar
      * @returns {number} position (from 0 to n - 1)
@@ -12338,6 +12345,20 @@ var Metronome = /** @class */function () {
         if (areEquals(barLength, barPosition)) return 0;
         var position = Math.floor(barPosition / this.beatLength);
         return !areEquals(this.beatLength, Math.abs(barPosition - position * this.beatLength)) ? position : (position + 1) % barSize;
+    };
+    /**
+     * Get the number of beats remaining before a bar
+     * @param {number} barSize - Bar length
+     * @param {number} [bar=1] - Number of bars
+     * @returns {number} - Beats remaining
+     */
+    Metronome.prototype.getBeatsToBar = function (barSize, bar) {
+        if (bar === void 0) {
+            bar = 1;
+        }
+        var barBeats = bar * barSize;
+        var beatPosition = this.getBeatPosition(this.context.currentTime, barBeats);
+        return barBeats - beatPosition;
     };
     Metronome.prototype.stop = function () {
         if (this.loopInterval) {
@@ -12490,6 +12511,10 @@ var __generator = undefined && undefined.__generator || function (thisArg, body)
 };
 
 /**
+ * Positioning of a player's track in the song
+ * @typedef {"absolute"|"relative"} PlayerPosition
+ */
+/**
  * Manage sounds and activate them as players
  * @param {number} bpm - Beats per minute
  * @param {AudioContext} context
@@ -12581,25 +12606,27 @@ var Orchestre = /** @class */function () {
      * @param {object[]} players - Players configuration
      * @param {string} players[].name - Player's identifier
      * @param {string} players[].url - URL of the sound file
-     * @param {number} players[].length - Number of beats that the sound contains
-     * @param {boolean} [players[].absolute=false] - Indicates that the player is aligned absolutely in the song
+     * @param {number} players[].length - Number of beats that the track contains
+     * @param {PlayerPosition} [players[].position="absolute"] -Track positioning, "relative" or "absolute"
      * @param {AudioNode} [players[].destination] - Audio node to connect the player to
      * @returns {Promise} Promise that resolves once all player has been loaded
      */
     Orchestre.prototype.addPlayers = function (players) {
         return __awaiter(this, void 0, void 0, function () {
-            var buffers, _i, players_2, sound, player;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var buffers, _i, players_2, sound, position, player;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         return [4 /*yield*/, this.loader.loadAll(players)];
                     case 1:
-                        buffers = _a.sent();
+                        buffers = _b.sent();
                         // Store sounds into players
                         for (_i = 0, players_2 = players; _i < players_2.length; _i++) {
                             sound = players_2[_i];
                             if (!buffers[sound.name]) return [2 /*return*/];
-                            player = __assign(__assign({}, sound), { soundLoop: new _soundLoop2.default(this.context, this.metronome, buffers[sound.name], this.eventEmitter, sound.length, !!sound.absolute, sound.destination || this.master), playing: false });
+                            position = (_a = sound.position) !== null && _a !== void 0 ? _a : 'absolute';
+                            player = __assign(__assign({}, sound), { position: position, soundLoop: new _soundLoop2.default(this.context, this.metronome, buffers[sound.name], this.eventEmitter, sound.length, position === 'absolute', sound.destination || this.master), playing: false });
                             this.players[sound.name] = player;
                         }
                         return [2 /*return*/];
@@ -12611,23 +12638,23 @@ var Orchestre = /** @class */function () {
      * Prepare a single sound
      * @param {string} name - Player's identifier
      * @param {string} url - URL of the sound file
-     * @param {number} length - Number of beats that the sound contains
-     * @param {boolean} [absolute=false] - Indicates that the player is aligned absolutely in the song
+     * @param {number} length - Number of beats that the track contains
+     * @param {PlayerPosition} [position="absolute"] - Track positioning, "relative" or "absolute"
      * @param {AudioNode} [destination] - Audio node to connect the player to
      * @returns {Promise} Promise that resolves once the player is loaded
      */
-    Orchestre.prototype.addPlayer = function (name, url, length, absolute, destination) {
+    Orchestre.prototype.addPlayer = function (name, url, length, position, destination) {
         var _this = this;
-        if (absolute === void 0) {
-            absolute = false;
+        if (position === void 0) {
+            position = 'absolute';
         }
         return this.loader.load(name, url).then(function (buffer) {
             _this.players[name] = {
                 name: name,
                 url: url,
                 length: length,
-                absolute: absolute,
-                soundLoop: new _soundLoop2.default(_this.context, _this.metronome, buffer, _this.eventEmitter, length, absolute, destination || _this.master),
+                position: position,
+                soundLoop: new _soundLoop2.default(_this.context, _this.metronome, buffer, _this.eventEmitter, length, position === 'absolute', destination || _this.master),
                 playing: false
             };
         });
@@ -12861,9 +12888,6 @@ Object.defineProperty(exports, "__esModule", {
  */
 var SoundLoop = /** @class */function () {
     function SoundLoop(context, metronome, buffer, eventEmitter, nbBeats, absolute, destination) {
-        if (absolute === void 0) {
-            absolute = false;
-        }
         this.context = context;
         this.metronome = metronome;
         this.buffer = buffer;

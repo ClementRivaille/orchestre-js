@@ -44,8 +44,8 @@
         <pre>
 const orchestre = new Orchestre(120);
 await orchestre.addPlayers([
-  {name: 'bass', url: './assets/bass.ogg', length: 16, absolute: true},
-  {name: 'melody', url: './assets/melody.ogg', length: 8, absolute: false},
+  {name: 'bass', url: './assets/bass.ogg', length: 16, position: 'absolute'},
+  {name: 'melody', url: './assets/melody.ogg', length: 8, position: 'relative'},
   // etc...
 ])
 orchestre.start();
