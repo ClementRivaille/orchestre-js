@@ -149,7 +149,7 @@ orchestre.stop("shamisen", {
           <div>
             <p>Called every two beats</p>
             <div id="beat" class="off">
-              <div></div>
+              <div class="size"><img class="logo" src="./assets/logo.svg" /></div>
               <span class="sr-only" id="beat-text">off</span>
             </div>
             <button id="animation-stop" onclick="animationStop()">Stop the animation</button>
@@ -161,7 +161,10 @@ orchestre.stop("shamisen", {
 await orchestre.wait(8);
 </pre>
         <pre>
-let listenerId = orchestre.addListener(() => { playAnimation() }, 2);
+let listenerId = orchestre.addListener(
+  () => playAnimation(),
+  2
+);
 </pre>
         <pre>
 orchestre.removeListener(listenerId);

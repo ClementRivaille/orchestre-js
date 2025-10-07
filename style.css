@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   font-family: sans-serif;
   background-color: #eaeaea;
@@ -42,14 +43,19 @@ header button {
   border: none;
 }
 
-header button:hover, header button:focus {
+header button:hover,
+header button:focus {
   background-color: #e1b948;
   border: none;
 }
 
 @keyframes controlIn {
-  from {transform: translateX(100%);}
-  to {transform: translateX(0);}
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 #control {
@@ -76,7 +82,8 @@ header button:hover, header button:focus {
   padding: 0.3rem;
 }
 
-#control button:hover, #control button:focus {
+#control button:hover,
+#control button:focus {
   filter: opacity(50%);
 }
 
@@ -94,8 +101,14 @@ header button:hover, header button:focus {
 }
 
 @keyframes start {
-  from {transform: translateY(25%); opacity: 0;}
-  to {transform: translateY(0); opacity: 1;}
+  from {
+    transform: translateY(25%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 #demo:not(.hidden) {
@@ -126,7 +139,8 @@ button {
   margin-bottom: 0.4rem;
 }
 
-button:focus, button:hover {
+button:focus,
+button:hover {
   background-color: #b14141;
   border: solid #b14141 0.3rem;
 }
@@ -136,7 +150,8 @@ button.active {
   font-weight: bold;
   border: solid #e1e1e1 0.3rem;
 }
-button.active:hover, button.active:focus {
+button.active:hover,
+button.active:focus {
   background-color: #666262;
 }
 
@@ -158,10 +173,6 @@ button.disabled {
     border-bottom-right-radius: 50%;
     border-bottom-left-radius: 50%;
   }
-  #beat {
-    height: 6rem !important;
-    min-width: 12rem !important;
-  }
 }
 
 #demo > div {
@@ -179,11 +190,11 @@ h2 {
 }
 
 #init {
-  grid-area: 1 / 2
+  grid-area: 1 / 2;
 }
 
 #options {
-  grid-area: 3 / 2
+  grid-area: 3 / 2;
 }
 
 pre {
@@ -207,7 +218,7 @@ pre {
 
 .players > div {
   text-align: center;
-  margin: 0 2rem; 
+  margin: 0 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -245,46 +256,73 @@ pre {
 #beat {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem 1rem;
-  border-radius: 2rem;
+  justify-content: stretch;
+  align-items: stretch;
+  padding: 0.2rem 1rem;
+  border-radius: 1rem;
   color: white;
-  height: 3rem;
-  min-width: 8rem;
   margin-top: 0.1rem;
-}
-#beat > div {
-  height: 80%;
-  width: 20%;
-  background-color: white;
-  transition: transform 0.1s ease;
-}
-#beat.off {
-  background-color: #71145c;
-}
-#beat.off > div {
-  transform: translateX(2.8rem);
-}
-#beat.on {
-  background-color: #6d6dc2;
-}
-#beat.on > div {
-  transform: translateX(-2.8rem);
+  height: 4rem;
+  overflow: hidden;
+
+  .size {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    min-width: 8rem;
+
+    &.animate {
+      animation: beatScale 0.2s, ease;
+    }
+  }
+
+  @media (min-width: 800px) {
+    height: 7rem;
+    min-width: 12rem;
+    border-radius: 2rem;
+  }
+
+  .logo {
+    height: 2.5rem;
+    transition: transform 0.3s ease;
+
+    @media (min-width: 800px) {
+      height: 4.5rem;
+    }
+  }
+  &.off {
+    background-color: #71145c;
+    .logo {
+      animation: rotateOut 0.3s ease;
+    }
+  }
+  &.on {
+    background-color: #6d6dc2;
+    .logo {
+      animation: rotateIn 0.3s ease;
+      transform: rotate(180deg);
+    }
+  }
 }
 
 button#animation-stop {
   background-color: white;
   color: #e05656;
 }
-button#animation-stop:hover, button#animation-stop:focus {
+button#animation-stop:hover,
+button#animation-stop:focus {
   background-color: #eaeaea;
   color: #e05656;
 }
 
 @keyframes eight {
-  from {opacity: 1;}
-  to {opacity: 0;}
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 #eight {
@@ -324,9 +362,43 @@ footer a {
   font-weight: bold;
 }
 
+@keyframes rotateIn {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg) scale;
+  }
+}
+@keyframes rotateOut {
+  from {
+    transform: rotate(180deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes beatScale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes down {
-  from {transform: translateY(0); opacity: 1;}
-  to {transform: translateY(500%); opacity: 0;}
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(500%);
+    opacity: 0;
+  }
 }
 
 footer.down {

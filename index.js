@@ -173,6 +173,10 @@ function beat() {
   beatElem.className = beatElem.className === 'on' ? 'off' : 'on';
   var beatText = document.getElementById('beat-text');
   beatText.textContent = beatText.textContent === 'on' ? 'off' : 'on';
+
+  const sizeContainer = beatElem.querySelector('.size');
+  sizeContainer.className = "size animate";
+  setTimeout(() => sizeContainer.className = "size", 400);
 }
 
 window.animationStop = function () {
