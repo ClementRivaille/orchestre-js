@@ -22,7 +22,7 @@ class SoundLoop {
     private eventEmitter: EventEmitter,
     private nbBeats: number,
     private absolute: boolean,
-    destination?: AudioNode
+    destination?: AudioNode,
   ) {
     this.stopped = true;
     this.stopQueue = 0;
@@ -32,6 +32,18 @@ class SoundLoop {
     this.gainNode = context.createGain();
     this.gainNode.connect(destination || context.destination);
     this.gainNode.gain.setValueAtTime(0, 0);
+  }
+
+  static from(soundLoop: SoundLoop, destination?: AudioNode) {
+    return new SoundLoop(
+      soundLoop.context,
+      soundLoop.metronome,
+      soundLoop.buffer,
+      soundLoop.eventEmitter,
+      soundLoop.nbBeats,
+      soundLoop.absolute,
+      destination,
+    );
   }
 
   /** Play the sound from the beginning */
@@ -121,7 +133,7 @@ class SoundLoop {
     }
     if (!keep) {
       this.disposedSources.forEach((source) =>
-        source.stop(this.context.currentTime)
+        source.stop(this.context.currentTime),
       );
     }
     this.stopped = true;
@@ -159,12 +171,15 @@ class SoundLoop {
         (remainingBeats + this.nbBeats * extraLoops) *
         this.metronome.beatLength;
     }
-    setTimeout(() => {
-      this.stopQueue -= 1;
-      if (!this.playing && this.stopQueue <= 0 && !this.stopped) {
-        this._disable(keep);
-      }
-    }, deltaStop * 1000 + fadeOut * 5000);
+    setTimeout(
+      () => {
+        this.stopQueue -= 1;
+        if (!this.playing && this.stopQueue <= 0 && !this.stopped) {
+          this._disable(keep);
+        }
+      },
+      deltaStop * 1000 + fadeOut * 5000,
+    );
   }
 
   connect(destination: AudioNode) {

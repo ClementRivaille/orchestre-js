@@ -52,7 +52,11 @@ class Orchestre {
   public started: boolean;
   private subId: number;
   private subscribers: Record<number, Subscription> = {};
-  constructor(private bpm: number, context?: AudioContext) {
+
+  constructor(
+    private bpm: number,
+    context?: AudioContext,
+  ) {
     this.players = {};
     this.context =
       context ||
@@ -73,6 +77,24 @@ class Orchestre {
 
     this.started = false;
     this.paused = false;
+  }
+
+  /**
+   * Create a new Orchestre instance with the same players and connected to the same output
+   * @param {Orcheste} orchestre
+   */
+  static from(orchestre: Orchestre): Orchestre {
+    const duplicate = new Orchestre(orchestre.bpm, orchestre.context);
+
+    Object.entries(orchestre.players).forEach(([name, player]) => {
+      duplicate.players[name] = {
+        ...player,
+        soundLoop: SoundLoop.from(player.soundLoop, player.destination),
+        playing: false,
+      };
+    });
+
+    return duplicate;
   }
 
   /*
@@ -162,7 +184,7 @@ class Orchestre {
           this.eventEmitter,
           sound.length,
           position === 'absolute',
-          sound.destination || this.master
+          sound.destination || this.master,
         ),
         playing: false,
       };
@@ -184,7 +206,7 @@ class Orchestre {
     url: string,
     length: number,
     position: PlayerPosition = 'absolute',
-    destination?: AudioNode
+    destination?: AudioNode,
   ): Promise<void> {
     return this.loader.load(name, url).then((buffer) => {
       this.players[name] = {
@@ -192,6 +214,7 @@ class Orchestre {
         url,
         length,
         position,
+        destination,
         soundLoop: new SoundLoop(
           this.context,
           this.metronome,
@@ -199,7 +222,7 @@ class Orchestre {
           this.eventEmitter,
           length,
           position === 'absolute',
-          destination || this.master
+          destination || this.master,
         ),
         playing: false,
       };
@@ -242,7 +265,7 @@ class Orchestre {
           ? this.context.currentTime
           : this.metronome.getNextBeatTime(),
         options.fade || 0,
-        options.once
+        options.once,
       );
     } else {
       player.soundLoop.stop(
@@ -250,7 +273,7 @@ class Orchestre {
           ? this.context.currentTime
           : this.metronome.getNextBeatTime(),
         options.fade || 0,
-        options.keep
+        options.keep,
       );
     }
 
@@ -273,7 +296,7 @@ class Orchestre {
     player.soundLoop.start(
       options.now ? this.context.currentTime : this.metronome.getNextBeatTime(),
       options.fade || 0,
-      options.once
+      options.once,
     );
   }
 
@@ -292,7 +315,7 @@ class Orchestre {
     player.soundLoop.stop(
       options.now ? this.context.currentTime : this.metronome.getNextBeatTime(),
       options.fade || 0,
-      options.keep
+      options.keep,
     );
   }
 
@@ -320,7 +343,7 @@ class Orchestre {
     name: string,
     beats: number,
     action: 'play' | 'stop' | 'toggle' = 'toggle',
-    options: PlayerEventOptions = {}
+    options: PlayerEventOptions = {},
   ) {
     if (!this.started) throw new Error('Orchestre has not been started');
     const player = this.players[name];
@@ -347,7 +370,7 @@ class Orchestre {
       player.soundLoop.stop(eventTime, options.fade || 0, options.keep);
     } else {
       throw new Error(
-        `schedule: action ${action} is not recognized (must be within ['play', 'stop', 'toggle'])`
+        `schedule: action ${action} is not recognized (must be within ['play', 'stop', 'toggle'])`,
       );
     }
   }
@@ -390,7 +413,7 @@ class Orchestre {
   addListener(
     callback: (beat: number) => void,
     beats = 1,
-    options: EventOptions = {}
+    options: EventOptions = {},
   ): number {
     this.subId++;
     this.subscribers[this.subId] = {

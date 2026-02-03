@@ -7,7 +7,7 @@ export interface PlayerConfiguration {
   url: string;
   length: number;
   position?: PlayerPosition;
-  destination?: AudioDestinationNode;
+  destination?: AudioNode;
 }
 
 interface Player extends PlayerConfiguration {
