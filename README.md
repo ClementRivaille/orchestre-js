@@ -278,7 +278,7 @@ await orchestra.addPlayer(
   './assets/music/bass.ogg',
   16,
   'absolute',
-  myAudioNode
+  myAudioNode,
 );
 // Or
 await orchestra.addPlayers([
@@ -324,6 +324,22 @@ Here are some metronome's methods you can use :
 - `getBeatsToBar(barSize: number, bars: number = 1): number` gives the beats remaining before the next nth bar of the given size
 
 For the simple tasks though (such as counting the position in a bar), I would advise not to use these functions and instead use the `addListener` method on the orchestra to manage your own counters.
+
+### Duplicating an Orchestre
+
+Sometime you might need another instance of an Orchestre, with the same players. This can be useful for horizontal layering. For example: starting the second Orchestre when the first one reaches its 8th bar, or maybe even inserting a transition track between them. But in this case, recreating a new Orchestre and loading all the players _again_ isn't ideal. This would duplicates the queries for the sound files.
+
+For that purpose, you can create a **copy** of an Orchestre from an existing instance, with the static method `from`:
+
+```javascript
+const copy = Orchestre.from(orchestre);
+```
+
+The copy will have the **same players as the originals** and share the **same audio context**. You can still add new players afterward. On creation, it will be stopped, even if the original is playing. You can start it when you want with `.start`. It is a truly independent new Orchestre, with its own metronome and volume.
+
+Players' destinations are also preserved _if_ you specified it in their configuration (in `addPlayer` or `addPlayers`). But otherwise, if you used `.connect` after their creation, the copy's players won't be linked to these new targets. Likewise, the Orchestre copy is directly connected to `context.destination`, regardless of the original's master target.
+
+Subscriptions made with `addListeners` are also not included in the copy. They will still be triggered by the first Orchestre. To keep the alignment with the copy (if the first Orchestre is silent or stopped), the best is to recreate the listeners once the copy is started.
 
 ## API
 
