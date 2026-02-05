@@ -42,7 +42,7 @@ const players = [{
   length: 8,
 }];
 
-const orchestre = new Orchestre(120);
+let orchestre = new Orchestre(120);
 let eventId;
 let volume = 1;
 orchestre.addPlayers(players).then(() => {
@@ -123,3 +123,14 @@ window.changeVolume = function (positive) {
   volume = volume + (positive ? 0.1 : -0.1);
   orchestre.setVolume(volume);
 }
+
+async function stopAndCopy() {
+  await orchestre.wait(16, { absolute: true })
+  orchestre.fullStop();
+
+  const copy = Orchestre.from(orchestre)
+  copy.start(["bass", "drum"])
+  orchestre = copy;
+}
+
+window.stopAndCopy = stopAndCopy;

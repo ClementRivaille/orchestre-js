@@ -89,7 +89,12 @@ class Orchestre {
     Object.entries(orchestre.players).forEach(([name, player]) => {
       duplicate.players[name] = {
         ...player,
-        soundLoop: SoundLoop.from(player.soundLoop, player.destination),
+        soundLoop: SoundLoop.from(
+          player.soundLoop,
+          duplicate.metronome,
+          duplicate.eventEmitter,
+          player.destination,
+        ),
         playing: false,
       };
     });

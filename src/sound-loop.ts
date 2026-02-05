@@ -34,12 +34,17 @@ class SoundLoop {
     this.gainNode.gain.setValueAtTime(0, 0);
   }
 
-  static from(soundLoop: SoundLoop, destination?: AudioNode) {
+  static from(
+    soundLoop: SoundLoop,
+    metronome: Metronome,
+    eventEmitter: EventEmitter,
+    destination?: AudioNode,
+  ) {
     return new SoundLoop(
       soundLoop.context,
-      soundLoop.metronome,
+      metronome,
       soundLoop.buffer,
-      soundLoop.eventEmitter,
+      eventEmitter,
       soundLoop.nbBeats,
       soundLoop.absolute,
       destination,
