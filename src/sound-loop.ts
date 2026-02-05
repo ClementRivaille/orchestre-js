@@ -187,6 +187,13 @@ class SoundLoop {
     );
   }
 
+  /** Immediately stop loop */
+  forceStop() {
+    this.playing = false;
+    this.stopQueue = 0;
+    this._disable(false);
+  }
+
   connect(destination: AudioNode) {
     this.gainNode.connect(destination);
   }

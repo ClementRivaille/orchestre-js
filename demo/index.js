@@ -83,6 +83,11 @@ window.jingle = function () {
     once: true
   });
 };
+window.schedule = function () {
+  orchestre.schedule('jingle', 4, 'play', {
+    once: true
+  });
+};
 window.koto = () => {
   orchestre.toggle("koto", {
     keep: true

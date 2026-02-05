@@ -153,7 +153,7 @@ class Orchestre {
     if (!this.started) throw new Error('Orchestre has not been started');
     for (const player in this.players) {
       if (this.players.hasOwnProperty(player))
-        this.players[player].soundLoop.stop(this.context.currentTime);
+        this.players[player].soundLoop.forceStop();
     }
     this.eventEmitter.unsubscribe('beat', this._updateEvents);
     this.metronome.stop();
