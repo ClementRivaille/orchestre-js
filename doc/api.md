@@ -55,6 +55,7 @@
     - [orchestre.suspend() ⇒ Promise](#orchestresuspend--promise)
     - [orchestre.resume() ⇒ Promise](#orchestreresume--promise)
     - [orchestre.setVolume(value)](#orchestresetvolumevalue)
+    - [Orchestre.from(orchestre)](#orchestrefromorchestre)
     - [Orchestre~beatCallback : function](#orchestrebeatcallback--function)
   - [Metronome](#metronome)
     - [new Metronome(bpm, context, eventEmitter)](#new-metronomebpm-context-eventemitter)
@@ -103,14 +104,14 @@
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 **Returns**: <code>Promise</code> - <p>Promise that resolves once all player has been loaded</p>
 
-| Param                   | Type                              | Default                           | Description                                                            |
-| ----------------------- | --------------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
-| players                 | <code>Array.&lt;object&gt;</code> |                                   | <p>Players configuration</p>                                           |
-| players[].name          | <code>string</code>               |                                   | <p>Player's identifier</p>                                             |
-| players[].url           | <code>string</code>               |                                   | <p>URL of the sound file</p>                                           |
-| players[].length        | <code>number</code>               |                                   | <p>Number of beats that the track contains</p>                         |
-| [players[].position]    | <code>PlayerPosition</code>       | <code>&quot;absolute&quot;</code> | <p>Track positioning, &quot;relative&quot; or &quot;absolute&quot;</p> |
-| [players[].destination] | <code>AudioNode</code>            |                                   | <p>Audio node to connect the player to</p>                             |
+| Param                   | Type                                           | Default                           | Description                                                            |
+| ----------------------- | ---------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
+| players                 | <code>Array.&lt;object&gt;</code>              |                                   | <p>Players configuration</p>                                           |
+| players[].name          | <code>string</code>                            |                                   | <p>Player's identifier</p>                                             |
+| players[].url           | <code>string</code>                            |                                   | <p>URL of the sound file</p>                                           |
+| players[].length        | <code>number</code>                            |                                   | <p>Number of beats that the track contains</p>                         |
+| [players[].position]    | [<code>PlayerPosition</code>](#PlayerPosition) | <code>&quot;absolute&quot;</code> | <p>Track positioning, &quot;relative&quot; or &quot;absolute&quot;</p> |
+| [players[].destination] | <code>AudioNode</code>                         |                                   | <p>Audio node to connect the player to</p>                             |
 
 <a name="Orchestre+addPlayer"></a>
 
@@ -121,13 +122,13 @@
 **Kind**: instance method of [<code>Orchestre</code>](#Orchestre)  
 **Returns**: <code>Promise</code> - <p>Promise that resolves once the player is loaded</p>
 
-| Param         | Type                        | Default                           | Description                                                            |
-| ------------- | --------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
-| name          | <code>string</code>         |                                   | <p>Player's identifier</p>                                             |
-| url           | <code>string</code>         |                                   | <p>URL of the sound file</p>                                           |
-| length        | <code>number</code>         |                                   | <p>Number of beats that the track contains</p>                         |
-| [position]    | <code>PlayerPosition</code> | <code>&quot;absolute&quot;</code> | <p>Track positioning, &quot;relative&quot; or &quot;absolute&quot;</p> |
-| [destination] | <code>AudioNode</code>      |                                   | <p>Audio node to connect the player to</p>                             |
+| Param         | Type                                           | Default                           | Description                                                            |
+| ------------- | ---------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
+| name          | <code>string</code>                            |                                   | <p>Player's identifier</p>                                             |
+| url           | <code>string</code>                            |                                   | <p>URL of the sound file</p>                                           |
+| length        | <code>number</code>                            |                                   | <p>Number of beats that the track contains</p>                         |
+| [position]    | [<code>PlayerPosition</code>](#PlayerPosition) | <code>&quot;absolute&quot;</code> | <p>Track positioning, &quot;relative&quot; or &quot;absolute&quot;</p> |
+| [destination] | <code>AudioNode</code>                         |                                   | <p>Audio node to connect the player to</p>                             |
 
 <a name="Orchestre+connect"></a>
 
@@ -309,6 +310,18 @@
 | Param | Type               | Description                                                                  |
 | ----- | ------------------ | ---------------------------------------------------------------------------- |
 | value | <code>float</code> | <p>0 is mute, 1 is default. Set in between to lower, higher to increase.</p> |
+
+<a name="Orchestre.from"></a>
+
+### Orchestre.from(orchestre)
+
+<p>Create a new Orchestre instance with the same players and connected to the same output</p>
+
+**Kind**: static method of [<code>Orchestre</code>](#Orchestre)
+
+| Param     | Type                  |
+| --------- | --------------------- |
+| orchestre | <code>Orcheste</code> |
 
 <a name="Orchestre..beatCallback"></a>
 
