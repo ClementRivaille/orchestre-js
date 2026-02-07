@@ -19,7 +19,7 @@ Orchestre-JS is the perfect solution for **managing music in your web game or ap
 
 You can also see it in action here:
 
-- [Starseed Harmonies](https://itooh.itch.io/starseed-harmonies): A musical garden made with Svelte
+- [Starseed Harmonies](https://starseed-harmonies.clementrivaille.fr): A musical garden made with Svelte
 - [Echoes Traveler](https://itooh.itch.io/echoes-traveler): Music exploration game made with Phaser
 - [Blood Not Allowed](https://itooh.itch.io/blood-not-allowed): A musical story created with Twine
 
